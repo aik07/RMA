@@ -12,7 +12,7 @@ when each observation has a positive or negative weight.
 * [Presentation](https://github.com/aik07/RMA/blob/master/RMA_slides.pdf)
 * [User Guide](https://github.com/aik07/RMA/blob/master/RMA_user_guide.pdf)
 
-## 
+## How to download and build RMA
 
 * Clone or download this RMA repository
 ```
@@ -23,7 +23,7 @@ git clone https://github.com/aik07/RMA.git
 make
 ```
 
-## An example command to :
+## An example command to run RMA:
 ```
 ./rma <data_filename>
 ```
