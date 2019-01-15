@@ -2,7 +2,7 @@
 
 RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
-when each observation has a weight \colorbox{ltgreen}{$w_i$} $\in\real$. 
+when each observation has a positive or negative weight. 
 
 ## Sotware Requiement:
 * C++ compiler
