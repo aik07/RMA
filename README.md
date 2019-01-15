@@ -7,8 +7,5 @@
 
 ## An example Command:
 ```
-./rma <filename>
-```
+./rma <data_filename>
 
-
-Sample datasets will be soon uploaded.
