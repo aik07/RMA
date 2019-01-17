@@ -5,8 +5,9 @@ weight of positivly minus negativly covered observations or vice versa
 when each observation has a positive or negative weight. 
 
 ## Sotware Requiement:
-* C++ compiler
 * [PEBBL](https://software.sandia.gov/trac/acro/wiki/Example/Building/acro-pebbl)
+* C++ compiler
+* [Open MPI](https://www.open-mpi.org/)
 
 ## The description and user guide of RMA
 * [Presentation](https://github.com/aik07/RMA/blob/master/RMA_slides.pdf)
@@ -20,11 +21,20 @@ git clone https://github.com/aik07/RMA.git
 ```
 * Run the following command for compiling and building applications
 ```
+cd RMA
 make
 ```
 
-## An example command to run RMA:
+## An example commands to run RMA:
+
+### Serial implementation
 ```
 ./rma <data_filename>
 ```
-Please read the user guide of how to use parameters for the RMA solver.
+
+### Parallel implementation
+```
+mpirun -np 4 ./rma <data_filename>
+```
+
+Please read the user guide about how to use parameters for the RMA solver.
