@@ -4,7 +4,7 @@ RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
 when each observation has a positive or negative weight. 
 
-## Software Requiement:
+## Software Requirement:
 * [PEBBL](https://software.sandia.gov/trac/acro/wiki/Example/Building/acro-pebbl)
 * C++ compiler
 * [Open MPI](https://www.open-mpi.org/)
