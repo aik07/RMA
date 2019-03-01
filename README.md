@@ -15,7 +15,7 @@ when each observation has a positive or negative weight.
 
 ## Reference
 
-'''
+```
 @phdthesis{AiThesis,
   author       = {Ai Kagawa}, 
   title        = {The Rectangular Maximum Agreement Problem: Applications and 
@@ -23,7 +23,7 @@ when each observation has a positive or negative weight.
   school       = {Rutgers University},
   year         = 2018
 }
-'''
+```
 
 ## How to download and build RMA
 
