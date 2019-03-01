@@ -17,7 +17,7 @@ when each observation has a positive or negative weight.
 
 * Clone or download this RMA repository
 ```
-git clone https://github.com/aik07/RMA.git
+git clone https://github.com/aik7/RMA.git
 ```
 * Run the following command for compiling and building applications
 ```
