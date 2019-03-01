@@ -10,8 +10,8 @@ when each observation has a positive or negative weight.
 * [Open MPI](https://www.open-mpi.org/)
 
 ## The description and user guide of RMA
-* [Presentation](https://github.com/aik07/RMA/blob/master/RMA_slides.pdf)
-* [User Guide](https://github.com/aik07/RMA/blob/master/RMA_user_guide.pdf)
+* [Presentation](https://github.com/aik7/RMA/blob/master/RMA_slides.pdf)
+* [User Guide](https://github.com/aik7/RMA/blob/master/RMA_user_guide.pdf)
 
 ## Reference
 
