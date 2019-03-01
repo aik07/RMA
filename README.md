@@ -13,18 +13,6 @@ when each observation has a positive or negative weight.
 * [Presentation](https://github.com/aik7/RMA/blob/master/RMA_slides.pdf)
 * [User Guide](https://github.com/aik7/RMA/blob/master/RMA_user_guide.pdf)
 
-## Reference
-
-```
-@phdthesis{AiThesis,
-  author       = {Ai Kagawa}, 
-  title        = {The Rectangular Maximum Agreement Problem: Applications and 
-                  Parallel Solution},
-  school       = {Rutgers University},
-  year         = 2018
-}
-```
-
 ## How to download and build RMA
 
 * Clone or download this RMA repository
@@ -50,3 +38,15 @@ mpirun -np 4 ./rma <data_filename>
 ```
 
 Please read the user guide about how to use parameters for the RMA solver.
+
+## Reference
+
+```
+@phdthesis{AiThesis,
+  author       = {Ai Kagawa}, 
+  title        = {The Rectangular Maximum Agreement Problem: Applications and 
+                  Parallel Solution},
+  school       = {Rutgers University},
+  year         = 2018
+}
+```
