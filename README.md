@@ -7,7 +7,7 @@ when each observation has a positive or negative weight.
 ## Software Requirement:
 * [PEBBL](https://software.sandia.gov/trac/acro/wiki/Example/Building/acro-pebbl)
 * C++ compiler
-* [Open MPI](https://www.open-mpi.org/)
+* MPI
 
 ## The description and user guide of RMA
 * [Presentation](https://github.com/aik7/RMA/blob/master/RMA_slides.pdf)
