@@ -44,8 +44,7 @@ Please read the user guide about how to use parameters for the RMA solver.
 ```
 @phdthesis{AiThesis,
   author       = {Ai Kagawa}, 
-  title        = {The Rectangular Maximum Agreement Problem: Applications and 
-                  Parallel Solution},
+  title        = {The Rectangular Maximum Agreement Problem: Applications and Parallel Solution},
   school       = {Rutgers University},
   year         = 2018
 }
