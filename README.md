@@ -2,10 +2,10 @@
 
 RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
-when each observation has a positive or negative weight. 
+when each observation has a positive or negative weight.
 
 ## Software Requirement:
-* [PEBBL](https://software.sandia.gov/trac/acro/wiki/Example/Building/acro-pebbl)
+* [PEBBL](https://github.com/PEBBL/pebbl)
 * C++ compiler
 * MPI
 
@@ -19,6 +19,7 @@ when each observation has a positive or negative weight.
 ```
 git clone https://github.com/aik7/RMA.git
 ```
+
 * Run the following command for compiling and building applications
 ```
 cd RMA
@@ -37,13 +38,18 @@ make
 mpirun -np 4 ./rma <data_filename>
 ```
 
+### Example script
+```
+sh script/driver.sh
+```
+
 Please read the user guide about how to use parameters for the RMA solver.
 
 ## Reference
 
 ```
 @phdthesis{AiThesis,
-  author       = {Ai Kagawa}, 
+  author       = {Ai Kagawa},
   title        = {The Rectangular Maximum Agreement Problem: Applications and Parallel Solution},
   school       = {Rutgers University},
   year         = 2018

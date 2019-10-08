@@ -10,10 +10,11 @@
 #define pebbl_paralleRMA_h
 
 #include <iostream>
-#include <acro_config.h>
+#include <pebbl_config.h>
 
 #ifdef ACRO_HAVE_MPI
-#include <pebbl/parBranching.h>
+#include <pebbl/pbb/parBranching.h>
+
 #include <vector>
 #include "serRMA.h"
 
@@ -21,7 +22,11 @@ using namespace utilib;
 using namespace std;
 using namespace pebbl;
 
+
 namespace pebblRMA {
+
+class RMA;
+class RMASub;
 
 #ifdef ACRO_HAVE_MPI
 	class CutPtThd;
@@ -40,6 +45,17 @@ namespace pebblRMA {
 
 		bool setup(int& argc,char**& argv) {
 		  return parallelBranching::setup(argc,argv);
+		}
+
+		void setParameter(Data* data, const int& deb_int) {
+			debug = deb_int;
+			//////////////////////////////////////////
+			loadBalDebug = data->loadBalDebug;
+		}
+
+		virtual void printSolutionTime() const {
+			ucout << "ERMA Solution: " << incumbentValue
+						<< "\tCPU time: " << totalCPU << "\n";
 		}
 
 		// Need this to make sure the extra thread is set up
@@ -136,7 +152,7 @@ namespace pebblRMA {
 		parRMA* ptrParRMA;
 	}; // **********************************************************
 
-} // namespace pebblRMA
+} // namespace lpboost
 
 #endif // ACRO_HAVE_MPI
 #endif // pebbl_paralleRMA_h

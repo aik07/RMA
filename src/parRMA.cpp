@@ -1,4 +1,5 @@
-// rma.cpp
+//
+// parRMA.cpp
 //
 //  Implements larger methods in example of how to use object-oriented
 //  branching framework (for RMA problems).
@@ -6,7 +7,7 @@
 // Ai Kagawa
 //
 
-#include <acro_config.h>
+#include <pebbl_config.h>
 #ifdef ACRO_HAVE_MPI
 
 #include <stdlib.h>
@@ -20,23 +21,24 @@
 #include <algorithm>    // std::in
 #include <mpi.h>
 #include <utility>
-#include <utilib/logEvent.h>
-#include <utilib/_math.h>
-#include <utilib/stl_auxiliary.h>
-#include <utilib/exception_mngr.h>
-#include <utilib/comments.h>
-#include <utilib/mpiUtil.h>
-#include <utilib/std_headers.h>
-#include <utilib/PackBuf.h>
-#include <utilib/BitArray.h>
-#include <pebbl/fundamentals.h>
-#include <pebbl/packedSolution.h>
-#include <pebbl/parPebblBase.h>
-#include <pebbl/ThreadObj.h>
-#include <pebbl/SelfAdjustThread.h>
-#include <pebbl/coTree.h>
-#include <pebbl/outBufferQ.h>
-#include <pebbl/parBranching.h>
+#include <pebbl/utilib/logEvent.h>
+#include <pebbl/utilib/_math.h>
+#include <pebbl/utilib/stl_auxiliary.h>
+#include <pebbl/utilib/exception_mngr.h>
+#include <pebbl/utilib/comments.h>
+#include <pebbl/utilib/mpiUtil.h>
+#include <pebbl/comm/mpiComm.h>
+#include <pebbl/utilib/std_headers.h>
+#include <pebbl/utilib/PackBuf.h>
+#include <pebbl/utilib/BitArray.h>
+#include <pebbl/misc/fundamentals.h>
+#include <pebbl/pbb/packedSolution.h>
+#include <pebbl/pbb/parPebblBase.h>
+#include <pebbl/sched/ThreadObj.h>
+#include <pebbl/sched/SelfAdjustThread.h>
+#include <pebbl/comm/coTree.h>
+#include <pebbl/comm/outBufferQ.h>
+#include <pebbl/pbb/parBranching.h>
 #include "parRMA.h"
 #include "serRMA.h"
 
@@ -99,26 +101,8 @@ namespace pebblRMA {
 
     // if not in the hash table, insert the cut point into the hash table.
 	  if (!seenAlready)
-			ptrParRMA->mmapCachedCutPts.insert( make_pair<int, int>(j, v) ) ;
+			ptrParRMA->mmapCachedCutPts.insert( make_pair(j, v) ) ;
 
-		/*
-		CutPt tempCutPt = {j, v};
-		//tempCutPt.j = j;
-		//tempCutPt.v = v;
-
-		multimap<int, int> iterator it = ptrParRMA->mmapCachedCutPts.find(j);
-		bool seenAlready =  (it!=ptrParRMA->mmapCachedCutPts.end());
-
-	  DEBUGPR(25, ucout << (seenAlready ? "Seen already\n" : "Looks new\n"));
-	  if (originator < 0) {
-	  	if (seenAlready)
-	  		return false;
-	  	originator = uMPI::rank;
-	  }
-	  if (!seenAlready)
-	  	ptrParRMA->mmapCachedCutPts[j] = v;
-			//ptrParRMA->mapCachedCutPts.add(hash_bj(tempVecCutPts)%ptrParRMA->totalCutPts, tempCutPt);
-		*/
 	  return true;
 	}
 
@@ -154,7 +138,7 @@ namespace pebblRMA {
 
 	///////////////////////////////////// parRMA methods //////////////////////////////////////
 
-	parRMA::parRMA() : RMA(), cutPtCaster(NULL) {
+	parRMA::parRMA() : RMA(), cutPtCaster(NULL), mpiComm(MPI_COMM_WORLD) {
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;
@@ -205,7 +189,6 @@ namespace pebblRMA {
 	parallelBranchSub* parRMA::blankParallelSub() {
 		parRMASub *newSP = new parRMASub();
 		newSP->setGlobalInfo(this);
-		//newSP->setGlobalInfo(this);
 		return newSP;
 	};
 
@@ -214,15 +197,17 @@ namespace pebblRMA {
 	void parRMA::pack(PackBuffer& outBuf) {
 
 	  DEBUGPR(20,ucout << "parRMA::pack invoked..." << '\n');
-	  outBuf << numObs << numDistObs << numAttrib ;
+	  outBuf << numDistObs << numAttrib; // << _iterations;
+		//outBuf << _delta << _shrinkDelta << _limitInterval;
 
-		for (int i=0; i<numDistObs; ++i)  outBuf << sortedObsIdx[i];
+		//for (int i=0; i<numDistObs; ++i)  outBuf << sortedObsIdx[i];
 
-	  for (int i=0; i<numObs; ++i) {
-	   	outBuf << intData[i].X << intData[i].w << intData[i].y;
+	  for (int i=0; i<numDistObs; ++i) {
+	   	outBuf << data->intData[i].X << data->intData[i].w;
+	   	outBuf << data->origData[i].y;
 	  }
-	  outBuf << distFeat << _branchSelection
-		       << _perLimitAttrib << _perCachedCutPts << numTotalCutPts;
+
+	  outBuf << distFeat << _perLimitAttrib << _perCachedCutPts << numTotalCutPts;
 
 	} // end function parRMA::pack
 
@@ -231,19 +216,21 @@ namespace pebblRMA {
 	void parRMA::unpack(UnPackBuffer& inBuf) {
 
 		DEBUGPR(20,ucout << "parRMA::unpack invoked... " << '\n');
+		inBuf >> numDistObs >> numAttrib; //>> _iterations;
+		//inBuf >> _delta >> _shrinkDelta >> _limitInterval;
 
-		inBuf >> numObs >> numDistObs >> numAttrib ;
+		//sortedObsIdx.resize(numDistObs);
+		//for (int i=0; i<numDistObs; ++i)  inBuf >> sortedObsIdx[i];
 
-		sortedObsIdx.resize(numDistObs);
-		for (int i=0; i<numDistObs; ++i)  inBuf >> sortedObsIdx[i];
-
-		intData.resize(numObs);
-		for (int i=0; i<numObs; ++i) {
-			intData[i].X.resize(numAttrib);
-			inBuf >> intData[i].X >> intData[i].w >> intData[i].y;
+		data->intData.resize(numDistObs);
+		data->origData.resize(numDistObs);
+		for (int i=0; i<numDistObs; ++i) {
+			data->intData[i].X.resize(numAttrib);
+			inBuf >> data->intData[i].X >> data->intData[i].w;
+			inBuf >> data->origData[i].y;
 		}
-		inBuf >> distFeat >> _branchSelection
-		      >> _perLimitAttrib >> _perCachedCutPts >> numTotalCutPts;
+
+		inBuf >> distFeat >> _perLimitAttrib >> _perCachedCutPts >> numTotalCutPts;
 
 		DEBUGPR(20,ucout << "parRMA::unpack done." << '\n');
 
@@ -287,7 +274,7 @@ namespace pebblRMA {
 
     // if not in the hash table, insert the cut point into the hash table.
 	  if (!isAlreadyInCache)
-			mmapCachedCutPts.insert( make_pair<int, int>(j, v) ) ;
+			mmapCachedCutPts.insert( make_pair(j, v) ) ;
 
 		int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
 		DEBUGPR(20, ucout << "owningProc: " << owningProc << '\n');
@@ -303,34 +290,6 @@ namespace pebblRMA {
 			cutPtCaster->preBroadcastMessage(owningProc);
 		}
 
-	/*
-		//int key = rand() % 100000;
-
-		//CutPt tempCutPt = {j,v};
-		//tempCutPt.j = j;
-		//tempCutPt.v = v;
-
-		//if this cut point is already found before
-		//if ( mmapCachedCutPts.count(tempCutPt) > 0 )
-		//	return;
-
-		// Store stuff anyway
-		mmapCachedCutPts[v]=j;
-
-		int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
-		DEBUGPR(20, ucout << "owningProc: " << owningProc << '\n');
-
-		cutPtCaster->setCutPtThd(j, v);
-
-		if (uMPI::rank==owningProc) {
-			// This processor is the owning processor
-			DEBUGPR(20, ucout << "I am the owner\n");
-			cutPtCaster->initiateBroadcast();
-		} else {
-			DEBUGPR(20, ucout << "Not owner\n");
-			cutPtCaster->preBroadcastMessage(owningProc);
-		}
-*/
 return;
 	} // end function parRMA::setCachedCutPts
 
@@ -352,6 +311,7 @@ return;
 		}
 
 		//outBuffer << vecCheckedFeat;
+	 	for (int j=0; j<numAttrib(); ++j)  outBuffer << deqRestAttrib[j];
 
 	  DEBUGPRXP(20, pGlobal(), "parRMASub::pack done. " << " bound: " << bound << "\n");
 	} // end function parRMASub::pack
@@ -371,6 +331,8 @@ return;
 				//<< _branchChoice.branch[i].roundedBound << "\n");
     }
 
+		deqRestAttrib.resize(numAttrib());
+		for (int j=0; j<numAttrib(); ++j)  inBuffer >> deqRestAttrib[j];
 		//inBuffer >> vecCheckedFeat;
 
     DEBUGPRX(20,pGlobal(),"parRMASub::unpack done. :" << " bound: " << bound << '\n');
@@ -439,24 +401,18 @@ return;
 	// split subproblems
 	void parRMASub::parStrongBranching(const int& firstIdx, const int& lastIdx) {
 
-		int size = uMPI::size;
-		size_type rank = uMPI::rank;
-		int quotient  = numAttrib() / size;
-		int remainder = numAttrib() % size;
-		int firstAttrib = rank*quotient + min((int)rank,remainder);
-		int lastAttrib= firstAttrib + quotient + (rank < remainder) - 1;
-
+		bool isCheckIncumb=false;
     int numCutPtsInAttrib, countCutPts=0;
 
     for (int j=0; j<numAttrib(); ++j ) { // for each attribute
 
 			numCutPtsInAttrib = bu[j] - al[j] - max(0, bl[j]-au[j]);
 
-			if ( countCutPts + numCutPtsInAttrib < firstIdx ) {
+			if ( countCutPts + numCutPtsInAttrib <= firstIdx ) {
 				countCutPts += numCutPtsInAttrib;
-				if (!global()->bruteForceEC()) bucketSortEC(j);
-				if ( firstAttrib<=j && j<=lastAttrib )
-					checkIncumbent(j);
+				(global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+				//if ( firstAttrib<=j && j<=lastAttrib )
+				//	compIncumbent(j);
 				continue;
 			}
 
@@ -469,19 +425,21 @@ return;
 				if ( au[j]<=v && v<bl[j] ) { v=bl[j]-1; continue; }
 
 				// if this cut point is not assinged in this processor
-				if (countCutPts<firstIdx) { ++countCutPts; continue; }
-				if (countCutPts>lastIdx) break;
+				if ( countCutPts < firstIdx ) { ++countCutPts; continue; }
+				if ( countCutPts > lastIdx ) break;
 
         branchingProcess(j, v);
 				++countCutPts;
 
+				if (v==al[j]) isCheckIncumb=true;
+
       } // end for each cut-value in attribute j
 
-      if (!global()->bruteForceEC()) bucketSortEC(j);
-			if ( firstAttrib<=j && j<=lastAttrib )
-				checkIncumbent(j);
+			(global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
 
-			if ( countCutPts > lastIdx ) break;
+			if (isCheckIncumb) compIncumbent(j);
+
+	if (j==numAttrib()-1) break;
 
     } // end for each attribute
 
@@ -566,8 +524,7 @@ return;
 				} else break;
 			}
 			//if (j==numAttrib()-1) break;
-      if (!global()->bruteForceEC()) bucketSortEC(j);
-			if ( firstAttrib<=j && j<=lastAttrib ) checkIncumbent(j);
+			if ( firstAttrib<=j && j<=lastAttrib ) compIncumbent(j);
     }
 
 	} // end RMASub::cachedBranching
@@ -596,6 +553,28 @@ return;
 		// sort each feature based on [au, bl]
     for (int j=0; j<numAttrib(); j++)  bucketSortObs(j);
 		setInitialEquivClass();	// set vecEquivClass
+/*
+#ifdef ACRO_HAVE_MPI
+  if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+    //if (global()->incumbentValue < globalPtr->guess->value) {
+		if (workingSol()->value < globalPtr->guess->value) {
+      cout << "coveredObs3: " << coveredObs;
+			//global()->incumbentValue = globalPtr->guess->value;
+      workingSol()->value = globalPtr->guess->value;
+      workingSol()->a = globalPtr->guess->a;
+      workingSol()->b = globalPtr->guess->b;
+      foundSolution();
+      DEBUGPR(5, workingSol()->printSolution());
+      DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
+              coveredObs,sortedECidx ));
+    }
+#ifdef ACRO_HAVE_MPI
+  }
+#endif //  ACRO_HAVE_MPI
+*/
+	  // Better incumbents may have been found along the way
+	  //pGlobal()->rampUpIncumbentSync();
 
 		//**************************************************************
 		// Figure which variables go on which processor.  Make them as even as possible
@@ -716,11 +695,15 @@ return;
 
 
   void parRMASub::setNumLiveCutPts()  {
-    numLiveCutPts=0;
+    numLiveCutPts=0; numRestAttrib=0;
+    DEBUGPR(10, ucout << "deqRestAttrib: " << deqRestAttrib << "\n") ;
     // compute the total cut points
     for (int j=0; j<numAttrib(); ++j) {
+      if ( deqRestAttrib[j] ) numRestAttrib++;	// count how many X are restricted
       // calculate total numbers of cut points
-      if ( global()->perLimitAttrib()==1 ) {
+      if ( ( global()->perLimitAttrib()==1 ) ||
+           ( numRestAttrib > global()->perLimitAttrib()*numAttrib()
+              && deqRestAttrib[j] ) ) {
         numLiveCutPts += bu[j]-al[j] -  max(0, bl[j]-au[j]);
       }
     }

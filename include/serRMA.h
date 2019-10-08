@@ -1,76 +1,52 @@
 /*
-* file name:  serRMA.h
-* author:     Ai Kagawa
-*
-* Solves Rectanglar Maximum Agreement.
+*  File name:   serRMA.cpp
+*  Author:      Ai Kagawa
+*  Description: a serial rectangular maximum agreement problem solver
 */
 
 #ifndef pebbl_rma_h
 #define pebbl_rma_h
 
 #include <iostream>
+#include <cmath>
 #include <vector>
+#include <deque>
 #include <algorithm>
 #include <ctime>
 #include <cstdlib>
-#include <limits>
-#include <acro_config.h>
-#include <pebbl/branching.h>
-#include <pebbl/chunkAlloc.h>
-#include <utilib/ParameterSet.h>
-#include <utilib/SimpleHashTable.h>
-#include <utilib/seconds.h>
+#include <mpi.h>
+#include <pebbl_config.h>
+#include <pebbl/bb/branching.h>
+#include <pebbl/misc/chunkAlloc.h>
+#include <pebbl/misc/fundamentals.h>
+#include <pebbl/utilib/ParameterSet.h>
+#include <SimpleHashTable.h>
+#include <pebbl/utilib/seconds.h>
+
 
 #ifdef ACRO_HAVE_MPI
-#include <pebbl/parBranching.h>
-#include <utilib/PackBuf.h>
+#include <pebbl/pbb/parBranching.h>
+#include <pebbl/utilib/PackBuf.h>
 #endif
 
-using namespace utilib;
+#include "rmaParams.h"
+#include "base.h"
+#include "greedyRMA.h"
+
 using namespace std;
+using namespace utilib;
 using namespace pebbl;
+using namespace base;
+using namespace greedyRMA;
 
-static double inf = numeric_limits<double>::infinity();
-static int intInf = numeric_limits<int>::max();
-
-struct IntMinMax { double minOrigVal, maxOrigVal; };
-
-struct Feature {vector<IntMinMax> vecIntMinMax;};
 
 namespace pebblRMA {
 
-// CutPt class stores chosen chached cut-point (attribute, cut-value)
+
+// struct CutPt stores chosen chached cut-point (attribute, cut-value)
 struct CutPt {
 	int j, v;
-	bool operator<(const CutPt& rhs) const {
-	  return j < rhs.j;
-	};
-} ;
-
-
-// RMAObs class contains info about each observation
-class Data {
-
-public:
-	// Constructors
-	Data() : w(0.0) {};
-	Data(  const vector<double>& X_, const double & y_ ) :
-		X(X_), y(y_) { };
-
-	// Assignment operator
-	Data& operator==(const Data& other) {
-		X = other.X;
-		y = other.y;
-		return *this;
-	};
-
-	int read(istream& is) { is >> X >> y; return 0; };
-	int write(ostream& os) const { os << X << " " << y;	return 0; };
-
-	// Basic properties of the observation
-	vector<double> X;	// independent variables
-	double y;					// dependent variable
-	double w;					// weight of each observation
+	bool operator<(const CutPt& rhs) const { return j < rhs.j; }
 };
 
 
@@ -79,7 +55,7 @@ class branchItem {
 
 public:
   double roundedBound, exactBound;
-	int whichChild; //, arrayPosition;
+  int    whichChild;
 
   branchItem() : roundedBound(1.0), exactBound(1.0), whichChild(-1) { }; // , arrayPosition(-1)
 
@@ -128,12 +104,21 @@ protected:
 
 #ifdef ACRO_HAVE_MPI
 	void branchChoiceCombiner(void* invec, void* inoutvec, int* len,
-							  MPI_Datatype* datatype) ;
+		                        MPI_Datatype* datatype) ;
 	void branchChoiceRand(branchChoice *inBranch, branchChoice *outBranch,
-	              int* len, MPI_Datatype *datatype);
+		                    int* len, MPI_Datatype *datatype);
 #endif
 
 
+// to plot cut point in order
+class CutPtOrder {
+public:
+	  CutPtOrder(){};
+	  CutPtOrder(int _order, int _j, int _v) : order(_order), j(_j), v(_v) {};
+	  ~CutPtOrder(){};
+	  void setCutPt(CutPtOrder cp) { order = cp.order;	j = cp.j; v = cp.v; }
+	  int order, j, v;
+};
 
 
 //********************************************************************************
@@ -141,8 +126,7 @@ protected:
 class EquivClass {
 public:
 	EquivClass():wt(0),obsIdx(-1) {}
-	EquivClass(  const int& obs, const double & wt_ ) :
-		obsIdx(obs), wt(wt_ ) { }
+	EquivClass(const int& obs, const double & wt_): obsIdx(obs), wt(wt_) { }
 	~EquivClass(){}
 
 	void addEC(const EquivClass& ec) { wt += ec.wt;	}
@@ -168,12 +152,14 @@ private:
 class RMA;
 class RMASub;
 
+
 //********************************************************************************
 //  The solution class...
-class rmaSolution : public solution
-{
+class rmaSolution : virtual public solution {
+
 public:
 
+	rmaSolution(){};
 	rmaSolution(RMA* global_);
 	rmaSolution(rmaSolution* toCopy);
 	virtual	~rmaSolution() {}
@@ -187,53 +173,50 @@ public:
 	virtual void printContents(ostream& s);
 	void const printSolution();
 	void checkObjValue();
+	void checkObjValue1(vector<int> &A, vector<int> &B,
+			vector<int> &coveredObs, vector<int> &sortedECidx);
 
 #ifdef ACRO_HAVE_MPI
-    void packContents(PackBuffer& outBuf);
-    void unpackContents(UnPackBuffer& inBuf);
-    int maxContentsBufSize();
+  void packContents(PackBuffer& outBuf);
+  void unpackContents(UnPackBuffer& inBuf);
+  int maxContentsBufSize();
 #endif
 
 	vector<int> a, b;
+	bool isPosIncumb;
+
 protected:
-	RMA* global;
-	virtual double sequenceData();
-	size_type sequenceLength() { return a.size()+b.size(); }
+	RMA*      global;
+	double    sequenceData();
+	size_type sequenceLength() { return a.size()+b.size()+sizeof(isPosIncumb); }
 };
 
 
 //******************************************************************************
 //  RMA branching class
-class RMA : virtual public branching {
+class RMA : virtual public branching, public rmaParams {
+
+friend class LPB;
 
 public:
 
 	RMA();					// constructor
 	virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
-	bool setupProblem(int& argc,char**& argv);
+
+	void setParameters(Data* param, const int& deb_int);
+	bool setData(Data* d);
+
+	bool       setupProblem(int& argc,char**& argv) { return true; }
 	branchSub* blankSub();
-	solution* initialGuess() ;
-	bool haveIncumbentHeuristic() { return true; }
+	solution*  initialGuess();
+	bool       haveIncumbentHeuristic() { return true; }
 
-	bool setupIntData(int& argc,char**& argv);
-	bool setupOrigData(int& argc,char**& argv);
-
-	void setStdDevX();
-	void integerizeData() ;
-	void integerizeFixedLengthData();
-
-	void bucketSort(const int& attrib);
-	void removeDuplicateObs();
-
+	//void setsortedObsIdx();
+	void setSortObsNum(vector<int> & train) { sortedObsIdx = train; }
 	void setCachedCutPts(const int& j, const int& v);
 
-	// greedy method
-	double getMaxRange(const int& j) ;
-	double getMinRange(const int& j) ;
-	void setObjVec(const int &j) ;
-	void dropObsNotCovered(const int &j, const int& lower, const int& upper);
-
-	// get positive or negative observations
+	//double getWeight(double pred, set<int> CovgIdx);
+	void setWeight( vector<double> wt, vector<int> train);
 	void getPosCovg(set<int> & output, rmaSolution*);
 	void getNegCovg(set<int> & output, rmaSolution*);
 
@@ -247,110 +230,49 @@ public:
 	void writeStatData(ostream& os);
 	void writeStatDataToFile(const int&  iterNum);
 
-	virtual bool verifyLog() {return _verifyLog;}
-	ostream& verifyLogFile() { return *_vlFile; };
+	bool     verifyLog()     { return _verifyLog; }
+	ostream& verifyLogFile() { return *_vlFile; }
 
-	void startTime();
+	void   startTime();
 	double endTime();
 
-	/************************ get parameters ************************/
-	double perCachedCutPts() const {return _perCachedCutPts;}
-	bool binarySearchCutVal() const {return _binarySearchCutVal;}
-	double perLimitAttrib() const {return _perLimitAttrib;}
-	bool getInitialGuess() const {return _getInitialGuess;}
-	bool checkObjVal() const {return _checkObjVal;}
-	bool bruteForceEC() const {return _bruteForceEC;}
-	bool bruteForceIncumb() const {return _bruteForceIncumb;}
-	bool writingInstances() const {return _writeInstances;}
-	bool writingNodeTime() const {return _writeNodeTime;}
-	bool writingCutPts() const {return _writeCutPts;}
-	bool testWeight() const {return _testWt;}
-	int maxBoundedSP() const {return _maxBoundedSP;}
-	double rampUpSizeFact() const {return _rampUpSizeFact;}
-	bool countingSort() const {return _countingSort;}
-	int branchSelection() const {return _branchSelection;}
-	double delta() const {return _delta;}
-	double shrinkDelta() const {return _shrinkDelta;}
-	double limitInterval() const {return _limitInterval;}
-	int fixedSizeBin() const {return _fixedSizeBin;}
-
-protected:
-	/**************** RMA optional parameters ****************/
-
-	// for non-strong branching ...
-	double _perCachedCutPts;		// check only stored cuts points which is x % of total cut points
-	bool _binarySearchCutVal;	// binarySearchCutVal
-	double _perLimitAttrib;			// percentages of features to check
-
-	bool _getInitialGuess;		// compute an initial incumbent
-
-	bool _checkObjVal;				// check the solution is right in the end
-	bool _bruteForceEC; 			// brute force way to create equivalence classes
-	bool _bruteForceIncumb;		// brute force way to check incumbent in each atrribute
-
-	bool _writeInstances;
-	bool _writeNodeTime;			// make an output file containing BoundedSP and run time
-	bool _writeCutPts;
-
-	bool _testWt;
-
-	double _rampUpSizeFact;
-	int _maxBoundedSP;				// set a maximum number of bounded subproblems to check
-
-	bool _countingSort;
-	int _branchSelection;
-
-	// for recursive integerization
-	double _delta;
-	double _shrinkDelta;
-	double _limitInterval;
-
-	// for fixed size bin integerization
-	int _fixedSizeBin;
-
-public:
-
-	// store observations in original order and observations in sorted order
-	vector<Data> intData, origData;
+	virtual void printSolutionTime() const {
+		ucout << "ERMA Solution: " << incumbentValue
+					<< "\tCPU time: " << searchTime << "\n";
+	}
 
 	// contains l_j-1 = (# of distinct value observed in the feature)
 	vector<int> distFeat;
 	vector<int> sortedObsIdx; 	// store sorted observations
+
+	vector<vector<CutPtOrder> > CutPtOrders;				// to plot cut points
 
 	size_type numObs;				// # of observations
 	size_type numAttrib;		// # of attribute
 	size_type numDistObs;		// # of distinct observations
 
 	rmaSolution workingSol;
-	rmaSolution* guess;
+	rmaSolution guess;
 
 	// for cut-point caching
-	int numCC_SP;				// # of subproblems using cutpoint caching
-	int numTotalCutPts;    // # of total cutpoints
+	int                numCC_SP;				 // # of subproblems using cutpoint caching
+	int                numTotalCutPts;   // # of total cutpoints
 	multimap<int, int> mmapCachedCutPts; // map to store already chosen cut points in another branches
 
-	bool _verifyLog;
+	bool     _verifyLog;
 	ostream* _vlFile;
-
-private:
-
-	bool foundBox;
-	vector<int> vecCoveredObs;
-	vector<int> L, U, Lmax, Umax, Lmin, Umin;
-	vector<double> W;
-	int maxL, tmpL, tmpU; double tmpObj;
-
-	vector<double> minX, maxX, sdX;
-	vector<Feature> vecFeature;		// contains features original and integeried values
 
 	clock_t timeStart, timeEnd, clockTicksTaken;
 	double timeInSeconds;
+
+	Data*      data;
+	GreedyRMA* grma;
 
 }; // end class RMA ************************************************************************
 
 
 inline void rmaSolution::foundSolution(syncType sync) {
-	global->foundSolution(new rmaSolution(this),sync);
+	global->foundSolution(new rmaSolution(this), sync);
 	//fileCutPts(global);
 };
 
@@ -365,27 +287,27 @@ public:
 	virtual ~RMASub() {};  // A virtual destructor for a subproblem
 
 	/// Return a pointer to the base class of the global branching object
-	branching* bGlobal() const { return global(); };
+	branching* bGlobal() const { return global(); }
 
-	rmaSolution* workingSol() { return &(globalPtr->workingSol); };
+	rmaSolution* workingSol() { return &(globalPtr->workingSol); }
 
 	/// Return a pointer to the global branching object
-	inline RMA* global() const { return globalPtr; };
+	inline RMA* global() const { return globalPtr; }
 
 	void setGlobalInfo(RMA* glbl) {globalPtr = glbl;}
 
 	void RMASubFromRMA(RMA* master);
-	void RMASubAsChildOf(RMASub* parent, int whichChild) ;
+	void RMASubAsChildOf(RMASub* parent, int whichChild);
 
 	// Initialize this subproblem to be the root of the branching tree
 	void setRootComputation();
 
 	void boundComputation(double* controlParam);
 
-	virtual int splitComputation() ;
+	virtual int splitComputation();
 
 	/// Create a child subproblem of the current subproblem
-	virtual branchSub* makeChild(int whichChild) ;
+	virtual branchSub* makeChild(int whichChild);
 
 	// if it returns true, the computed bound is exact and don't need to separate
 	// terminal node of Branch and Bound tree
@@ -406,58 +328,68 @@ public:
 	void binaryBranching();
 	void hybridBranching();
 
-	void branchingProcess(const int& j, const int& v) ;
+	void branchingProcess(const int& j, const int& v);
 
 	void setNumLiveCutPts();
-	int getNumLiveCachedCutPts();
-	void setLiveCachedCutPts();
-	void sortCachedCutPtByAttrib() ;
+	int  getNumLiveCachedCutPts();
+	void cutpointCaching();
+	void sortCachedCutPtByAttrib();
 
 	//void countingSortObs(const int& j) ;
-	void countingSortEC(const int& j) ;
+	void countingSortEC(const int& j);
 	void bucketSortObs(const int& j);
 	void bucketSortEC(const int& j);
 
-	void checkIncumbent(const int& j);
- 	double getMaxRange1(const int& j) ;
- 	double getMinRange1(const int& j) ;
+	// functions to copute incumbent value
+	void   compIncumbent(const int& j);
+	void   chooseMinOrMaxRange();
+	double runMinKadane(const int& j);
+  double runMaxKadane(const int& j);
+	void   setOptMin(const int& j);
+	void   setOptMax(const int& j);
  	double getObjValue(const int& j, const int& v);
 
+	// fuctions for tree rotations to compute bounds
 	double getBoundMerge() const;
 	double getBoundDrop() const;
-	void setInitialEquivClass();
-	void mergeEquivClass(const int& j, const int& al_, const int& au_,
-											 const int& bl_, const int& bu_) ;
-	void dropEquivClass(const int& j, const int& al_, const int& bu_);
-	bool isInSameClass(const int& obs1, const int& obs2,
-										 const int& j, const int& au_, const int& bl_);
-	void setEquivClassBF(const int& j, const int& au_, const int& bl_);
+	void   setInitialEquivClass();
+	void   mergeEquivClass(const int& j, const int& al_, const int& au_,
+	                       const int& bl_, const int& bu_) ;
+	void   dropEquivClass(const int& j, const int& al_, const int& bu_);
+	bool   isInSameClass(const int& obs1, const int& obs2,
+	                     const int& j, const int& au_, const int& bl_);
+	void   setEquivClassBF(const int& j, const int& au_, const int& bl_);
 
-	void printSP(const int& j, const int& al, const int& au,
-							 const int& bl, const int& bu) const;
-	void printCurrentBounds() ;
-	void printBounds(vector<double> Bounds, vector<int> Order,
-									 const int& j) const;
+	// functions for printing
+	void   printSP(const int& j, const int& al, const int& au,
+                 const int& bl, const int& bu) const;
+	void   printCurrentBounds() ;
+	void   printBounds(vector<double> Bounds, vector<int> Order,
+		                 const int& j) const;
+
+	void setCutPts(); // TODO: What is this for?????
 
 	//**************************  helper functions (end) ******************************
 
 protected:
 	RMA* globalPtr;  // A pointer to the global branching object
-	inline int numObs() { return global()->numObs; };
-	inline int numDistObs() { return global()->numDistObs; };
-	inline int numAttrib() { return global()->numAttrib; };
+	//inline double getObjectiveVal() const {return abs(posCovgWt-negCovgWt); };
+	inline int numObs()           { return global()->numObs; };
+	inline int numDistObs()       { return global()->numDistObs; };
+	inline int numAttrib()        { return global()->numAttrib; };
 	inline vector<int> distFeat() { return global()->distFeat; };
 
 public:
 
 	vector<int> al, au, bl, bu; // lower and upper bound for a and b vectors size of N features
+
 	int curObs, aj, bj;
 	int NumTiedSols;
 
 	vector<int> coveredObs;		// observations which are covered in this subproblem (al<= feat <= bu)
-	vector<int> coveredObs1;	// (only used for bruteForceEC) covered observations for each child
 	vector<int> sortedECidx;	// equivalcnece class which are covered in this subproblem
 	vector<int> sortedECidx1; // equivalence class which are covered in child
+
 	vector< EquivClass > vecEquivClass;	// initial equivalence class
 	vector< EquivClass > vecEquivClass1;	// merged equivalence class
 
@@ -466,7 +398,18 @@ public:
 
 	vector<CutPt> cachedCutPts,  sortedCachedCutPts;
 
-	//deque<bool> vecParentInd;
+	// variables for incumbent computations
+	int    NumPosTiedSols, NumNegTiedSols;
+	double tmpMin, tmpMax, minVal, maxVal;
+	double optMinLower, optMinUpper, optMaxLower, optMaxUpper;
+	int    optMinAttrib, optMaxAttrib;
+	double rand_num;
+
+	int         numRestAttrib;
+	deque<bool> deqRestAttrib;
+
+	// TODO: what are these ????
+	vector<int> listExcluded, excCutFeat, excCutVal; 	// store excluded cut-points
 
 };//******************** class RMASub (end) ********************************
 
@@ -480,10 +423,6 @@ inline branchSub* RMA::blankSub() {
 } //********************* namespace pebbl ********************************
 
 ostream& operator<<(ostream& os, pebblRMA::branchChoice& bc);
-ostream& operator<<(ostream& os, const deque<bool>& v);
-ostream& operator<<(ostream& os, pebblRMA::Data& obj);
-istream& operator>>(istream& is, pebblRMA::Data& obj);
-ostream& operator<<(ostream& os, const vector<int>& v);
 ostream& operator<<(ostream& os, pebblRMA::EquivClass& obj);
 
 #endif
