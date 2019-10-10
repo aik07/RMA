@@ -2,7 +2,7 @@
 
 CXX=mpicxx
 
-RMA_DIR=/home/kagawa/Projects/thesis/rma/RMA_Boosting
+RMA_DIR=/home/kagawa/Projects/thesis/rma/RMA
 PEBBL_DIR=/home/kagawa/Projects/thesis/pebbl
 #MPI_ROOT=/opt/openmpi/1.10.1
 
@@ -15,14 +15,14 @@ HEADERDIRS=$(RMA_DIR)/include $(PEBBL_DIR)/src $(PEBBL_DIR)/build/src #$(MPI_ROO
 INCLUDES=$(patsubst %,-I%,$(HEADERDIRS))
 
 ######################################### LIB ############################################
-LIBDIRS=$()/lib #$(MPI_ROOT)/lib
+LIBDIRS=$(PEBBL_DIR)/build/src/pebbl #$(MPI_ROOT)/lib
 LIBLOCATIONS=$(patsubst %,-L%,$(LIBDIRS))
 LIBS=pebbl #mpi mpi_cxx open-rte open-pal
 LIBSPECS=$(patsubst %,-l%,$(LIBS))
 
 ########################################## FLAGS ##########################################
-DEBUGFLAGS=-g -fpermissive -O0 
-MISCCXXFLAGS= -std=c++11
+DEBUGFLAGS=-g -fpermissive -O0
+MISCCXXFLAGS= -std=c++11  #98
 
 # include
 CXXFLAGS=$(DEFSYMBOLS) $(INCLUDES) $(MISCCXXFLAGS) $(DEBUGFLAGS)
@@ -34,8 +34,8 @@ LDFLAGS=$(DEBUGFLAGS) $(LIBLOCATIONS)
 HDRDIR=./include
 SRCDIR=./src
 OBJDIR=./obj
-_HEADERS=Time.h rma.h paramRMA.h dataRMA.h serRMA.h parRMA.h greedyRMA.h 
-_SOURCES=driver.cpp rma.h paramRMA.cpp dataRMA.cpp serRMA.cpp parRMA.cpp greedyRMA.cpp 
+_HEADERS=Time.h driverRMA.h argRMA.h dataRMA.h serRMA.h parRMA.h greedyRMA.h
+_SOURCES=driverRMA.cpp argRMA.cpp dataRMA.cpp serRMA.cpp parRMA.cpp greedyRMA.cpp driver.cpp
 _OBJECTS=$(_SOURCES:.cpp=.o)
 
 SOURCES = $(patsubst %, $(SRCDIR)/%, $(_SOURCES))

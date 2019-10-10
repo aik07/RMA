@@ -1,8 +1,8 @@
-/*
-*  File name:   serRMA.cpp
-*  Author:      Ai Kagawa
-*  Description: a serial rectangular maximum agreement problem solver
-*/
+/**********************************************************
+* File name:   serRMA.cpp
+* Author:      Ai Kagawa
+* Description: a source file for serial RMA solver using PEBBL
+***********************************************************/
 
 #include "serRMA.h"
 
@@ -237,7 +237,7 @@ void branchItem::set(double bound, double roundQuantum) {
 
 
   RMA::~RMA() {
-    if ( perCachedCutPts() <1 ) {
+    if ( args->perCachedCutPts() <1 ) {
       int rank, sendbuf, recvbuf;
       //MPI_Comm_rank(MPI_COMM_WORLD,&rank);
       rank = uMPI::rank;
@@ -266,8 +266,8 @@ void branchItem::set(double bound, double roundQuantum) {
 
   solution* RMA::initialGuess() {
 
-    if (!data->initGuess()) return NULL;
-
+    if (!args->initGuess()) return NULL;
+/*
     rmaSolution* guess = new rmaSolution(this);
     grma = new GreedyRMA(data);
     grma->runGreedyRangeSearch();
@@ -276,10 +276,12 @@ void branchItem::set(double bound, double roundQuantum) {
     guess->a           = grma->L;
     guess->b           = grma->U;
     return guess;
-
+*/
+    return NULL;
   }
 
-  void RMA::setParameters(Data* param, const int& deb_int) {
+/*
+  void RMA::setParameters(ArgPMA* args, Data* param, const int& deb_int) {
 
     debug = deb_int;
 
@@ -298,10 +300,11 @@ void branchItem::set(double bound, double roundQuantum) {
     _branchSelection = param->_branchSelection;
 
   }
+*/
 
 
-  bool RMA::setData(Data* d) {
-    data=d;
+  bool RMA::setData(Data* data_) {
+    data       = data_;
     numDistObs = data->numTrainObs;
     numAttrib  = data->numAttrib;
     distFeat   = data->distFeat;
@@ -483,11 +486,11 @@ void branchItem::set(double bound, double roundQuantum) {
     setInitialEquivClass();	// set initial equivalence class, vecEquivClass
 
     // if there are enough discoverd cut points (storedCutPts) check only the list
-    if ( global()->perCachedCutPts() < 1.0 &&  global()->binarySearchCutVal() )
+    if ( global()->args->perCachedCutPts() < 1.0 &&  global()->args->binarySearchCutVal() )
       hybridBranching();
-    else if ( global()->binarySearchCutVal() )
+    else if ( global()->args->binarySearchCutVal() )
       binaryBranching();
-    else if ( global()->perCachedCutPts() < 1.0 )
+    else if ( global()->args->perCachedCutPts() < 1.0 )
       cutpointCaching();
     else   //check all cut points
       strongBranching();
@@ -824,9 +827,9 @@ void branchItem::set(double bound, double roundQuantum) {
     } else if (thisChoice == _branchChoice) {
       //cout << "branchBound: " << thisChoice.branch[0].exactBound << " "
       //     << _branchChoice.branch[0].exactBound;
-      if (global()->branchSelection()==0) {
+      if (global()->args->branchSelection()==0) {
         NumTiedSols++;
-        (globalPtr->data->randSeed()) ? srand(NumTiedSols*time(NULL)*100) : srand(1);
+        (globalPtr->args->randSeed()) ? srand(NumTiedSols*time(NULL)*100) : srand(1);
         double rand_num = (rand() % 10001 ) / 10000.0 ;
         //DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
         //DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
@@ -835,7 +838,7 @@ void branchItem::set(double bound, double roundQuantum) {
           DEBUGPR(50,ucout << "Improves best attribute: " << j << "\n");
           DEBUGPRX(10, global(), "Branch choice now is: " << _branchChoice << "\n");
         }
-      } else if (global()->branchSelection()==2) {
+      } else if (global()->args->branchSelection()==2) {
         _branchChoice = thisChoice;
         DEBUGPR(50,ucout << "Improves best attribute: " << j << "\n");
         DEBUGPRX(10, global(), "Branch choice now is: " << _branchChoice << "\n");
@@ -870,7 +873,7 @@ void branchItem::set(double bound, double roundQuantum) {
         branchingProcess(j, v);
       }
       if (j==numAttrib()-1) break;
-      global()->countingSort() ? countingSortEC(j) : bucketSortEC(j);
+      global()->args->countingSort() ? countingSortEC(j) : bucketSortEC(j);
       compIncumbent(j);
     } // end for each feature
 
@@ -895,7 +898,7 @@ void branchItem::set(double bound, double roundQuantum) {
       }
 
       if (j==numAttrib()-1) break;
-      (global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+      (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
       compIncumbent(j);
     }
 
@@ -924,7 +927,7 @@ void branchItem::set(double bound, double roundQuantum) {
           } else break;
         }
         if (j==numAttrib()-1) break;
-        (global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
         compIncumbent(j);
 
       } else {  // binary search
@@ -933,7 +936,7 @@ void branchItem::set(double bound, double roundQuantum) {
         if (bl[j]>au[j]) numCutValues -= bl[j]-au[j];
 
         if (numCutValues==0)	{// if no cutValue in this feature,
-	        (global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+	        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
           continue;			// then go to the next attribute.
         }
 
@@ -1000,7 +1003,7 @@ void branchItem::set(double bound, double roundQuantum) {
 
         if (j==numAttrib()-1) break;
 
-        (global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
         compIncumbent(j);
 
       } // end binary search
@@ -1024,7 +1027,7 @@ void branchItem::set(double bound, double roundQuantum) {
       if (bl[j]>au[j]) numCutValues -= bl[j]-au[j];
 
       if (numCutValues==0)	{// if no cutValue in this feature,
-        (global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
         continue;			// then go to the next attribute.
       }
 
@@ -1105,7 +1108,7 @@ void branchItem::set(double bound, double roundQuantum) {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-          < global()->numTotalCutPts * global()->perCachedCutPts() )
+          < global()->numTotalCutPts * global()->args->perCachedCutPts() )
       strongBranching();
 
     else { // if not, only check the storedCutPts
@@ -1298,8 +1301,8 @@ void branchItem::set(double bound, double roundQuantum) {
     tmpMax = -inf;
     //minVal = inf;
     //maxVal = -inf;
-    minVal = globalPtr->data->initGuess() ?  workingSol()->value : inf;
-    maxVal = globalPtr->data->initGuess() ?  -workingSol()->value : -inf;
+    minVal = globalPtr->args->initGuess() ?   workingSol()->value : inf;
+    maxVal = globalPtr->args->initGuess() ?  -workingSol()->value : -inf;
     optMinAttrib=-1;
     optMaxAttrib=-1;
 
@@ -1307,7 +1310,7 @@ void branchItem::set(double bound, double roundQuantum) {
     tmpMin = runMinKadane(j);
     if (tmpMin==minVal) {
       NumNegTiedSols++;
-      (globalPtr->data->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
+      (globalPtr->args->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
       rand_num = (rand() % 10001 ) / 10000.0 ;
       if ( rand_num <= 1.0/NumNegTiedSols ) setOptMin(j);
     } else if (tmpMin<minVal) { // if better min incumbent was found
@@ -1319,7 +1322,7 @@ void branchItem::set(double bound, double roundQuantum) {
     tmpMax = runMaxKadane(j);
     if (tmpMax==maxVal) {
       NumPosTiedSols++;
-      (globalPtr->data->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
+      (globalPtr->args->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
       rand_num = (rand() % 10001 ) / 10000.0 ;
       if ( rand_num <= 1.0/NumPosTiedSols ) setOptMax(j);
     } else if (tmpMax>maxVal) {
@@ -1334,7 +1337,7 @@ void branchItem::set(double bound, double roundQuantum) {
 
   void RMASub::chooseMinOrMaxRange() {
     if ( max(maxVal, -minVal) > workingSol()->value +.000001) {
-      (globalPtr->data->randSeed()) ?srand((NumNegTiedSols+NumPosTiedSols)*time(NULL)*100) : srand(1);
+      (globalPtr->args->randSeed()) ?srand((NumNegTiedSols+NumPosTiedSols)*time(NULL)*100) : srand(1);
       rand_num = (rand() % 10001 ) / 10000.0 ;
       workingSol()->a << al;
       workingSol()->b << bu;
@@ -1901,9 +1904,9 @@ void branchItem::set(double bound, double roundQuantum) {
  		}
  		cout << "\n";
 
-    if ( global->checkObjVal() ) checkObjValue();
+    if ( global->args->checkObjVal() ) checkObjValue();
 
- 		if (global->writingCutPts()) {
+ 		if (global->args->writingCutPts()) {
  	 		outStream << "CutPts:\n";
  	 		for (int i=0; i<global->CutPtOrders.size(); ++i) {
  	 			int sizeBranch = global->CutPtOrders[i].size();

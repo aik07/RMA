@@ -1,26 +1,53 @@
-/**
- * file parRMA.h
- * author Ai Kagawa
- *
- *  Example class to use object-oriented branching framework.
- *  Solves Rectangle Maximum Agreement.
- */
+/**********************************************************
+*  File name:   parRMA.cpp
+*  Author:      Ai Kagawa
+*  Description: a header file for the parallel RMA solver using PEBBL
+**********************************************************/
 
 #ifndef pebbl_paralleRMA_h
 #define pebbl_paralleRMA_h
 
+#include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>
+#include <utility>
+#include <map>
+#include <stack>
+#include <cmath>
+#include <algorithm>    // std::in
+#include <mpi.h>
+
 #include <pebbl_config.h>
 
-#ifdef ACRO_HAVE_MPI
-#include <pebbl/pbb/parBranching.h>
+#include <pebbl/utilib/logEvent.h>
+//#include <pebbl/utilib/_math.h>
+#include <pebbl/utilib/stl_auxiliary.h>
+#include <pebbl/utilib/exception_mngr.h>
+#include <pebbl/utilib/comments.h>
+#include <pebbl/utilib/mpiUtil.h>
+#include <pebbl/utilib/std_headers.h>
+#include <pebbl/utilib/PackBuf.h>
+#include <pebbl/utilib/BitArray.h>
+//#include <pebbl/misc/fundamentals.h>
+#include <pebbl/comm/mpiComm.h>
+#include <pebbl/comm/coTree.h>
+#include <pebbl/comm/outBufferQ.h>
+#include <pebbl/sched/ThreadObj.h>
+#include <pebbl/sched/SelfAdjustThread.h>
 
-#include <vector>
+#ifdef ACRO_HAVE_MPI
+  #include <pebbl/pbb/parBranching.h>
+	#include <pebbl/pbb/packedSolution.h>
+	#include <pebbl/pbb/parPebblBase.h>
+#endif // ACRO_HAVE_MPI
+
 #include "serRMA.h"
 
-using namespace utilib;
 using namespace std;
 using namespace pebbl;
+using namespace utilib;
 
 
 namespace pebblRMA {
@@ -50,7 +77,7 @@ class RMASub;
 		void setParameter(Data* data, const int& deb_int) {
 			debug = deb_int;
 			//////////////////////////////////////////
-			loadBalDebug = data->loadBalDebug;
+			//loadBalDebug = data->loadBalDebug;
 		}
 
 		virtual void printSolutionTime() const {
@@ -154,5 +181,5 @@ class RMASub;
 
 } // namespace lpboost
 
-#endif // ACRO_HAVE_MPI
+
 #endif // pebbl_paralleRMA_h

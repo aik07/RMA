@@ -1,14 +1,17 @@
-/*
- * driver.cpp: parallel rma driver
- *
- * Author: Ai Kagawa
- */
+/**********************************************************
+* File name:   driver.cpp
+* Author:      Ai Kagawa
+* Description: serial or parallel driver
+***********************************************************/
 
-#include "rma.h"
+#include "driverRMA.h"
 using namespace pebblRMA;
 
+
 int main(int argc, char** argv) {
-  DriverRMA rma;
-  rma.solveRMA();
+  DriverRMA *driver = new DriverRMA(argc, argv);
+  //driver->data->readData(argc, argv);
+  //driver->setup(argc, argv);
+  driver->solveRMA();
   return 0;
 }

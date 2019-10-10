@@ -1,0 +1,97 @@
+/**********************************************************
+ * File name:   argRMA.h
+ * Author:      Ai Kagawa
+ * Description: a header file for RMA argument class
+**********************************************************/
+
+#ifndef ARG_RMA_h
+#define ARG_RMA_h
+
+#include <pebbl/utilib/ParameterSet.h>
+#include <pebbl_config.h>
+#include <limits>
+
+using namespace std;
+
+
+namespace argRMA {
+
+ static double inf = numeric_limits<double>::infinity();
+ //static int intInf = numeric_limits<int>::max();
+
+ /////////////////// Parameters for RMA class  ///////////////////
+class ArgRMA :
+  virtual public utilib::ParameterSet,
+  virtual public utilib::CommonIO      {
+
+public:
+
+  ArgRMA();
+  ~ArgRMA(){};
+
+  bool   binarySearchCutVal() const {return _binarySearchCutVal;}
+  double perCachedCutPts()    const {return _perCachedCutPts;}
+  double perLimitAttrib()     const {return _perLimitAttrib;}
+
+  bool   randSeed()           const {return _randSeed;}
+  bool   initGuess()          const {return _initGuess;}
+  int    branchSelection()    const {return _branchSelection;}
+  bool   countingSort()       const {return _countingSort;}
+
+  bool   testWeight()         const {return _testWt;}
+
+  bool   checkObjVal()        const {return _checkObjVal;}
+  bool   bruteForceEC()       const {return _bruteForceEC;}
+  bool   bruteForceIncumb()   const {return _bruteForceIncumb;}
+
+  bool   writingInstances()   const {return _writeInstances;}
+  bool   writingNodeTime()    const {return _writeNodeTime;}
+  bool   writingCutPts()      const {return _writeCutPts;}
+
+  double rampUpSizeFact()     const {return _rampUpSizeFact;}
+
+  double delta()              const {return _delta;}
+	double shrinkDelta()        const {return _shrinkDelta;}
+	double maxInterval()        const {return _maxInterval;}
+
+  int    fixedSizeBin()       const {return _fixedSizeBin;}
+
+protected:
+
+  // for non-strong branching ...
+  bool   _binarySearchCutVal;	// an option for binary-sarching cutpoint
+  double _perCachedCutPts;	  // check only stored cuts points which is x % of total cut points
+  double _perLimitAttrib;	  	// percentages of features to check
+
+  bool   _randSeed;     // random seed for tied solution or bound
+  bool   _initGuess;	       	// compute an initial incumbent
+  int    _branchSelection;    // random, first, or last one for tied branch
+  bool   _countingSort;       // use counting sourt (default is bucket sort)
+
+  // for validation
+  bool   _checkObjVal;				// check the solution is right or not
+  bool   _bruteForceEC; 			// brute force way to create equivalence classes
+  bool   _bruteForceIncumb;		// brute force way to check incumbent in each atrribute
+
+  bool   _testWt;             // use test weight
+
+  // for saving information
+  bool   _writeInstances;
+  bool   _writeNodeTime;			// make an output file containing BoundedSP and run time
+  bool   _writeCutPts;
+
+  // for recursive integerization
+  double _delta;              // if the continuous value is less than delta, aggregate to the same integer
+  double _shrinkDelta;        // shrink delta
+  double _maxInterval;        // the maximum Interval length
+
+  // for fixed size bin integerization
+	int    _fixedSizeBin;
+
+  double _rampUpSizeFact;     // TODO: what is this?
+
+ };
+
+} // namespace argRMA
+
+ #endif // ARG_RMA_h

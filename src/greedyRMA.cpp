@@ -1,8 +1,8 @@
-/*
-*  File name:   greedyRMA.cpp
-*  Author:      Ai Kagawa
-*  Description: a serial greedy rectangular maximum agreement problem solver
-*/
+/**********************************************************
+* File name:   greedyRMA.cpp
+* Author:      Ai Kagawa
+* Description: a source file for greedy RMA solver
+***********************************************************/
 
 #include "greedyRMA.h"
 
@@ -32,9 +32,9 @@ if (uMPI::rank==0) {
     ucout << "GRMA Solution: " << maxObjValue << "\t";
 		ts.endCPUTime();
 		DEBUGPRX(2, data, ts.endWallTime());
-    if (data->printBoost()) {
-			ucout << "L: " << L << "U: " << U;
-		}
+    //if (args->printBoost()) {
+		DEBUGPRX(2, data, "L: " << L << "U: " << U);
+		//}
 
 #ifdef ACRO_HAVE_MPI
 }
@@ -49,7 +49,7 @@ if (uMPI::rank==0) {
 		L.resize(data->numAttrib);
 		U.resize(data->numAttrib);
 
-		(data->randSeed()) ? srand((NumNegTiedSols+NumPosTiedSols)*time(NULL)*100) : srand(1);
+		(args->randSeed()) ? srand((NumNegTiedSols+NumPosTiedSols)*time(NULL)*100) : srand(1);
 		double rand_num = (rand() % 10001 ) / 10000.0 ;
 		//DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
 		//DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
@@ -115,7 +115,7 @@ if (uMPI::rank==0) {
 					if (tmpMin==minVal) {
 
 						NumNegTiedSols++;
-						(data->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
+						(args->randSeed()) ? srand(NumNegTiedSols*time(NULL)*100) : srand(1);
 						double rand_num = (rand() % 10001 ) / 10000.0 ;
 						//DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
 						//DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
@@ -183,7 +183,7 @@ if (uMPI::rank==0) {
 					if (tmpMax==maxVal) {
 
 						NumPosTiedSols++;
-						(data->randSeed()) ? srand(NumPosTiedSols*time(NULL)*100) : srand(1);
+						(args->randSeed()) ? srand(NumPosTiedSols*time(NULL)*100) : srand(1);
 						double rand_num = (rand() % 10001 ) / 10000.0 ;
 						//DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
 						//DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");

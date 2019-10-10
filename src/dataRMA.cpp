@@ -1,157 +1,22 @@
-/*
- *  File name:   Base.cpp
- *  Author:      Ai Kagawa
- *  Description: a source file for LPBase and Data classes
- */
-
-#include "base.h"
-
-
-namespace base {
-
-  ////////////////////// Base class methods ////////////////////////
-
-  // Standard serial read-in code.  Returns true if we can continue, false if
-  // we have to bail out.
-  bool Base::setup(int& argc, char**& argv) {
-
-    if (!processParameters(argc,argv,min_num_required_args))
-      return false;
-
-    if (plist.size() == 0) {
-        ucout << "Using default values for all solver options" << std::endl;
-    } else {
-      ucout << "User-specified solver options: " << std::endl;
-      plist.write_parameters(ucout);
-      ucout << std::endl;
-    }
-
-    set_parameters(plist,false);
-
-    if ((argc > 0) && !checkParameters(argv[0]))
-      return false;
-
-    if (!setupProblem(argc,argv))
-      return false;
-
-    if (plist.unused() > 0) {
-      ucout << "\nERROR: unused parameters: " << std::endl;
-      plist.write_unused_parameters(ucout);
-      ucout << utilib::Flush;
-      return false;
-    }
-
-    return true;
-
-  }
+ /**********************************************************
+ * File name:   dataRMA.cpp
+ * Author:      Ai Kagawa
+ * Description: a source file for Data class
+ ***********************************************************/
+#include "dataRMA.h"
 
 
-  bool Base::processParameters(int& argc, char**& argv,
-  				  unsigned int min_num_required_args__) {
-
-    if (argc > 0)
-       solver_name = argv[0];
-    else
-       solver_name = "unknown";
-    if (!parameters_registered) {
-      register_parameters();
-      parameters_registered=true;
-    }
-
-    plist.process_parameters(argc,argv,min_num_required_args__);
-
-    // Set the name of the problem to be the last thing on the command
-    // line. setName will extract the filename root. The setupProblem
-    // method can overwrite this later.
-    if ((argc > 1) && (argv[argc-1] != NULL))
-      setName(argv[1]);
-
-    return true;
-  }
-
-
-  bool Base::checkParameters(char const* progName) {
-
-    if (help_parameter) {
-      write_usage_info(progName,cout);
-      return false;
-    }
-
-    if (debug_solver_params) {
-      ucout << "---- LPBoost Parameters ----" << endl;
-      write_parameter_values(ucout);
-      ucout << endl << utilib::Flush;
-    }
-
-    return true;
-  }
-
-
-  void Base::write_usage_info(char const* progName,std::ostream& os) const {
-    writeCommandUsage(progName,os);
-    os << endl;
-    plist.write_registered_parameters(os);
-    os << endl;
-  }
-
-
-  void Base::writeCommandUsage(char const* progName,std::ostream& os) const {
-    os << "\nUsage: " << progName << " { --parameter=value ... }";
-    if (min_num_required_args == 1)
-      os << " <problem data file>";
-    else if (min_num_required_args == 1)
-      os << " <" << min_num_required_args << " problem data files>";
-    os << endl;
-  }
-
-
-  // This sets the official name of the problem by chewing up the
-  // filename.  It can be overridden.  This version just finds the last
-  // "/" or "\" in the name and removes it and everything before it.
-
-  void Base::setName(const char* cname) {
-  #if defined (TFLOPS)
-    problemName = cname;
-    int i=problemName.size();
-    while (i >= 0) {
-      if (cname[i] == '/') break;
-      i--;
-    }
-    if (i >= 0)
-       problemName.erase(0,i+1);
-    // TODO: remove the .extension part for this case
-  #else
-    problemName = cname;
-    size_type i = problemName.rfind("/");
-    if (i == string::npos)
-      i = problemName.rfind("\\");
-    if (i != string::npos)
-      problemName.erase(0,i+1);
-
-    size_type n = problemName.length();
-
-    if (n < 4)
-      return;
-
-    string endOfName(problemName,n-4,4);
-    if ((endOfName == ".dat") || (endOfName == ".DAT"))
-      problemName.erase(n-4,n);
-    if ((endOfName == ".data") || (endOfName == ".DATA"))
-        problemName.erase(n-5,n);
-  #endif
-  }
-
-
-  ////////////////////// Data class methods ////////////////////////
+namespace data {
 
   bool Data::readData(int argc, char** argv) {
 
     unsigned int i, j;
-    double tmp;  string line;
+    double tmp;
+    string line;
 
     //setup(argc, argv); // setup function in Base class
 
-    tc.startTime();
+    //tc.startTime();
 
     numOrigObs=0;
     numAttrib=0;
@@ -175,7 +40,7 @@ namespace base {
   #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
   #endif //  ACRO_HAVE_MPI
-    cout << "(mxn): "<< numOrigObs << "\t" << numAttrib << "\n";
+      cout << "(mxn): "<< numOrigObs << "\t" << numAttrib << "\n";
   #ifdef ACRO_HAVE_MPI
   	}
   #endif //  ACRO_HAVE_MPI
@@ -191,6 +56,7 @@ namespace base {
       s >> origData[i].y ;
     } // end while
 
+/*
     if (isLPBoost()) {
       for (i=0; i<numOrigObs; ++i)   // for each observation
         if (origData[i].y==0) origData[i].y=-1;
@@ -200,16 +66,17 @@ namespace base {
             << " Data contains not only -1(0) or +1!" << '\n';
 
     }
-
+*/
     s.close();  // close the data file
 
     // print out original obs info
     for (int i=0; i<numOrigObs; ++i)
       DEBUGPR(1, ucout << "obs: " << i << ": " << origData[i] << "\n" );
 
+/*
     if (readShuffledObs())
       readRandObs(argc, argv);
-
+*/
     DEBUGPRX(2, this, "setupProblem: \n");
     DEBUGPRX(2, this, tc.endCPUTime());
     DEBUGPRX(2, this, tc.endWallTime());
@@ -248,7 +115,7 @@ namespace base {
     intData.resize(numOrigObs);
     distFeat.resize(numAttrib);
     vecFeature.resize(numAttrib);
-    if (isREPR()) standData.resize(numOrigObs);
+    // if (isREPR()) standData.resize(numOrigObs);
   }
 
 
@@ -335,7 +202,7 @@ namespace base {
 
     tc.startTime();
 
-    if (isLPBoost()) setXStat();
+    //if (isLPBoost()) setXStat();
 
     for (j=0; j<numAttrib; ++j) {
 
@@ -355,15 +222,16 @@ namespace base {
       interval = min(4.0*sdX[j], *setDistVal.rbegin() - *setDistVal.begin()) ;
 
       // episiolon, aggregation level, for integerization
-      eps = min(getDelta(), getLimitInterval()) * interval ;
+      eps = min(args->delta(), args->maxInterval()) * interval ;
 
 
       eps0 = eps;
-      DEBUGPRX(2, this, "delta: " << getDelta() << "\n"
-        << "max: " << *setDistVal.rbegin()
-        << " min: " << *setDistVal.begin() << "\n"
-        << "eps: " << eps << "\n"
-        << "limitInterval: " << getLimitInterval()*interval << endl);
+      DEBUGPRX(2, this,
+           "delta: "      << args->delta()         << "\n"
+        << "max: "        << *setDistVal.rbegin()
+        << ", min: "       << *setDistVal.begin()  << "\n"
+        << "eps: "         << eps                  << "\n"
+        << "maxInterval: " << args->maxInterval()*interval << "\n");
 
       /************ assign integer without recursive integerization ************/
       k=0;
@@ -400,7 +268,7 @@ namespace base {
 
       // if there is interval limit
       // and the size of distince value is not same as the number of integers assigned
-      if (getLimitInterval()!=inf || k!=setDistVal.size()-1) {
+      if (args->maxInterval()!=inf || k!=setDistVal.size()-1) {
 
         copyIntMinMax.resize(k+1);
         for (i=0; i<=k; ++i) {
@@ -408,12 +276,11 @@ namespace base {
           copyIntMinMax[i].maxOrigVal = vecFeature[j].vecIntMinMax[i].maxOrigVal;
         }
 
-        DEBUGPRX(2, this, "\nvecIntMin ";
-          for (i=0; i<=k; ++i)
-            cout << copyIntMinMax[i].minOrigVal << ' ';
+        DEBUGPRX(2, this,
+          "\nvecIntMin ";
+          for (i=0; i<=k; ++i) cout << copyIntMinMax[i].minOrigVal << ' ';
           cout << "\nvecIntMax ";
-          for (i=0; i<=k; ++i)
-            cout << copyIntMinMax[i].maxOrigVal << ' ';
+          for (i=0; i<=k; ++i) cout << copyIntMinMax[i].maxOrigVal << ' ';
           cout << '\n');
 
         p=0;
@@ -426,11 +293,11 @@ namespace base {
           tmpL = copyIntMinMax[i].minOrigVal;
           tmpU = copyIntMinMax[i].maxOrigVal;
 
-          while ( (tmpU-tmpL) > getLimitInterval()*interval
+          while ( (tmpU-tmpL) > args->maxInterval()*interval
                   && isSplit && eps>.0001) {
 
             isSplit=false;
-            eps *= shrinkDelta() ;
+            eps *= args->shrinkDelta() ;
 
             DEBUGPRX(2, this, "new eps: " << eps << '\n');
 
@@ -455,7 +322,7 @@ namespace base {
                     cout << vecFeature[j].vecIntMinMax[o].maxOrigVal << ' ';
                   cout << '\n');
 
-              } else if ( ( tmpU1 - tmpL1 ) > getLimitInterval()*interval ) {
+              } else if ( ( tmpU1 - tmpL1 ) >args->maxInterval()*interval ) {
 
                 isSplit=true;
 
@@ -489,7 +356,7 @@ namespace base {
 
           p+=r;
 
-          if ( (tmpU-tmpL) <= getLimitInterval()*interval && p>0 ) {
+          if ( (tmpU-tmpL) <= args->maxInterval()*interval && p>0 ) {
             vecFeature[j].vecIntMinMax[i+p].minOrigVal = copyIntMinMax[i].minOrigVal;
             vecFeature[j].vecIntMinMax[i+p].maxOrigVal = copyIntMinMax[i].maxOrigVal;
           }
@@ -538,6 +405,7 @@ namespace base {
 
     DEBUGPRX(1, this, "distFeat: " << distFeat << "\n");
 
+/*
   #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
   #endif //  ACRO_HAVE_MPI
@@ -548,7 +416,7 @@ namespace base {
   #ifdef ACRO_HAVE_MPI
     }
   #endif //  ACRO_HAVE_MPI
-
+*/
     maxL=0;
     for (j=0; j<numAttrib ; ++j) {
       numTotalCutPts += distFeat[j];
@@ -656,7 +524,7 @@ namespace base {
   void Data::integerizeFixedLengthData() {
 
     int i,j, obs, glMaxL=-1;
-    int sizeBin = fixedSizeBin();
+    int sizeBin = args->fixedSizeBin();
     maxL=0;
 
     // fix X matrix
@@ -742,23 +610,23 @@ ostream& operator<<(ostream& os, const vector<vector<double> >& v)  {
 }
 
 // Operators to read and write RMA Objs to streams
-ostream& operator<<(ostream& os, base::DataXy& obj) {
+ostream& operator<<(ostream& os, data::DataXy& obj) {
 	obj.write(os);
 	return os;
 }
 
-istream& operator>>(istream& is, base::DataXy& obj) {
+istream& operator>>(istream& is, data::DataXy& obj) {
 	obj.read(is);
 	return is;
 }
 
 // Operators to read and write RMA Objs to streams
-ostream& operator<<(ostream& os, base::DataXw& obj) {
+ostream& operator<<(ostream& os, data::DataXw& obj) {
 	obj.write(os);
 	return os;
 }
 
-istream& operator>>(istream& is, base::DataXw& obj) {
+istream& operator>>(istream& is, data::DataXw& obj) {
 	obj.read(is);
 	return is;
 }

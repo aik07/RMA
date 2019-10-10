@@ -1,52 +1,13 @@
-//
-// parRMA.cpp
-//
-//  Implements larger methods in example of how to use object-oriented
-//  branching framework (for RMA problems).
-//
-// Ai Kagawa
-//
+/**********************************************************
+*  File name:   parRMA.cpp
+*  Author:      Ai Kagawa
+*  Description: a source file for the parallel RMA solver using PEBBL
+**********************************************************/
 
-#include <pebbl_config.h>
-#ifdef ACRO_HAVE_MPI
-
-#include <stdlib.h>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <stack>
-#include <cmath>
-#include <fstream>
-#include <sstream>
-#include <algorithm>    // std::in
-#include <mpi.h>
-#include <utility>
-#include <pebbl/utilib/logEvent.h>
-#include <pebbl/utilib/_math.h>
-#include <pebbl/utilib/stl_auxiliary.h>
-#include <pebbl/utilib/exception_mngr.h>
-#include <pebbl/utilib/comments.h>
-#include <pebbl/utilib/mpiUtil.h>
-#include <pebbl/comm/mpiComm.h>
-#include <pebbl/utilib/std_headers.h>
-#include <pebbl/utilib/PackBuf.h>
-#include <pebbl/utilib/BitArray.h>
-#include <pebbl/misc/fundamentals.h>
-#include <pebbl/pbb/packedSolution.h>
-#include <pebbl/pbb/parPebblBase.h>
-#include <pebbl/sched/ThreadObj.h>
-#include <pebbl/sched/SelfAdjustThread.h>
-#include <pebbl/comm/coTree.h>
-#include <pebbl/comm/outBufferQ.h>
-#include <pebbl/pbb/parBranching.h>
-#include "parRMA.h"
 #include "serRMA.h"
+#include "parRMA.h"
 
-
-using namespace utilib;
-using namespace std;
-using namespace pebbl;
-
+//#ifdef ACRO_HAVE_MPI
 
 namespace pebblRMA {
 
@@ -138,7 +99,7 @@ namespace pebblRMA {
 
 	///////////////////////////////////// parRMA methods //////////////////////////////////////
 
-	parRMA::parRMA() : RMA(), cutPtCaster(NULL), mpiComm(MPI_COMM_WORLD) {
+	parRMA::parRMA() : RMA(), cutPtCaster(NULL) { //, mpiComm(MPI_COMM_WORLD)
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;
@@ -207,8 +168,13 @@ namespace pebblRMA {
 	   	outBuf << data->origData[i].y;
 	  }
 
-	  outBuf << distFeat << _perLimitAttrib << _perCachedCutPts << numTotalCutPts;
-
+		//TODO: fix this part!
+/*
+	  outBuf << distFeat
+		       << args->perLimitAttrib()
+		       << args->perCachedCutPts()
+					 << numTotalCutPts;
+*/
 	} // end function parRMA::pack
 
 
@@ -230,8 +196,13 @@ namespace pebblRMA {
 			inBuf >> data->origData[i].y;
 		}
 
-		inBuf >> distFeat >> _perLimitAttrib >> _perCachedCutPts >> numTotalCutPts;
-
+//TODO: fix this part!
+/*
+		inBuf >> distFeat
+		      >> args->perLimitAttrib()
+		      >> args->perCachedCutPts()
+					>> numTotalCutPts;
+*/
 		DEBUGPR(20,ucout << "parRMA::unpack done." << '\n');
 
 		/*
@@ -410,7 +381,7 @@ return;
 
 			if ( countCutPts + numCutPtsInAttrib <= firstIdx ) {
 				countCutPts += numCutPtsInAttrib;
-				(global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+				(global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
 				//if ( firstAttrib<=j && j<=lastAttrib )
 				//	compIncumbent(j);
 				continue;
@@ -435,7 +406,7 @@ return;
 
       } // end for each cut-value in attribute j
 
-			(global()->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+			(global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
 
 			if (isCheckIncumb) compIncumbent(j);
 
@@ -453,7 +424,7 @@ return;
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-          < globalPtr->numTotalCutPts * globalPtr->perCachedCutPts() )
+          < globalPtr->numTotalCutPts * globalPtr->args->perCachedCutPts() )
       return;
 
     // if not, only check the storedCutPts
@@ -463,7 +434,7 @@ return;
     ++global()->numCC_SP;
     int j, v, l=-1;
     multimap<int, int>::iterator curr = global()->mmapCachedCutPts.begin();
-    multimap<int, int>::iterator end = global()->mmapCachedCutPts.end();
+    multimap<int, int>::iterator end  = global()->mmapCachedCutPts.end();
     cachedCutPts.resize(numLiveCachedCutPts);
     while (curr!=end) {
     	j = curr->first;
@@ -634,7 +605,7 @@ return;
 		DEBUGPRX(1, global(), rank << ": before reduceCast: "
 										<< pGlobal()->rampUpMessages << '\n');
 
-		if (global()->branchSelection()==0) {
+		if (global()->args->branchSelection()==0) {
 			MPI_Scan(&_branchChoice, &bestBranch, 1,
 							 branchChoice::mpiType, branchChoice::mpiBranchSelection,
 							 MPI_COMM_WORLD);
@@ -654,7 +625,7 @@ return;
 		DEBUGPRX(10, global(), "Best global choice is " << bestBranch << '\n');
 
 		/******************* Cache cut-point *******************/
-		if (global()->perCachedCutPts()<1.0)
+		if (global()->args->perCachedCutPts()<1.0)
 			globalPtr->setCachedCutPts(bestBranch.branchVar, bestBranch.cutVal);
 
 		/************************************************************/
@@ -685,7 +656,7 @@ return;
 		}
 
 		// if the stored cut point is
-		if (globalPtr->mmapCachedCutPts.size() >= size * global()->rampUpSizeFact())
+		if (globalPtr->mmapCachedCutPts.size() >= size * global()->args->rampUpSizeFact())
 			pGlobal()->rampUpPoolLimitFac = 0;
 
 		//DEBUGPRX(50, global(), " bound: " << bound << ", sol val=" << getObjectiveVal() << '\n');
@@ -701,8 +672,8 @@ return;
     for (int j=0; j<numAttrib(); ++j) {
       if ( deqRestAttrib[j] ) numRestAttrib++;	// count how many X are restricted
       // calculate total numbers of cut points
-      if ( ( global()->perLimitAttrib()==1 ) ||
-           ( numRestAttrib > global()->perLimitAttrib()*numAttrib()
+      if ( ( global()->args->perLimitAttrib()==1 ) ||
+           ( numRestAttrib > global()->args->perLimitAttrib()*numAttrib()
               && deqRestAttrib[j] ) ) {
         numLiveCutPts += bu[j]-al[j] -  max(0, bl[j]-au[j]);
       }
@@ -715,4 +686,4 @@ return;
 
 } //************************************ namespace pebbl (end) ************************************
 
-#endif // ACRO_HAVE_MPI
+//#endif // ACRO_HAVE_MPI

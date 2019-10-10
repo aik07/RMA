@@ -1,11 +1,11 @@
-/*
- *  File name:   data.h
+/**********************************************************
+ *  File name:   dataRMA.h
  *  Author:      Ai Kagawa
- *  Description: a header file for LPBase and Data classes
- */
+ *  Description: a header file for RMA data class
+/**********************************************************/
 
-#ifndef Data_h
-#define Data_h
+#ifndef DATA_h
+#define DATA_h
 
 #include <vector>
 #include <iostream>
@@ -21,10 +21,15 @@
 #include <pebbl/pbb/parPebblParams.h>
 
 #include "Time.h"
-#include "allParams.h"
+#include "argRMA.h"
 
+using namespace argRMA;
 
 namespace data {
+
+  struct IntMinMax { double minOrigVal, maxOrigVal; };
+
+  struct Feature   { vector<IntMinMax> vecIntMinMax; };
 
 //////////////////// a clsss for integerized dataset ////////////////////
 class DataXw {
@@ -34,12 +39,12 @@ public:
   DataXw() : w(0.0) {}
   DataXw( const vector<int>& X_ ) : X(X_) { }
 
-  int read(istream& is) { is >> X >> w; return 0; }
-  int write(ostream& os) const { os << X << w;	return 0; }
+  int read(istream& is)        { is >> X >> w; return 0; }
+  int write(ostream& os) const { os << X << w; return 0; }
 
-private:
+//private:
   vector<int> X;  // integerized explanatory variables
-  double w;	  // weight of each observation
+  double      w;	// weight of each observation
 
   friend class Data;
 
@@ -54,14 +59,14 @@ public:
   DataXy() {}
   DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
-  int read(istream& is) { is >> X >> y; return 0; }
+  int read(istream& is)        { is >> X >> y; return 0; }
   int write(ostream& os) const { os << X << " " << y; return 0; }
 
-private:
+//private:
   vector<double> X;  // explanatory variables
-  double y;	     // dependent variable
+  double         y;	 // dependent variable
 
-  friend class Data;
+friend class Data;
 
 };
 
@@ -72,6 +77,7 @@ class Data {
 public:
 
   Data() {}
+  Data(ArgRMA *args_): args(args_) {}
 
   bool readData(int argc, char** argv);
   bool readRandObs(int argc, char** argv);
@@ -90,35 +96,41 @@ public:
 
   void setXStat();
 
-protected:
+//protected:
 
-  double avgY, sdY;
+  double         avgY, sdY;
   vector<double> avgX, sdX;
   vector<double> minX, maxX;
 
-  int numOrigObs;             // # of observations in original data
-  int numTrainObs;            // # of distinct observation after discretization
-  int numTestObs;             // # of testing observations
-  int numAttrib;              // # of attributes
+  int numOrigObs;                // # of observations in original data
+  int numTrainObs;               // # of distinct observation after discretization
+  int numTestObs;                // # of testing observations
+  int numAttrib;                 // # of attributes
   int numPosTrainObs;
   int numNegTrainObs;
+  int numTotalCutPts;            // # of cutpoints for RMA
+  int maxL;	                     // maximum distinct value among attributes
 
-  int numTotalCutPts;         // # of cutpoints for RMA
-  int maxL;	                  // maximum distinct value among attributes
+  vector<int>     distFeat;	     // distinct features after discretization
+  vector<int>     vecRandObs;    // contains randomize all observations
+  vector<int>     vecTrainData;  // contains only training dataset observations
+  vector<int>     vecTestData;   // contains only training dataset observations
 
-  vector<DataXy> origData;    // original datasets X and y
-  vector<DataXw> intData;     // discretized data X abd w (weight)
-  vector<DataXy> standData;
+  vector<DataXy>  origData;      // original datasets X and y
+  vector<DataXw>  intData;       // discretized data X abd w (weight)
+  vector<DataXy>  standData;
 
-  vector<int> distFeat;	      // distinct features after discretization
-  vector<int> vecRandObs;     // contains randomize all observations
-  vector<int> vecTrainData;   // contains only training dataset observations
-  vector<int> vecTestData;    // contains only training dataset observations
-  vector<Feature> vecFeature; // contains features original and integeried values
+  vector<Feature> vecFeature;    // contains features original and integeried values
+
+  Time          tc;
+	double        wallTime;
+  double        cpuTime;
+
+  ArgRMA        *args;
 
 };
 
-} // data namespace
+} // end namespace data
 
 
 ostream& operator<<(ostream& os, const deque<bool>& v);

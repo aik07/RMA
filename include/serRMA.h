@@ -1,43 +1,46 @@
-/*
+/**********************************************************
 *  File name:   serRMA.cpp
 *  Author:      Ai Kagawa
-*  Description: a serial rectangular maximum agreement problem solver
-*/
+*  Description: a header file for the serial RMA solver using PEBBL
+**********************************************************/
 
 #ifndef pebbl_rma_h
 #define pebbl_rma_h
 
 #include <iostream>
-#include <cmath>
-#include <vector>
 #include <deque>
-#include <algorithm>
+#include <vector>
 #include <ctime>
+#include <cmath>
 #include <cstdlib>
+#include <algorithm>
 #include <mpi.h>
+
 #include <pebbl_config.h>
 #include <pebbl/bb/branching.h>
 #include <pebbl/misc/chunkAlloc.h>
-#include <pebbl/misc/fundamentals.h>
 #include <pebbl/utilib/ParameterSet.h>
-#include <SimpleHashTable.h>
 #include <pebbl/utilib/seconds.h>
-
+//#include <pebbl/misc/fundamentals.h>
+//#include <SimpleHashTable.h>
 
 #ifdef ACRO_HAVE_MPI
-#include <pebbl/pbb/parBranching.h>
-#include <pebbl/utilib/PackBuf.h>
+  #include <pebbl/pbb/parBranching.h>
+  #include <pebbl/utilib/PackBuf.h>
 #endif
 
-#include "rmaParams.h"
-#include "base.h"
-#include "greedyRMA.h"
+#include "Time.h"
+#include "argRMA.h"
+#include "dataRMA.h"
+//#include "driverRMA.h"
+//#include "greedyRMA.h"
 
 using namespace std;
-using namespace utilib;
 using namespace pebbl;
-using namespace base;
-using namespace greedyRMA;
+using namespace utilib;
+using namespace argRMA;
+using namespace data;
+//using namespace greedyRMA;
 
 
 namespace pebblRMA {
@@ -59,11 +62,8 @@ public:
 
   branchItem() : roundedBound(1.0), exactBound(1.0), whichChild(-1) { }; // , arrayPosition(-1)
 
-  branchItem(branchItem& toCopy) :
-			roundedBound(toCopy.roundedBound),
-  		exactBound(toCopy.exactBound),
-  		whichChild(toCopy.whichChild)
-			{ };
+  branchItem(branchItem& toCopy) : roundedBound(toCopy.roundedBound),
+  		exactBound(toCopy.exactBound), whichChild(toCopy.whichChild) { };
 
   void set(double bound, double roundQuantum);
 
@@ -194,7 +194,7 @@ protected:
 
 //******************************************************************************
 //  RMA branching class
-class RMA : virtual public branching, public rmaParams {
+class RMA : virtual public branching {
 
 friend class LPB;
 
@@ -203,8 +203,9 @@ public:
 	RMA();					// constructor
 	virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
 
-	void setParameters(Data* param, const int& deb_int);
-	bool setData(Data* d);
+	//void setParameters(ArgPMA* args, Data* data, const int& deb_int);
+	bool setParameters(ArgRMA* args_) { args=args_; }
+	bool setData(Data* data_);
 
 	bool       setupProblem(int& argc,char**& argv) { return true; }
 	branchSub* blankSub();
@@ -238,7 +239,7 @@ public:
 
 	virtual void printSolutionTime() const {
 		ucout << "ERMA Solution: " << incumbentValue
-					<< "\tCPU time: " << searchTime << "\n";
+					<< "\tCPU time: "    << searchTime << "\n";
 	}
 
 	// contains l_j-1 = (# of distinct value observed in the feature)
@@ -266,7 +267,8 @@ public:
 	double timeInSeconds;
 
 	Data*      data;
-	GreedyRMA* grma;
+	ArgRMA*    args;
+	//GreedyRMA* grma;
 
 }; // end class RMA ************************************************************************
 
@@ -374,10 +376,10 @@ public:
 protected:
 	RMA* globalPtr;  // A pointer to the global branching object
 	//inline double getObjectiveVal() const {return abs(posCovgWt-negCovgWt); };
-	inline int numObs()           { return global()->numObs; };
-	inline int numDistObs()       { return global()->numDistObs; };
-	inline int numAttrib()        { return global()->numAttrib; };
-	inline vector<int> distFeat() { return global()->distFeat; };
+	inline int         numObs()     { return global()->numObs; };
+	inline int         numDistObs() { return global()->numDistObs; };
+	inline int         numAttrib()  { return global()->numAttrib; };
+	inline vector<int> distFeat()   { return global()->distFeat; };
 
 public:
 
@@ -423,6 +425,6 @@ inline branchSub* RMA::blankSub() {
 } //********************* namespace pebbl ********************************
 
 ostream& operator<<(ostream& os, pebblRMA::branchChoice& bc);
-ostream& operator<<(ostream& os, pebblRMA::EquivClass& obj);
+ostream& operator<<(ostream& os, pebblRMA::EquivClass&   obj);
 
 #endif
