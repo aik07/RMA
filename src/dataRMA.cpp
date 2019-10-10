@@ -8,7 +8,8 @@
 
 namespace data {
 
-  bool Data::readData(int argc, char** argv) {
+  //bool Data::readData(int argc, char** argv) {
+  bool Data::readData() {
 
     unsigned int i, j;
     double tmp;

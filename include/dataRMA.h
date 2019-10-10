@@ -23,7 +23,7 @@
 #include "Time.h"
 #include "argRMA.h"
 
-using namespace argRMA;
+using namespace arguments;
 
 namespace data {
 
@@ -77,10 +77,12 @@ class Data {
 public:
 
   Data() {}
-  Data(ArgRMA *args_): args(args_) {}
+  Data(int argc_, char** argv_, ArgRMA *args_):
+       argc(argc_), argv(argv_), args(args_) {}
 
-  bool readData(int argc, char** argv);
-  bool readRandObs(int argc, char** argv);
+  //bool readData(int argc, char** argv);
+  bool readData();
+  //bool readRandObs(int argc, char** argv);
 
   void setDataDimensions();
 
@@ -126,7 +128,9 @@ public:
 	double        wallTime;
   double        cpuTime;
 
-  ArgRMA        *args;
+  ArgRMA   *args;
+  int      argc;
+  char**   argv;
 
 };
 
