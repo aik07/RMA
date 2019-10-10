@@ -15,16 +15,15 @@ namespace data {
     double tmp;
     string line;
 
-    //setup(argc, argv); // setup function in Base class
+    tc.startTime();
 
-    //tc.startTime();
-
-    numOrigObs=0;
-    numAttrib=0;
+    numOrigObs = 0;
+    numAttrib  = 0;
 
     // read data from the data file
     if (argc <= 1) { cerr << "No filename specified\n"; return false;	}
     ifstream s(argv[1]); // open the data file
+
     // check whether or not the file is opened correctly
     if (!s) {	cerr << "Could not open file \"" << argv[1] << "\"\n"; return false; }
 
@@ -38,10 +37,12 @@ namespace data {
     }
     --numAttrib; // last line is response value
 
+    cout << "(mxn): " << numOrigObs << "\t" << numAttrib << "\n";
+
   #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
   #endif //  ACRO_HAVE_MPI
-      cout << "(mxn): "<< numOrigObs << "\t" << numAttrib << "\n";
+      cout << "(mxn): " << numOrigObs << "\t" << numAttrib << "\n";
   #ifdef ACRO_HAVE_MPI
   	}
   #endif //  ACRO_HAVE_MPI
@@ -65,24 +66,23 @@ namespace data {
         if (origData[i].y!=-1 && origData[i].y!=1)
           cerr << "y:" << origData[i].y
             << " Data contains not only -1(0) or +1!" << '\n';
-
     }
 */
     s.close();  // close the data file
 
+    // for (int i=0; i<numOrigObs; ++i)
+    //   ucout << "obs: " << i << ": " << origData[i] << "\n" ;
+
     // print out original obs info
-    for (int i=0; i<numOrigObs; ++i)
-      DEBUGPR(1, ucout << "obs: " << i << ": " << origData[i] << "\n" );
+    // for (int i=0; i<numOrigObs; ++i)
+    //   DEBUGPR(1, ucout << "obs: " << i << ": " << origData[i] << "\n" );
 
-/*
-    if (readShuffledObs())
-      readRandObs(argc, argv);
-*/
-    DEBUGPRX(2, this, "setupProblem: \n");
-    DEBUGPRX(2, this, tc.endCPUTime());
-    DEBUGPRX(2, this, tc.endWallTime());
+    // if (readShuffledObs())
+    //   readRandObs(argc, argv);
 
-    setDataDimensions();
+    // DEBUGPRX(2, this, "setupProblem: \n");
+    // DEBUGPRX(2, this, tc.endCPUTime());
+    // DEBUGPRX(2, this, tc.endWallTime());
 
     return true;
 
@@ -106,7 +106,7 @@ namespace data {
 
   	s.close();  // close the data file
 
-    DEBUGPRX(2, this, "vecRandObs: " << vecRandObs);
+    if ( args->debug >=2 ) cout << "vecRandObs: " << vecRandObs;
   	return true;
 
   }
@@ -207,17 +207,23 @@ namespace data {
 
     for (j=0; j<numAttrib; ++j) {
 
-      DEBUGPRX(2, this, "feat: " << j << "\n");
+      if ( args->debug >=2 ) cout << "feat: " << j << "\n";
       setDistVal.clear();
+      cout << "test: ";
       for (i=0; i<numTrainObs; ++i) {
         obs = vecTrainData[i];
+        if (args->debug>=10) cout << "test: " << origData[obs].X[j] << "\n";
         setDistVal.insert(origData[obs].X[j]);
       }
 
-      DEBUGPRX(2, this, "setDistVal: " ;
+      if (args->debug>=10) cout << "size setDistVal: " << setDistVal.size() << "\n";
+
+      if ( args->debug >=2 ) {
+        cout << "setDistVal: " ;
         for (it=setDistVal.begin(); it!=setDistVal.end(); ++it)
-          cout << *it << " ";
-        cout << '\n');
+           cout << *it << " ";
+         cout << '\n';
+      }
 
       // get 95% confidence interval range
       interval = min(4.0*sdX[j], *setDistVal.rbegin() - *setDistVal.begin()) ;
@@ -225,14 +231,13 @@ namespace data {
       // episiolon, aggregation level, for integerization
       eps = min(args->delta(), args->maxInterval()) * interval ;
 
-
       eps0 = eps;
-      DEBUGPRX(2, this,
-           "delta: "      << args->delta()         << "\n"
-        << "max: "        << *setDistVal.rbegin()
-        << ", min: "       << *setDistVal.begin()  << "\n"
-        << "eps: "         << eps                  << "\n"
-        << "maxInterval: " << args->maxInterval()*interval << "\n");
+      if ( args->debug >=2 )
+        cout << "delta: "      << args->delta()         << "\n"
+             << "max: "        << *setDistVal.rbegin()
+             << ", min: "       << *setDistVal.begin()  << "\n"
+             << "eps: "         << eps                  << "\n"
+             << "maxInterval: " << args->maxInterval()*interval << "\n";
 
       /************ assign integer without recursive integerization ************/
       k=0;
@@ -247,8 +252,9 @@ namespace data {
       // walk thorugh the set of distincet values
       // some value can be aggregated by the level of the episilon
       for (it=setDistVal.begin(); it!=setDistVal.end(); ++it) {
-        DEBUGPRX(2, this, "tmpL: " << *itp << " tmpU: " << *it
-          << " diff: " << (*it-*itp) << endl);
+        if ( args->debug >=2 )
+          cout << "tmpL: " << *itp << " tmpU: " << *it
+               << " diff: " << (*it-*itp) << "\n";
         if ( (*it-*itp)>eps ) { // aggregating some value
           vecFeature[j].vecIntMinMax[++k-1].maxOrigVal = *(--it);
           vecFeature[j].vecIntMinMax[k].minOrigVal     = *(++it);
@@ -258,10 +264,13 @@ namespace data {
       }
       vecFeature[j].vecIntMinMax[k].maxOrigVal = *(--it);
 
-      DEBUGPRX(2, this, "mapDblInt contains:";
+      if ( args->debug >=2 ) {
+        cout << "mapDblInt contains:";
         for (itm = mapDblInt.begin(); itm != mapDblInt.end(); ++itm)
           cout << " [" << itm->first << ':' << itm->second << ']';
-        cout << '\n');
+        cout << '\n';
+      }
+
       vecFeature[j].vecIntMinMax.resize(k+1);
       distFeat[j] = k ; // get distinct # of feature
 
@@ -277,12 +286,13 @@ namespace data {
           copyIntMinMax[i].maxOrigVal = vecFeature[j].vecIntMinMax[i].maxOrigVal;
         }
 
-        DEBUGPRX(2, this,
-          "\nvecIntMin ";
+        if ( args->debug >=2 ) {
+          cout << "\nvecIntMin ";
           for (i=0; i<=k; ++i) cout << copyIntMinMax[i].minOrigVal << ' ';
           cout << "\nvecIntMax ";
           for (i=0; i<=k; ++i) cout << copyIntMinMax[i].maxOrigVal << ' ';
-          cout << '\n');
+          cout << '\n';
+        }
 
         p=0;
         for (i=0; i<=k; ++i) {
@@ -300,28 +310,33 @@ namespace data {
             isSplit=false;
             eps *= args->shrinkDelta() ;
 
-            DEBUGPRX(2, this, "new eps: " << eps << '\n');
+            if ( args->debug >=2 ) cout << "new eps: " << eps << '\n';
 
             for (q=0; q<=r; ++q) {
               l=0;
               tmpL1 = vecFeature[j].vecIntMinMax[i+p+q].minOrigVal;
               tmpU1 = vecFeature[j].vecIntMinMax[i+p+q].maxOrigVal;
 
-              DEBUGPRX(2, this, " q: " << q
-                 << " tmpL2: " << tmpL1 << " tmpU2: " << tmpU1
-                 << " diff: " << tmpU1 - tmpL1 << endl);
+              if ( args->debug >=2 )
+                cout << " q: " << q
+                     << " tmpL2: " << tmpL1 << " tmpU2: " << tmpU1
+                     << " diff: " << tmpU1 - tmpL1 << "\n";
 
               if ( ( tmpU1 - tmpL1 ) < 0 ) {
 
-                DEBUGPRX(2, this, "Something Wrong!!!!!!!!!!!!!!!!!!!!!\n");
+                if ( args->debug >=2 ) {
 
-                DEBUGPRX(2, this, endl << "vecIntMin2 ";
+                  cout << "!!!!!!!!!!Something Wrong!!!!!!!!!!!\n";
+
+                  cout << "\nvecIntMin2 ";
                   for (o=0; o<=k+p; ++o)
                     cout << vecFeature[j].vecIntMinMax[o].minOrigVal << ' ';
                   cout << "\nvecIntMax2 ";
                   for (o=0; o<=k+p; ++o)
                     cout << vecFeature[j].vecIntMinMax[o].maxOrigVal << ' ';
-                  cout << '\n');
+                  cout << '\n';
+
+                }
 
               } else if ( ( tmpU1 - tmpL1 ) >args->maxInterval()*interval ) {
 
@@ -329,20 +344,24 @@ namespace data {
 
                 for (it=setDistVal.find(tmpL1); ; ++it) {
                   tmp1U = *it;
-                  DEBUGPRX(2, this,
-                    "tmpL1: " << tmpL1 << " tmpU1: " << tmp1U
-                    << " diff: " << tmp1U-tmpL1 << endl);
+                  if ( args->debug >=2 )
+                    cout << "tmpL1: " << tmpL1 << " tmpU1: " << tmp1U
+                         << " diff: " << tmp1U-tmpL1 << "\n" ;
 
                   if ( ( tmp1U-tmpL1 ) > eps ) {
                     ++l; ++r; flag=true;
                     vecFeature[j].vecIntMinMax[i+p+l+q-1].maxOrigVal = tmpL1;
                     vecFeature[j].vecIntMinMax[i+p+l+q].minOrigVal   = tmp1U;
-                    DEBUGPRX(2, this, " idx: " << i+p+l+q-1
-                         << " tmpL4: " << vecFeature[j].vecIntMinMax[i+p+l+q-1].maxOrigVal
-                         << " tmpU4: " << vecFeature[j].vecIntMinMax[i+p+l+q].minOrigVal
-                         << endl);
-                    DEBUGPRX(2, this, " i: " << i << "p: " << p << " r: " << r
-                             << " l: " << l << " q: " << q    << endl);
+
+                    if ( args->debug >=2 ) {
+                      cout << " idx: " << i+p+l+q-1
+                           << " tmpL4: " << vecFeature[j].vecIntMinMax[i+p+l+q-1].maxOrigVal
+                           << " tmpU4: " << vecFeature[j].vecIntMinMax[i+p+l+q].minOrigVal
+                           << "\n" ;
+                      cout << " i: " << i << "p: " << p << " r: " << r
+                          << " l: " << l << " q: " << q    << "\n" ;
+                    }
+
                   }
 
                   tmpL1 = tmp1U ;
@@ -364,13 +383,15 @@ namespace data {
 
         } // end for (i=0; i<=k; ++i), each original interval
 
-        DEBUGPRX(2, this, "\nvecIntMin1 ";
+        if ( args->debug >=2 ) {
+          cout << "\nvecIntMin1 ";
           for (i=0; i<=k+p; ++i)
             cout << vecFeature[j].vecIntMinMax[i].minOrigVal << ' ';
           cout << "\nvecIntMax1 ";
           for (i=0; i<=k+p; ++i)
             cout << vecFeature[j].vecIntMinMax[i].maxOrigVal << ' ';
-          cout << '\n');
+          cout << '\n';
+        }
 
         o=0;
         for (it = setDistVal.begin(); it != setDistVal.end(); ++it) {
@@ -378,10 +399,12 @@ namespace data {
           mapDblInt[*it] = o;
         }
 
-        DEBUGPRX(2, this, "mapDblInt1 contains:";
+        if ( args->debug >=2 ) {
+          cout << "mapDblInt1 contains:";
           for (itm = mapDblInt.begin(); itm != mapDblInt.end(); ++itm)
             cout << " [" << itm->first << ':' << itm->second << ']';
-          cout << '\n');
+          cout << '\n';
+        }
 
         vecFeature[j].vecIntMinMax.resize(k+p+1);
         distFeat[j] = k+p ; // get distinct # of feature
@@ -404,7 +427,7 @@ namespace data {
         << intData[obs] << '\n');
     }*/
 
-    DEBUGPRX(1, this, "distFeat: " << distFeat << "\n");
+    if ( args->debug >=1 ) cout << "distFeat: " << distFeat << "\n";
 
 /*
   #ifdef ACRO_HAVE_MPI
@@ -426,15 +449,15 @@ namespace data {
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    for (int i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      DEBUGPRX(1, this, "obs: " << obs << ": "
-        << intData[obs] << "\n" );
-    }
+    if ( args->debug >=1 )
+      for (int i=0; i<numTrainObs; ++i) {
+        obs = vecTrainData[i];
+        cout << "obs: " << obs << ": " << intData[obs] << "\n" ;
+      }
 
-    DEBUGPRX(1, this, "integerizeProblem: \t" );
-    DEBUGPRX(1, this, tc.endCPUTime());
-    DEBUGPRX(2, this, tc.endWallTime());
+    if ( args->debug >=1 ) cout << "integerizeProblem: \t";
+    if ( args->debug >=1 ) tc.endCPUTime();
+    if ( args->debug >=2 ) tc.endWallTime();
 
   } // end integerizeData
 
@@ -501,11 +524,11 @@ namespace data {
       }
 
     ////////////////////////////////////////////////////////////////////////////
-    for (int i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      DEBUGPRX(1, this, "obs: " << obs << ": "
-        << standData[obs] << "\n" );
-    }
+    if ( args->debug >=1 )
+      for (int i=0; i<numTrainObs; ++i) {
+        obs = vecTrainData[i];
+        cout << "obs: " << obs << ": " << standData[obs] << "\n";
+      }
 
   }
 

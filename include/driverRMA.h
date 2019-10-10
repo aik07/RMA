@@ -35,7 +35,7 @@ namespace rma {
 //static int intInf = numeric_limits<int>::max();
 
 using namespace utilib;
-using namespace arguments;
+using namespace arg;
 using namespace data;
 using namespace pebblRMA;
 using namespace greedyRMA;

@@ -38,7 +38,7 @@
 using namespace std;
 using namespace pebbl;
 using namespace utilib;
-using namespace arguments;
+using namespace arg;
 using namespace data;
 //using namespace greedyRMA;
 

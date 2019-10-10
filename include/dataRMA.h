@@ -23,12 +23,12 @@
 #include "Time.h"
 #include "argRMA.h"
 
-using namespace arguments;
+using namespace std;
+using namespace arg;
 
 namespace data {
 
   struct IntMinMax { double minOrigVal, maxOrigVal; };
-
   struct Feature   { vector<IntMinMax> vecIntMinMax; };
 
 //////////////////// a clsss for integerized dataset ////////////////////
@@ -78,15 +78,25 @@ public:
 
   Data() {}
   Data(int argc_, char** argv_, ArgRMA *args_):
-       argc(argc_), argv(argv_), args(args_) {}
+      argc(argc_), argv(argv_), args(args_) {
+    if (args->debug>=10) cout << "Data::readData\n";
+    readData();
+    setDataDimensions();
+    numTrainObs = numOrigObs;
+    vecTrainData.resize(numTrainObs);
+    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
+    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
+    integerizeData();
+    //setPosNegObs();
+  }
 
   //bool readData(int argc, char** argv);
   bool readData();
-  //bool readRandObs(int argc, char** argv);
+  bool readRandObs(int argc, char** argv);
 
   void setDataDimensions();
 
-  void integerizeData() ;
+  void integerizeData();
   void setStandData();
 
   void setPosNegObs();
@@ -124,9 +134,9 @@ public:
 
   vector<Feature> vecFeature;    // contains features original and integeried values
 
-  Time          tc;
-	double        wallTime;
-  double        cpuTime;
+  Time     tc;
+	double   wallTime;
+  double   cpuTime;
 
   ArgRMA   *args;
   int      argc;

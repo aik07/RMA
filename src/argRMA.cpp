@@ -11,7 +11,7 @@ using utilib::ParameterLowerBound;
 using utilib::ParameterBounds;
 using utilib::ParameterNonnegative;
 
-namespace arguments {
+namespace arg {
 
 ArgRMA::ArgRMA():
 
@@ -103,14 +103,12 @@ ArgRMA::ArgRMA():
       "1.00", "if (#storedCutPts) <= rampUpSizeFact * (#processors),"
       "get out the ramp-up", "RMA");
 
-    setup(argc, argv);
-
   }
   ///////////////////// Arguments class methods ////////////////////////
 
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
-  bool Arguments::setup(int& argc, char**& argv) {
+  bool Arguments::setup(int argc, char** argv) {
 
     if (!processParameters(argc, argv, min_num_required_args))
       return false;

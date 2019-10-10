@@ -8,6 +8,7 @@
 #define ARG_RMA_h
 
 #include <limits>
+#include <string>
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/ParameterSet.h>
@@ -15,22 +16,21 @@
 #include <pebbl/utilib/CommonIO.h>
 #include <pebbl/utilib/memdebug.h>
 #include <pebbl/utilib/seconds.h>
+#include <pebbl/bb/branching.h>
 #include <pebbl/bb/pebblParams.h>
 #include <pebbl/pbb/parPebblParams.h>
 
 using namespace std;
+using namespace utilib;
+using namespace pebbl;
 
-
-namespace arguments {
+namespace arg {
 
  static double inf = numeric_limits<double>::infinity();
  //static int intInf = numeric_limits<int>::max();
 
  /////////////////// Parameters for RMA class  ///////////////////
-class ArgRMA :
-  virtual public utilib::ParameterSet,
-  virtual public utilib::CommonIO
-  {
+class ArgRMA : virtual public ParameterSet, virtual public CommonIO {
 
 public:
 
@@ -103,24 +103,21 @@ protected:
  };
 
 
-class Arguments : virtual public ArgRMA,
-                  virtual public pebbl::pebblParams,
-                  virtual public pebbl::parallelPebblParams
- {
-
-  Arguments(int& argc, char**& argv) :
-    parameters_registered(false),
-    min_num_required_args(0) {
-      setup(argc, argv);
-    }
+class Arguments : public ArgRMA, virtual public pebblParams,
+                  virtual public parallelPebblParams {
 
 public:
 
-  virtual bool   setup(int& argc, char**& argv);
+  Arguments(int argc, char** argv): parameters_registered(false),
+                                      min_num_required_args(0) {
+    setup(argc, argv);
+  }
+
+  virtual bool   setup(int argc, char** argv);
 
   // Parameter-related methods
-  virtual void   write_usage_info(char const* progName, std::ostream& os) const;
-  virtual void   writeCommandUsage(char const* progName, std::ostream& os) const;
+  virtual void   write_usage_info(char const* progName, ostream& os) const;
+  virtual void   writeCommandUsage(char const* progName, ostream& os) const;
   virtual bool   processParameters(int& argc, char**& argv,
                           unsigned int min_num_required_args);
 
@@ -133,13 +130,12 @@ public:
   virtual bool   setupProblem(int argc, char** argv) { true; }
   virtual void   setName(const char* cname);
 
-
  //////////////////////////////////////////////////////////////////
- ParameterList plist;
- bool          parameters_registered;
- string        problemName;
- string        solver_name;
- unsigned int  min_num_required_args;
+  ParameterList plist;
+  bool          parameters_registered;
+  string        problemName;
+  string        solver_name;
+  unsigned int  min_num_required_args;
 
 };
 

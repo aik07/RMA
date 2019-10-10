@@ -15,7 +15,7 @@
 #include "dataRMA.h"
 
 using namespace std;
-using namespace arguments;
+using namespace arg;
 using namespace data;
 
 
