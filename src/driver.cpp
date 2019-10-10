@@ -9,7 +9,9 @@ using namespace pebblRMA;
 
 
 int main(int argc, char** argv) {
-  DriverRMA *driver = new DriverRMA(argc, argv);
+  ArgRMA    *args   = new ArgRMA(argc, argv);
+  Data      *data   = new Data(argc, argv, args);
+  DriverRMA *driver = new DriverRMA(args, data);
   //driver->data->readData(argc, argv);
   //driver->setup(argc, argv);
   driver->solveRMA();

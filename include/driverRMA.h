@@ -43,7 +43,8 @@ using namespace argRMA;
 using namespace greedyRMA;
 
 
-class DriverRMA : virtual public pebbl::pebblParams,
+class DriverRMA : public ArgRMA,
+                  virtual public pebbl::pebblParams,
                   virtual public pebbl::parallelPebblParams {
 
 public:
@@ -71,6 +72,7 @@ public:
 
   /// Register the parameters into a ParameterList object
 	void register_parameters() { plist.register_parameters(*this); }
+  //void register_parameters() { plist.register_parameters(args); }
 
   /// Check parameters for setup problems and perform debugging I/O
   bool checkParameters(char const* progName = "");
@@ -82,7 +84,7 @@ public:
 //private:
   bool          parallel;
 
-  ArgRMA*       args;
+  //ArgRMA*       args;
   Data*         data;
   GreedyRMA*    grma;
   RMA*          rma ;

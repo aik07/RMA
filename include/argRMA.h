@@ -22,7 +22,10 @@ namespace argRMA {
  /////////////////// Parameters for RMA class  ///////////////////
 class ArgRMA :
   virtual public utilib::ParameterSet,
-  virtual public utilib::CommonIO      {
+  virtual public utilib::CommonIO,
+  virtual public pebbl::pebblParams,
+  virtual public pebbl::parallelPebblParams
+  {
 
 public:
 

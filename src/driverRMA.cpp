@@ -15,9 +15,9 @@ namespace pebblRMA {
 
     cout << setprecision(6) << fixed;
 
+    //args = new ArgRMA();
     setup(argc, argv);
-    args = new ArgRMA();
-    data = new Data(args);
+    data = new Data(this);
     data->readData(argc, argv);
 
     #ifdef ACRO_HAVE_MPI
@@ -41,7 +41,7 @@ namespace pebblRMA {
       }
     #endif // ACRO_HAVE_MPI
 
-    rma->setParameters(args);
+    rma->setParameters(this);
     rma->setData(data);
 
     //rma->setParameters(data, data->debug);
