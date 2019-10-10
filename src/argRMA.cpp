@@ -13,12 +13,7 @@ using utilib::ParameterNonnegative;
 
 namespace arguments {
 
-
-
-ArgRMA::ArgRMA(int& argc, char**& argv):
-
-  parameters_registered(false),
-  min_num_required_args(0),
+ArgRMA::ArgRMA():
 
   _binarySearchCutVal(false),
   _perCachedCutPts(0.000001),
@@ -111,11 +106,11 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
     setup(argc, argv);
 
   }
-  ///////////////////// Base class methods ////////////////////////
+  ///////////////////// Arguments class methods ////////////////////////
 
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
-  bool ArgRMA::setup(int& argc, char**& argv) {
+  bool Arguments::setup(int& argc, char**& argv) {
 
     if (!processParameters(argc, argv, min_num_required_args))
       return false;
@@ -148,7 +143,7 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
   }
 
 
-  bool ArgRMA::processParameters(int& argc, char**& argv,
+  bool Arguments::processParameters(int& argc, char**& argv,
                   unsigned int min_num_required_args) {
 
     if (argc > 0) solver_name = argv[0];
@@ -171,7 +166,7 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
   }
 
 
-  bool ArgRMA::checkParameters(char const* progName) {
+  bool Arguments::checkParameters(char const* progName) {
 
     if (help_parameter) {
       write_usage_info(progName,cout);
@@ -188,7 +183,7 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
   }
 
 
-  void ArgRMA::write_usage_info(char const* progName,std::ostream& os) const {
+  void Arguments::write_usage_info(char const* progName,std::ostream& os) const {
     writeCommandUsage(progName,os);
     os << endl;
     plist.write_registered_parameters(os);
@@ -196,7 +191,7 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
   }
 
 
-  void DriverRMA::writeCommandUsage(char const* progName,std::ostream& os) const {
+  void Arguments::writeCommandUsage(char const* progName,std::ostream& os) const {
     os << "\nUsage: " << progName << " { --parameter=value ... }";
     if (min_num_required_args == 1)
       os << " <problem data file>";
@@ -210,7 +205,7 @@ ArgRMA::ArgRMA(int& argc, char**& argv):
   // filename.  It can be overridden.  This version just finds the last
   // "/" or "\" in the name and removes it and everything before it.
 
-  void ArgRMA::setName(const char* cname) {
+  void Arguments::setName(const char* cname) {
   #if defined (TFLOPS)
     problemName = cname;
     int i=problemName.size();
