@@ -2,8 +2,8 @@
 
 CXX=mpicxx
 
-RMA_DIR=/home/ai/Projects/thesis/rma/RMA
-PEBBL_DIR=/home/ai/Projects/thesis/pebbl
+RMA_DIR=/home/kagawa/Projects/thesis/rma/RMA
+PEBBL_DIR=/home/kagawa/Projects/thesis/pebbl
 #MPI_ROOT=/opt/openmpi/1.10.1
 
 ######################################### SYMBOLS ########################################

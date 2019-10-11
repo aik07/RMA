@@ -19,6 +19,7 @@
 #include <pebbl_config.h>
 #include <pebbl/bb/branching.h>
 #include <pebbl/misc/chunkAlloc.h>
+#include <pebbl/utilib/memdebug.h>
 #include <pebbl/utilib/ParameterSet.h>
 #include <pebbl/utilib/seconds.h>
 //#include <pebbl/misc/fundamentals.h>
