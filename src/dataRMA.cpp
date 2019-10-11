@@ -220,8 +220,7 @@ namespace data {
 
       if ( args->debug >=2 ) {
         cout << "setDistVal: " ;
-        for (it=setDistVal.begin(); it!=setDistVal.end(); ++it)
-           cout << *it << " ";
+        for (it=setDistVal.begin(); it!=setDistVal.end(); ++it) cout << *it << " ";
          cout << '\n';
       }
 

@@ -84,9 +84,20 @@ public:
     setDataDimensions();
     numTrainObs = numOrigObs;
     vecTrainData.resize(numTrainObs);
+    standData.resize(numTrainObs);
     for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
     if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
-    integerizeData();
+    setStandData();
+    if (args->delta() != -1) integerizeData();
+    else {
+      intData.resize(numOrigObs);
+      for (int i=0; i<numOrigObs; ++i) { // for each observation
+        intData[i].X.resize(numAttrib);
+        for (int j=0; j<numAttrib; j++) // for each attribute
+          intData[i].X[j] = origData[i].X[j];
+        intData[i].w = origData[i].y;
+      } // end while
+    }
     //setPosNegObs();
   }
 

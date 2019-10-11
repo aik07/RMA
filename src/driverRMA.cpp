@@ -15,7 +15,7 @@ namespace rma {
     cout << setprecision(6) << fixed;
 
     #ifdef ACRO_HAVE_MPI
-      uMPI::init(&data->argc, &data->argv, MPI_COMM_WORLD);
+      //uMPI::init(&data->argc, &data->argv, MPI_COMM_WORLD);
       int nprocessors = uMPI::size;
       /// Do parallel optimization if MPI indicates that we're using more than one processor
       if (parallel_exec_test<parallelBranching>(data->argc, data->argv, nprocessors)) {
