@@ -77,17 +77,24 @@ class Data {
 public:
 
   Data() {}
+
   Data(int argc_, char** argv_, ArgRMA *args_):
       argc(argc_), argv(argv_), args(args_) {
+
     if (args->debug>=10) cout << "Data::readData\n";
+
     readData();
     setDataDimensions();
+
     numTrainObs = numOrigObs;
     vecTrainData.resize(numTrainObs);
     standData.resize(numTrainObs);
+
     for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
     if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
+
     setStandData();
+
     if (args->delta() != -1) integerizeData();
     else {
       intData.resize(numOrigObs);
@@ -95,11 +102,14 @@ public:
         intData[i].X.resize(numAttrib);
         for (int j=0; j<numAttrib; j++) // for each attribute
           intData[i].X[j] = origData[i].X[j];
-        intData[i].w = origData[i].y;
+        intData[i].w = 1.0 / (double) numOrigObs;
       } // end while
     }
-    //setPosNegObs();
-  }
+
+    setPosNegObs();
+
+  } // end constructor Data( int, char**, ArgRMA)
+
 
   //bool readData(int argc, char** argv);
   bool readData();

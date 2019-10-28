@@ -34,10 +34,11 @@ namespace pebblRMA {
 	bool CutPtThd::unloadBuffer() {
 
 		inBuf >> j >> v >> originator;
-		DEBUGPR(10, ucout << "cutPtThd message received from "
+		if (ptrParRMA->args->debug>=10)
+			ucout << "cutPtThd message received from "
 						<< status.MPI_SOURCE
 						<< "(j, v)=("	<< j << ", " << v << ")"
-						<< ", originator=" << originator << '\n');
+						<< ", originator=" << originator << '\n';
 
 		bool seenAlready = false;
     multimap<int,int>::iterator it,itlow,itup;
@@ -48,11 +49,11 @@ namespace pebblRMA {
     // print range [itlow,itup):
     for (it=itlow; it!=itup; ++it) {
       if ( (*it).first==j && (*it).second==v ) seenAlready=true;
-      DEBUGPR(10, ucout << (*it).first << " => " << (*it).second << '\n');
+      if (ptrParRMA->args->debug>=10) ucout << (*it).first << " => " << (*it).second << '\n';
     }
 
-    DEBUGPR(10, ucout << "cut point (" << j << ", " << v << ") " );
-    DEBUGPR(10, ucout << (seenAlready ? "is already in cache\n" : "is new\n"));
+    if (ptrParRMA->args->debug>=10) ucout << "cut point (" << j << ", " << v << ") ";
+    if (ptrParRMA->args->debug>=10) ucout << (seenAlready ? "is already in cache\n" : "is new\n");
 
 		if (originator < 0) {
 	  	if (seenAlready)
@@ -76,14 +77,16 @@ namespace pebblRMA {
 	// Logic to relay information to other nodes.
 	void CutPtThd::relayLoadBuffer(PackBuffer* buf) {
 		*buf << j << v << originator;
-		DEBUGPR(20,ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
-					     << "), originator=" << originator << "\n");
+		if (ptrParRMA->args->debug>=20)
+			ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
+					     << "), originator=" << originator << "\n";
 	}
 
 
 	// Special method to send initial message to owning processor
 	void CutPtThd::preBroadcastMessage(const int& owningProc) {
-		DEBUGPR(25, ucout << "CutPtThd root send to " << owningProc << '\n');
+		if (ptrParRMA->args->debug>=25)
+			ucout << "CutPtThd root send to " << owningProc << '\n';
 		// A negative value for 'originator' indicates special root message
 		originator = -1;
 		// Grab a buffer from the same pool used for broadcasts
@@ -157,7 +160,7 @@ namespace pebblRMA {
 	// Pack a description of the problem.
 	void parRMA::pack(PackBuffer& outBuf) {
 
-	  DEBUGPR(20,ucout << "parRMA::pack invoked..." << '\n');
+	  if (args->debug>=20) ucout << "parRMA::pack invoked..." << '\n';
 	  outBuf << numDistObs << numAttrib; // << _iterations;
 		//outBuf << _delta << _shrinkDelta << _limitInterval;
 
@@ -181,7 +184,8 @@ namespace pebblRMA {
 	// unpack
 	void parRMA::unpack(UnPackBuffer& inBuf) {
 
-		DEBUGPR(20,ucout << "parRMA::unpack invoked... " << '\n');
+		if (args->debug>=20)
+			ucout << "parRMA::unpack invoked... " << '\n';
 		inBuf >> numDistObs >> numAttrib; //>> _iterations;
 		//inBuf >> _delta >> _shrinkDelta >> _limitInterval;
 
@@ -203,15 +207,15 @@ namespace pebblRMA {
 		      >> args->perCachedCutPts()
 					>> numTotalCutPts;
 */
-		DEBUGPR(20,ucout << "parRMA::unpack done." << '\n');
+		if (args->debug>=20) ucout << "parRMA::unpack done." << '\n';
 
 		/*
-		DEBUGPR(20,ucout <<" distFeat: ";
+		if (global()->args->debug>=20)ucout <<" distFeat: ";
 				for(size_type i=0; i<numAttrib; i++) {
 				ucout << distFeat[i] << ", ";
 		});
 
-		DEBUGPR(20,for(size_type i=0; i<numDistObs; i++) {
+		if (global()->args->debug>=20)for(size_type i=0; i<numDistObs; i++) {
 				ucout <<" wt: " << intData[i].w << '\n';
 		});
 		*/
@@ -237,27 +241,27 @@ namespace pebblRMA {
     // print range [itlow,itup):
     for (it=itlow; it!=itup; ++it) {
       if ( (*it).first==j && (*it).second==v ) isAlreadyInCache=true;
-      DEBUGPR(10, ucout << (*it).first << " => " << (*it).second << '\n');
+      if (args->debug>=10) ucout << (*it).first << " => " << (*it).second << '\n';
     }
 
-    DEBUGPR(10, ucout << "cut point (" << j << ", " << v << ") " );
-    DEBUGPR(10, ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n"));
+    if (args->debug>=10) ucout << "cut point (" << j << ", " << v << ") " ;
+    if (args->debug>=10) ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
 
     // if not in the hash table, insert the cut point into the hash table.
 	  if (!isAlreadyInCache)
 			mmapCachedCutPts.insert( make_pair(j, v) ) ;
 
 		int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
-		DEBUGPR(20, ucout << "owningProc: " << owningProc << '\n');
+		if (args->debug>=20) ucout << "owningProc: " << owningProc << '\n';
 
 		cutPtCaster->setCutPtThd(j, v);
 
 		if (uMPI::rank==owningProc) {
 			// This processor is the owning processor
-			DEBUGPR(20, ucout << "I am the owner\n");
+			if (args->debug>=20) ucout << "I am the owner\n";
 			cutPtCaster->initiateBroadcast();
 		} else {
-			DEBUGPR(20, ucout << "Not owner\n");
+			if (args->debug>=20) ucout << "Not owner\n";
 			cutPtCaster->preBroadcastMessage(owningProc);
 		}
 
@@ -269,7 +273,7 @@ return;
 
 	void parRMASub::pack(utilib::PackBuffer &outBuffer) {
 
-		DEBUGPRXP(20,pGlobal(), "parRMASub::pack invoked...\n");
+		if (globalPtr->args->debug>=20) cout << "parRMASub::pack invoked...\n";
 
 		outBuffer << al << au << bl << bu ;
 		outBuffer << _branchChoice.branchVar << _branchChoice.cutVal;
@@ -284,7 +288,7 @@ return;
 		//outBuffer << vecCheckedFeat;
 	 	for (int j=0; j<numAttrib(); ++j)  outBuffer << deqRestAttrib[j];
 
-	  DEBUGPRXP(20, pGlobal(), "parRMASub::pack done. " << " bound: " << bound << "\n");
+	  if (globalPtr->args->debug>=20) cout << "parRMASub::pack done. " << " bound: " << bound << "\n";
 	} // end function parRMASub::pack
 
 
@@ -306,7 +310,8 @@ return;
 		for (int j=0; j<numAttrib(); ++j)  inBuffer >> deqRestAttrib[j];
 		//inBuffer >> vecCheckedFeat;
 
-    DEBUGPRX(20,pGlobal(),"parRMASub::unpack done. :" << " bound: " << bound << '\n');
+    if (globalPtr->args->debug>=20)
+			cout << "parRMASub::unpack done. :" << " bound: " << bound << '\n';
 
 	} // end function parRMASub::unpack
 
@@ -314,9 +319,10 @@ return;
 	// makeParallelChild
 	parallelBranchSub * parRMASub::makeParallelChild(int whichChild) {
 
-	  DEBUGPRX(20, global(), "parRMASub::makeParallelChild invoked for: "
+		if (global()->args->debug>=20)
+	    cout << "parRMASub::makeParallelChild invoked for: "
 	    						<< ", whichChild: " << whichChild
-	    						<< ", ramp-up flag: " << rampingUp() << '\n');
+	    						<< ", ramp-up flag: " << rampingUp() << '\n';
 
 		if (whichChild==-1) {
 			cerr << "which child cannot be -1!";
@@ -341,8 +347,8 @@ return;
 	    // bound-sorted order.  Otherwise, grab it from the cache.
 
 		if (_branchChoice.branchVar>numAttrib()) {
-			DEBUGPR(20, ucout <<  "ERROR in parallel! "
-					 << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n');
+			if (global()->args->debug>=20) ucout <<  "ERROR in parallel! "
+					 << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
 			cerr <<  " ERROR in parallel! "
 								 << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
 			//return NULL;
@@ -351,19 +357,19 @@ return;
 		if (whichChild < 0)
 			cerr << "whichChild=" << whichChild << '\n';
 
-		DEBUGPR(20, ucout << "whichChild=" << whichChild << '\n');
+		if (global()->args->debug>=20) ucout << "whichChild=" << whichChild << '\n';
 
 		parRMASub* temp = new parRMASub();
 		temp->setGlobalInfo(globalPtr);
 
-		DEBUGPR(20, ucout << "_branchChoice.branch[whichChild].whichChild="
-				<< _branchChoice.branch[whichChild].whichChild << '\n');
+		if (global()->args->debug>=20) ucout << "_branchChoice.branch[whichChild].whichChild="
+				<< _branchChoice.branch[whichChild].whichChild << '\n';
 		temp->RMASubAsChildOf(this, whichChild);
 
-		DEBUGPR(10,ucout << "Parallel MakeChild produces " << temp << '\n');
+		if (global()->args->debug>=10) ucout << "Parallel MakeChild produces " << temp << '\n';
 
-		DEBUGPRX(10,global(),"Out of parRMASub::makeParallelChild, "
-							"whichChild: " << whichChild << " bound: " << bound << '\n');
+		if (global()->args->debug>=10) cout << "Out of parRMASub::makeParallelChild, "
+							"whichChild: " << whichChild << " bound: " << bound << '\n';
 
 		return temp;
 	} // end function parRMASub::makeParallelChild
@@ -387,7 +393,7 @@ return;
 				continue;
 			}
 
-      DEBUGPR(10,ucout << "original: ");
+      if (global()->args->debug>=10) ucout << "original: ";
       printSP(j, al[j], au[j], bl[j], bu[j]);
 
       for (int v=al[j]; v<bu[j]; ++v ) { // for each cut-value in attribute j
@@ -506,8 +512,8 @@ return;
   // parallelize the strong branching procedure
 	void parRMASub::boundComputation(double* controlParam)  {
 
-		DEBUGPRX(20, global(),
-			"In parRMASub::boundComputation, ramp-up flag=" << rampingUp() << '\n');
+		if (global()->args->debug>=20)
+			cout << "In parRMASub::boundComputation, ramp-up flag=" << rampingUp() << '\n';
 
 		if (!rampingUp()) {
 			RMASub::boundComputation(controlParam);
@@ -517,7 +523,7 @@ return;
 		NumTiedSols=1;
 
 		// Special handling of ramp-up
-		DEBUGPRX(20, global(), "Ramp-up bound computation\n");
+		if (global()->args->debug>=20) cout << "Ramp-up bound computation\n";
 
 		//************************************************************************
 		coveredObs = global()->sortedObsIdx;
@@ -537,7 +543,7 @@ return;
       workingSol()->b = globalPtr->guess->b;
       foundSolution();
       DEBUGPR(5, workingSol()->printSolution());
-      DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
+      if (global()->args->debug>=10) workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
               coveredObs,sortedECidx ));
     }
 #ifdef ACRO_HAVE_MPI
@@ -570,11 +576,11 @@ return;
 			int firstIndex = rank*quotient + min((int)rank,remainder);
 			int lastIndex = firstIndex + quotient + (rank < remainder) - 1;
 
-			DEBUGPRX(10,global(), "numLiveCutPts = " << numLiveCutPts
+			if (global()->args->debug>=20) cout << "numLiveCutPts = " << numLiveCutPts
 							<< ", quotient  = " << quotient
 							<< ", remainder = " << remainder
 							<< ", firstIndex = " << firstIndex
-							<< ", lastIndex = " << lastIndex << '\n');
+							<< ", lastIndex = " << lastIndex << '\n';
 
       parStrongBranching(firstIndex, lastIndex);
 
@@ -582,19 +588,21 @@ return;
 
 		printCurrentBounds();
 
-		DEBUGPRX(20, global(), "Best local choice is " <<  _branchChoice <<
-                           " NumTiedSols: " << NumTiedSols << '\n');
+		if (global()->args->debug>=1) cout << "Best local choice is " <<  _branchChoice <<
+                           " NumTiedSols: " << NumTiedSols << '\n';
 
 		/******************* rampUpIncumbentSync *******************/
 
-		DEBUGPRX(1, global(), rank << ": BEFORE rampUpIncumbentSync():"
-													 << pGlobal()->rampUpMessages << '\n');
+		if (global()->args->debug>=1)
+			cout << rank << ": BEFORE rampUpIncumbentSync():"
+													 << pGlobal()->rampUpMessages << '\n';
 
 		// Better incumbents may have been found along the way
 		pGlobal()->rampUpIncumbentSync();
 
-		DEBUGPRX(1, global(), rank << ": AFTER rampUpIncumbentSync():"
-													<< pGlobal()->rampUpMessages << '\n');
+		if (global()->args->debug>=1)
+			cout << rank << ": AFTER rampUpIncumbentSync():"
+													<< pGlobal()->rampUpMessages << '\n';
 
 		/******************* Global Choice *******************/
 		// Now determine the globally best branching choice by global reduction.
@@ -602,8 +610,9 @@ return;
 
 		branchChoice bestBranch;
 
-		DEBUGPRX(1, global(), rank << ": before reduceCast: "
-										<< pGlobal()->rampUpMessages << '\n');
+		if (global()->args->debug>=1)
+			cout << rank << ": before reduceCast: "
+										<< pGlobal()->rampUpMessages << '\n';
 
 		if (global()->args->branchSelection()==0) {
 			MPI_Scan(&_branchChoice, &bestBranch, 1,
@@ -619,10 +628,11 @@ return;
 
 		pGlobal()->rampUpMessages += 2*(uMPI::rank > 0);
 
-		DEBUGPRX(1, global(), rank << ": after reduceCast:"
-										<< pGlobal()->rampUpMessages << '\n');
+		if (global()->args->debug>=20) cout << rank << ": after reduceCast:"
+										<< pGlobal()->rampUpMessages << '\n';
 
-		DEBUGPRX(10, global(), "Best global choice is " << bestBranch << '\n');
+		if (global()->args->debug>=20)
+			cout << "Best global choice is " << bestBranch << '\n';
 
 		/******************* Cache cut-point *******************/
 		if (global()->args->perCachedCutPts()<1.0)
@@ -634,7 +644,7 @@ return;
 		// Otherwise, adjust everything so it looks like we made the globally best choice.
 		if (bestBranch.branchVar != _branchChoice.branchVar ||
 				bestBranch.cutVal != _branchChoice.cutVal) {
-			DEBUGPRX(20, global(),  "Adjusting local choice\n");
+			if (global()->args->debug>=10) cout << "Adjusting local choice\n";
 			_branchChoice = bestBranch;
 		}
 
@@ -660,14 +670,15 @@ return;
 			pGlobal()->rampUpPoolLimitFac = 0;
 
 		//DEBUGPRX(50, global(), " bound: " << bound << ", sol val=" << getObjectiveVal() << '\n');
-		DEBUGPRX(10, global(), "Ending ramp-up bound computation for bound: " << bound << '\n');
+		if (global()->args->debug>=10)
+			cout << "Ending ramp-up bound computation for bound: " << bound << '\n';
 
 	} // end function parRMASub::boundComputation
 
 
   void parRMASub::setNumLiveCutPts()  {
     numLiveCutPts=0; numRestAttrib=0;
-    DEBUGPR(10, ucout << "deqRestAttrib: " << deqRestAttrib << "\n") ;
+    if (global()->args->debug>=10) ucout << "deqRestAttrib: " << deqRestAttrib << "\n";
     // compute the total cut points
     for (int j=0; j<numAttrib(); ++j) {
       if ( deqRestAttrib[j] ) numRestAttrib++;	// count how many X are restricted
@@ -679,7 +690,7 @@ return;
       }
     }
     if (numLiveCutPts==0) {
-      DEBUGPR(20, cout << "No cut points to check!\n");
+      if (global()->args->debug>=20) cout << "No cut points to check!\n";
       setState(dead);
     }
   }
