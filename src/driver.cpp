@@ -20,7 +20,6 @@ int main(int argc, char** argv) {
   //driver->data->readData(argc, argv);
   //driver->setup(argc, argv);
 
-
   driver->solveRMA();
   return 0;
 }

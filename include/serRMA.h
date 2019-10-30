@@ -195,7 +195,7 @@ protected:
 
 //******************************************************************************
 //  RMA branching class
-class RMA : virtual public branching {
+class RMA : virtual public branching, public ArgRMA {
 
 friend class LPB;
 

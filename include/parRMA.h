@@ -65,7 +65,7 @@ class RMASub;
 
 	public:
 
-		parRMA();
+		parRMA(MPI_Comm comm_);
 		~parRMA();
 
 		parallelBranchSub * blankParallelSub();

@@ -16,6 +16,8 @@ namespace rma {
 
     #ifdef ACRO_HAVE_MPI
       //uMPI::init(&data->argc, &data->argv, MPI_COMM_WORLD);
+      uMPI::init(&data->argc,&data->argv,MPI_COMM_WORLD);
+      //uMPI::init(MPI_COMM_WORLD);
       int nprocessors = uMPI::size;
       /// Do parallel optimization if MPI indicates that we're using more than one processor
       if (parallel_exec_test<parallelBranching>(data->argc, data->argv, nprocessors)) {
@@ -23,7 +25,7 @@ namespace rma {
         CommonIO::begin();
         CommonIO::setIOFlush(1);
         parallel = true;
-        prma     = new parRMA;
+        prma     = new parRMA(MPI_COMM_WORLD);
         rma      = prma;
       } else {
     #endif // ACRO_HAVE_MPI
@@ -70,6 +72,7 @@ void DriverRMA::solveRMA() {
     rma->printSolutionTime();
 #ifdef ACRO_HAVE_MPI
   }
+
 #endif //  ACRO_HAVE_MPI
 
 } // end function solveRMA()

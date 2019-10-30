@@ -37,7 +37,7 @@ class DataXw {
 public:
 
   DataXw() : w(0.0) {}
-  DataXw( const vector<int>& X_ ) : X(X_) { }
+  DataXw( const vector<int>& X_ ) : X(X_) {}
 
   int read(istream& is)        { is >> X >> w; return 0; }
   int write(ostream& os) const { os << X << w; return 0; }
@@ -59,7 +59,7 @@ public:
   DataXy() {}
   DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
-  int read(istream& is)        { is >> X >> y; return 0; }
+  int read(istream& is)        { is >> X >> y;        return 0; }
   int write(ostream& os) const { os << X << " " << y; return 0; }
 
 //private:
@@ -89,21 +89,25 @@ public:
     numTrainObs = numOrigObs;
     vecTrainData.resize(numTrainObs);
     standData.resize(numTrainObs);
+    distFeat.resize(numAttrib);
 
     for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
     if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
 
-    setStandData();
+    //setStandData();
 
-    if (args->delta() != -1) integerizeData();
+    if (args->delta() != -1)
+       integerizeData();
     else {
       intData.resize(numOrigObs);
       for (int i=0; i<numOrigObs; ++i) { // for each observation
         intData[i].X.resize(numAttrib);
-        for (int j=0; j<numAttrib; j++) // for each attribute
-          intData[i].X[j] = origData[i].X[j];
-        intData[i].w = 1.0 / (double) numOrigObs;
-      } // end while
+        for (int j=0; j<numAttrib; j++) { // for each attribute
+	        intData[i].X[j] = origData[i].X[j];
+	        if ( distFeat[j] < intData[i].X[j] ) distFeat[j] = intData[i].X[j];
+	      }
+        intData[i].w = 1.0 / (double) numTrainObs;
+      } // end for
     }
 
     setPosNegObs();
@@ -156,7 +160,7 @@ public:
   vector<Feature> vecFeature;    // contains features original and integeried values
 
   Time     tc;
-	double   wallTime;
+  double   wallTime;
   double   cpuTime;
 
   ArgRMA   *args;
@@ -178,6 +182,5 @@ ostream& operator<<(ostream& os, data::DataXw& obj);
 istream& operator>>(istream& is, data::DataXw& obj);
 ostream& operator<<(ostream& os, data::DataXy& obj);
 istream& operator>>(istream& is, data::DataXy& obj);
-
 
 #endif

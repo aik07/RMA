@@ -102,7 +102,7 @@ namespace pebblRMA {
 
 	///////////////////////////////////// parRMA methods //////////////////////////////////////
 
-	parRMA::parRMA() : RMA(), cutPtCaster(NULL) { //, mpiComm(MPI_COMM_WORLD)
+	parRMA::parRMA(MPI_Comm comm_) : RMA(), cutPtCaster(NULL) { //, mpiComm(MPI_COMM_WORLD)
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;

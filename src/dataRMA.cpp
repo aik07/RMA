@@ -252,7 +252,7 @@ namespace data {
       // some value can be aggregated by the level of the episilon
       for (it=setDistVal.begin(); it!=setDistVal.end(); ++it) {
         if ( args->debug >=2 )
-          cout << "tmpL: " << *itp << " tmpU: " << *it
+          cout << "tmpL: "  << *itp       << " tmpU: " << *it
                << " diff: " << (*it-*itp) << "\n";
         if ( (*it-*itp)>eps ) { // aggregating some value
           vecFeature[j].vecIntMinMax[++k-1].maxOrigVal = *(--it);
@@ -482,9 +482,7 @@ namespace data {
     for (i=0; i<numTrainObs; ++i) {
       obs = vecTrainData[i];
       avgY += origData[obs].y ;
-      for (j=0; j<numAttrib; ++j) {
-        avgX[j] += origData[obs].X[j];
-      }
+      for (j=0; j<numAttrib; ++j) avgX[j] += origData[obs].X[j];
     }
 
     avgY /= numTrainObs; // get average response value
