@@ -1402,8 +1402,8 @@ namespace pebblRMA {
       optMaxUpper = bl[j];
 
     if (globalPtr->args->debug>=0)
-      cout << "optAttrib: (a,b): " << optMaxAttrib << ": ("
-	   << ": " << optMaxLower  << ", " << optMaxUpper
+      cout << "optAttrib: (a,b): " << optMaxAttrib
+	   << ": (" << optMaxLower  << ", " << optMaxUpper
 	   << "), max: " << maxVal << "\n" ;
 
   }

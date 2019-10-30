@@ -21,6 +21,8 @@
 
 #include <pebbl_config.h>
 
+#ifdef ACRO_HAVE_MPI
+
 #include <pebbl/utilib/logEvent.h>
 //#include <pebbl/utilib/_math.h>
 #include <pebbl/utilib/stl_auxiliary.h>
@@ -37,11 +39,9 @@
 #include <pebbl/sched/ThreadObj.h>
 #include <pebbl/sched/SelfAdjustThread.h>
 
-#ifdef ACRO_HAVE_MPI
-  #include <pebbl/pbb/parBranching.h>
-	#include <pebbl/pbb/packedSolution.h>
-	#include <pebbl/pbb/parPebblBase.h>
-#endif // ACRO_HAVE_MPI
+#include <pebbl/pbb/parBranching.h>
+#include <pebbl/pbb/packedSolution.h>
+#include <pebbl/pbb/parPebblBase.h>
 
 #include "serRMA.h"
 
@@ -181,5 +181,6 @@ class RMASub;
 
 } // namespace lpboost
 
+#endif // ACRO_HAVE_MPI
 
 #endif // pebbl_paralleRMA_h

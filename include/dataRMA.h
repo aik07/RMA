@@ -12,14 +12,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <pebbl_config.h>
-#include <pebbl/utilib/ParameterList.h>
-#include <pebbl/utilib/memdebug.h>
-#include <pebbl/utilib/seconds.h>
-#include <pebbl/utilib/CommonIO.h>
-#include <pebbl/bb/pebblParams.h>
-#include <pebbl/pbb/parPebblParams.h>
-
 #include "Time.h"
 #include "argRMA.h"
 
@@ -106,7 +98,7 @@ public:
 	        intData[i].X[j] = origData[i].X[j];
 	        if ( distFeat[j] < intData[i].X[j] ) distFeat[j] = intData[i].X[j];
 	      }
-        intData[i].w = 1.0 / (double) numTrainObs;
+        intData[i].w = origData[i].y * 1.0 / (double) numTrainObs;
       } // end for
     }
 
