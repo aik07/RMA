@@ -11,7 +11,7 @@ SYMBOLS=HAVE_CONFIG_H ANSI_HDRS ANSI_NAMESPACES
 DEFSYMBOLS=$(patsubst %, -D%, $(SYMBOLS))
 
 ######################################## INCLUDES ##########################################
-HEADERDIRS=$(RMA_DIR)/include $(PEBBL_DIR)/src $(PEBBL_DIR)/build/src #$(MPI_ROOT)/include
+HEADERDIRS=$(RMA_DIR)/src $(PEBBL_DIR)/src $(PEBBL_DIR)/build/src #$(MPI_ROOT)/include
 INCLUDES=$(patsubst %,-I%,$(HEADERDIRS))
 
 ######################################### LIB ############################################

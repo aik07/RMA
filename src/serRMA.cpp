@@ -1356,17 +1356,17 @@ namespace pebblRMA {
         workingSol()->a[optMaxAttrib]=optMaxLower;
         workingSol()->b[optMaxAttrib]=optMaxUpper;
         workingSol()->isPosIncumb=true;
-        if (globalPtr->args->debug>=0) cout << "positive ";
+        if (globalPtr->args->debug>=5) cout << "positive ";
       } else  {
         workingSol()->value =-minVal;
         workingSol()->a[optMinAttrib]=optMinLower;
         workingSol()->b[optMinAttrib]=optMinUpper;
         workingSol()->isPosIncumb=false;
-        if (globalPtr->args->debug>=0) cout << "negative ";
+        if (globalPtr->args->debug>=5) cout << "negative ";
       }
       foundSolution();
-      if (globalPtr->args->debug>=0) cout << "new incumbent  " << workingSol()->value << '\n';
-      if (globalPtr->args->debug>=0) workingSol()->printSolution();
+      if (globalPtr->args->debug>=1) cout << "new incumbent  " << workingSol()->value << '\n';
+      if (globalPtr->args->debug>=5) workingSol()->printSolution();
       //DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
       //        coveredObs,sortedECidx ));
     }
@@ -1383,7 +1383,7 @@ namespace pebblRMA {
     if (au[j]<bl[j] && au[j]<=optMinUpper && optMinUpper<=bl[j])
       optMinUpper = bl[j];
 
-    if (globalPtr->args->debug>=0)
+    if (globalPtr->args->debug>=10)
       cout << "optAttrib: (a,b): " << optMinAttrib
 	   << ": (" << optMinLower << ", " << optMinUpper
 	   << "), min: " << minVal << "\n" ;
@@ -1401,7 +1401,7 @@ namespace pebblRMA {
     if (au[j]<bl[j] && au[j]<=optMaxUpper && optMaxUpper<=bl[j])
       optMaxUpper = bl[j];
 
-    if (globalPtr->args->debug>=0)
+    if (globalPtr->args->debug>=10)
       cout << "optAttrib: (a,b): " << optMaxAttrib
 	   << ": (" << optMaxLower  << ", " << optMaxUpper
 	   << "), max: " << maxVal << "\n" ;

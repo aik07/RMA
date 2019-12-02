@@ -15,7 +15,6 @@ namespace rma {
     cout << setprecision(6) << fixed;
 
     #ifdef ACRO_HAVE_MPI
-      //uMPI::init(&data->argc, &data->argv, MPI_COMM_WORLD);
       uMPI::init(&data->argc,&data->argv,MPI_COMM_WORLD);
       //uMPI::init(MPI_COMM_WORLD);
       int nprocessors = uMPI::size;
