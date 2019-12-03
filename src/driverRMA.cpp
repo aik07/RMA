@@ -9,34 +9,48 @@
 
 namespace rma {
 
-  DriverRMA::DriverRMA(ArgRMA* args_, Data* data_):
-        args(args_), data(data_), rma(NULL), prma(NULL), parallel(false) {
+DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
 
-    cout << setprecision(6) << fixed;
+  cout << setprecision(6) << fixed;
 
-    #ifdef ACRO_HAVE_MPI
-      uMPI::init(&data->argc,&data->argv,MPI_COMM_WORLD);
-      //uMPI::init(MPI_COMM_WORLD);
-      int nprocessors = uMPI::size;
-      /// Do parallel optimization if MPI indicates that we're using more than one processor
-      if (parallel_exec_test<parallelBranching>(data->argc, data->argv, nprocessors)) {
-        /// Manage parallel I/O explicitly with the utilib::CommonIO tools
-        CommonIO::begin();
-        CommonIO::setIOFlush(1);
-        parallel = true;
-        prma     = new parRMA(MPI_COMM_WORLD);
-        rma      = prma;
-      } else {
-    #endif // ACRO_HAVE_MPI
-        rma = new RMA;
-    #ifdef ACRO_HAVE_MPI
-      }
-    #endif // ACRO_HAVE_MPI
+  setup(argc, argv);
 
-    rma->setParameters(args);
-    rma->setData(data);
+  setData(argc, argv);
+  setupRMA(argc, argv);
 
-  }
+}
+
+
+void DriverRMA::setData(int& argc, char**& argv) {
+  args = this;
+  data = new Data(argc, argv, args);
+}
+
+void DriverRMA::setupRMA(int& argc, char**& argv) {
+
+  #ifdef ACRO_HAVE_MPI
+    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
+    //uMPI::init(MPI_COMM_WORLD);
+    int nprocessors = uMPI::size;
+    /// Do parallel optimization if MPI indicates that we're using more than one processor
+    if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {
+      /// Manage parallel I/O explicitly with the utilib::CommonIO tools
+      CommonIO::begin();
+      CommonIO::setIOFlush(1);
+      parallel = true;
+      prma     = new parRMA(MPI_COMM_WORLD);
+      rma      = prma;
+    } else {
+  #endif // ACRO_HAVE_MPI
+      rma = new RMA;
+  #ifdef ACRO_HAVE_MPI
+    }
+  #endif // ACRO_HAVE_MPI
+
+  rma->setParameters(this); // passing arguments
+  rma->setData(data);
+
+}
 
 // solve RMA
 void DriverRMA::solveRMA() {
@@ -53,9 +67,9 @@ void DriverRMA::solveRMA() {
   }
 #endif //  ACRO_HAVE_MPI
 
-  rma->workingSol.value=-inf;
   rma->mmapCachedCutPts.clear();
-  rma->numDistObs = data->numTrainObs;	    // only use training data
+  rma->workingSol.value = -inf;
+  rma->numDistObs       = data->numTrainObs;	    // only use training data
   rma->setSortObsNum(data->vecTrainData);
   //setDataWts();
 
@@ -71,7 +85,6 @@ void DriverRMA::solveRMA() {
     rma->printSolutionTime();
 #ifdef ACRO_HAVE_MPI
   }
-
 #endif //  ACRO_HAVE_MPI
 
 } // end function solveRMA()
