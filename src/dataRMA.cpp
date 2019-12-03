@@ -58,6 +58,9 @@ namespace data {
       s >> origData[i].y ;
     } // end while
 
+    for (i=0; i<numOrigObs; ++i)   // for each observation
+      if (origData[i].y==0) origData[i].y=-1;
+
 /*
     if (isLPBoost()) {
       for (i=0; i<numOrigObs; ++i)   // for each observation

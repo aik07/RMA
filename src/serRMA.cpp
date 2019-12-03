@@ -1444,9 +1444,8 @@ namespace pebblRMA {
     } // end for each value in this attribute
 
     if (globalPtr->args->debug>=10)
-      cout << "Maximum contiguous sum is " << maxSoFar ;
-    if (globalPtr->args->debug>=10)
-      cout << " attribute (L,U): " << j << " (" << aj << ", " << bj << ")\n" ;
+      cout << "Maximum contiguous sum is " << maxSoFar
+           << " attribute (L,U): " << j << " (" << aj << ", " << bj << ")\n" ;
 
     return maxSoFar;
 
@@ -1506,9 +1505,10 @@ namespace pebblRMA {
       }*/
     }
 
-    if (globalPtr->args->debug>=10) cout << "Minimum contiguous sum is " << minSoFar ;
-    if (globalPtr->args->debug>=10) cout << " attribute (L,U): " << j << " ("
-                            <<  aj << ", " << bj << ")\n" ;
+    if (globalPtr->args->debug>=10)
+      cout << "Minimum contiguous sum is " << minSoFar
+           << " attribute (L,U): " << j << " ("
+           <<  aj << ", " << bj << ")\n" ;
     return minSoFar;
   }
 
@@ -1516,7 +1516,7 @@ namespace pebblRMA {
   double RMASub::getObjValue(const int& j, const int& v) {
     int obs;
     double covgWt = 0.0;
-    if (globalPtr->args->debug>=20) ucout << "j: " << j << " v:" << v ;
+    if (globalPtr->args->debug>=20) ucout << "j: " << j << ", v: " << v ;
 
     for (int i=curObs; i<sortedECidx.size(); ++i) {
 
@@ -1537,14 +1537,15 @@ namespace pebblRMA {
       } else if (global()->data->intData[obs].X[j]<v) {
         if (globalPtr->args->debug>=0) cout << "X[j] < v! ";
         //*
-        if (globalPtr->args->debug>=20) cout << "curObs: " << curObs << " attribute: " << j << "; "
-             << global()->data->intData[obs].X[j]
-             << " < cutVal: " << v << "\n";
-        for (int i=0; i<coveredObs.size(); ++i)
-          if (globalPtr->args->debug>=20) cout << global()->data->intData[sortedECidx[i]].X[j]
-            << " bound (" << al[j] << ", " << au[j] << ", "
-               << bl[j] << ", " << bu[j] << ")\n )";
-        ///
+        if (globalPtr->args->debug>=20) {
+          cout << "curObs: " << curObs << " attribute: " << j << "; "
+               << global()->data->intData[obs].X[j]
+               << " < cutVal: " << v << "\n";
+          for (int i=0; i<coveredObs.size(); ++i)
+            cout << global()->data->intData[sortedECidx[i]].X[j]
+                 << " bound (" << al[j] << ", " << au[j] << ", "
+                 << bl[j] << ", " << bu[j] << ")\n )";
+        }
       } else {
         curObs = i;
         break;
@@ -1552,7 +1553,7 @@ namespace pebblRMA {
       if (i==sortedECidx.size()-1) curObs = sortedECidx.size();
     }  // end for each covered observation
 
-    if (globalPtr->args->debug>=20) ucout << "covgWt: " << covgWt << "\n";
+    if (globalPtr->args->debug>=20) ucout << ", covgWt: " << covgWt << "\n";
     return covgWt ;
 
   }  // end function getObjValue
@@ -1707,8 +1708,8 @@ namespace pebblRMA {
 	} else {  // detected obs1 and obs2 are in different equivClass
 	  vecEquivClass1[++k]=vecEquivClass[idxEC2];  // push back all obs in the equivClass
 	  if (i!=sortedECidx1.size()-1) { // if not the last observation
-            idxEC1 = sortedECidx1[i];
-            idxEC2 = sortedECidx1[i+1];
+      idxEC1 = sortedECidx1[i];
+      idxEC2 = sortedECidx1[i+1];
 	    obs1 = vecEquivClass[idxEC1].getObs();
 	    obs2 = vecEquivClass[idxEC2].getObs();
 	  }
@@ -1721,10 +1722,12 @@ namespace pebblRMA {
     sortedECidx1.resize(vecEquivClass1.size());
     for (int i=0; i<vecEquivClass1.size(); ++i) sortedECidx1[i] = i;
 
-    if (globalPtr->args->debug>=20) ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n";
+    if (globalPtr->args->debug>=20)
+      ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n";
     if (globalPtr->args->debug>=25) ucout << "vecEquivClass1: \n";
-    if (globalPtr->args->debug>=30) for (int i=0; i<vecEquivClass1.size(); ++i)
-				      cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n";
+    if (globalPtr->args->debug>=30)
+      for (int i=0; i<vecEquivClass1.size(); ++i)
+			  cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n";
 
   }  // end function RMASub::mergeEquivClass
 
@@ -2032,5 +2035,3 @@ ostream& operator<<(ostream& os, pebblRMA::EquivClass& obj)  {
   obj.write(os);
   return os;
 }
-
-//*/

@@ -11,6 +11,7 @@ using namespace data;
 using namespace rma;
 
 int main(int argc, char** argv) {
+
   // Arguments *args   = new Arguments(argc, argv);
   // Data      *data   = new Data(argc, argv, args);
 
@@ -23,4 +24,5 @@ int main(int argc, char** argv) {
 
   driver->solveRMA();
   return 0;
+
 }
