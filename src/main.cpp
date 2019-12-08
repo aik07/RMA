@@ -1,10 +1,10 @@
-/*test
+/*
  * main.cpp: parallel rma driver
  *
  * Author: Ai Kagawa
  */
 
-#include <acro_config.h>
+#include <pebbl_config.h>
 #include "serRMA.h"
 
 #ifdef ACRO_HAVE_MPI

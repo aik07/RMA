@@ -1,24 +1,24 @@
 CXX=mpicxx
 
 # You have to specify the directory location where you placed acro-pebbl
-ACRO_ROOT=<DIRECTORY>/acro-pebbl 
+PEBBL_ROOT=../pebbl/installpebbl
 
 # You have to specify the location where you placed openmpi
 # Example:
-MPI_ROOT=/opt/openmpi/1.10.1
+MPI_ROOT=/usr/lib/x86_64-linux-gnu/openmpi
 
 ######################################## SYMBOLS ########################################
 SYMBOLS=HAVE_CONFIG_H ANSI_HDRS ANSI_NAMESPACES
 DEFSYMBOLS=$(patsubst %,-D%,$(SYMBOLS))
 
 ####################################### INCLUDES ##########################################
-HEADERDIRS=. $(ACRO_ROOT)/include $(ACRO_ROOT)/include/pebbl $(ACRO_ROOT)/include/utilib $(MPI_ROOT)/include 
+HEADERDIRS=. $(PEBBL_ROOT)/include $(PEBBL_ROOT)/include/pebbl $(PEBBL_ROOT)/include/utilib $(MPI_ROOT)/include 
 INCLUDES=$(patsubst %,-I%,$(HEADERDIRS))
 
 ######################################### LIB ############################################
-LIBDIRS=$(ACRO_ROOT)/lib  $(MPI_ROOT)/lib
+LIBDIRS=$(PEBBL_ROOT)/lib  $(MPI_ROOT)/lib
 LIBLOCATIONS=$(patsubst %,-L%,$(LIBDIRS))
-LIBS=pebbl utilib mpi mpi_cxx open-rte open-pal
+LIBS=pebbl mpi mpi_cxx open-rte open-pal # utilib
 LIBSPECS=$(patsubst %,-l%,$(LIBS)) 
 
 ####################################### FLAGS ##########################################
