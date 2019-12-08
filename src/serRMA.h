@@ -205,8 +205,8 @@ public:
   virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
 
   //void setParameters(ArgPMA* args, Data* data, const int& deb_int);
-  bool setParameters(ArgRMA* args_) { args=args_; }
-  bool setData(Data* data_);
+  void setParameters(ArgRMA* args_) { args=args_; }
+  void setData(DataRMA* data_);
 
   bool       setupProblem(int& argc,char**& argv) { return true; }
   branchSub* blankSub();
@@ -240,7 +240,7 @@ public:
 
   virtual void printSolutionTime() const {
     ucout << "ERMA Solution: " << incumbentValue
-	  << "\tCPU time: "    << searchTime << "\n";
+	        << "\tCPU time: "    << searchTime << "\n";
   }
 
   // contains l_j-1 = (# of distinct value observed in the feature)
@@ -267,7 +267,7 @@ public:
   clock_t timeStart, timeEnd, clockTicksTaken;
   double timeInSeconds;
 
-  Data*      data;
+  DataRMA*   data;
   ArgRMA*    args;
   //GreedyRMA* grma;
 
@@ -357,7 +357,7 @@ public:
   double getBoundDrop() const;
   void   setInitialEquivClass();
   void   mergeEquivClass(const int& j, const int& al_, const int& au_,
-			 const int& bl_, const int& bu_) ;
+			                   const int& bl_, const int& bu_) ;
   void   dropEquivClass(const int& j, const int& al_, const int& bu_);
   bool   isInSameClass(const int& obs1, const int& obs2,
 	                     const int& j, const int& au_, const int& bl_);

@@ -12,16 +12,7 @@ using namespace rma;
 
 int main(int argc, char** argv) {
 
-  // Arguments *args   = new Arguments(argc, argv);
-  // Data      *data   = new Data(argc, argv, args);
-
-  //Arguments args(argc, argv);
-  //Data      data(argc, argv, &args);
   DriverRMA *driver = new DriverRMA(argc, argv);
-
-  //driver->data->readData(argc, argv);
-  //driver->setup(argc, argv);
-
   driver->solveRMA();
   return 0;
 

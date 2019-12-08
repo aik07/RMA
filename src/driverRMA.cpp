@@ -11,26 +11,31 @@ namespace rma {
 
 DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
 
-  cout << setprecision(6) << fixed;
+#ifdef ACRO_HAVE_MPI
+  uMPI::init(&argc, &argv, MPI_COMM_WORLD);
+#endif // ACRO_HAVE_M
 
-  setup(argc, argv);
+  //cout << setprecision(6) << fixed;
 
-  setData(argc, argv);
-  setupRMA(argc, argv);
+  setup(argc, argv);     // setup all paramaters
 
-}
+  setData(argc, argv);   // set data
+/*
+#ifdef ACRO_HAVE_MPI
+  if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI+
+  setData(argc, argv);   // set data
+#ifdef ACRO_HAVE_MPI
+  }
+#endif //  ACRO_HAVE_MPI
+/*/
+  setupRMA(argc, argv);  // setup RMA
 
-
-void DriverRMA::setData(int& argc, char**& argv) {
-  args = this;
-  data = new Data(argc, argv, args);
 }
 
 void DriverRMA::setupRMA(int& argc, char**& argv) {
 
   #ifdef ACRO_HAVE_MPI
-    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
-    //uMPI::init(MPI_COMM_WORLD);
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
     if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {
@@ -58,8 +63,8 @@ void DriverRMA::solveRMA() {
 #ifdef ACRO_HAVE_MPI
   if (parallel) {
     prma->reset();
-    prma->printConfiguration();
-    CommonIO::begin_tagging();
+		prma->printConfiguration();
+		CommonIO::begin_tagging();
   } else {
 #endif //  ACRO_HAVE_MPI
     rma->reset();
@@ -87,6 +92,6 @@ void DriverRMA::solveRMA() {
   }
 #endif //  ACRO_HAVE_MPI
 
-} // end function solveRMA()
+} // end function solveExactRMA()
 
 } // end namespace rma

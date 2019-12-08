@@ -8,8 +8,8 @@
 
 namespace data {
 
-  //bool Data::readData(int argc, char** argv) {
-  bool Data::readData() {
+  //bool DataRMA::readData(int argc, char** argv) {
+  bool DataRMA::readData() {
 
     unsigned int i, j;
     double tmp;
@@ -36,8 +36,6 @@ namespace data {
       ++numOrigObs;
     }
     --numAttrib; // last line is response value
-
-    cout << "(mxn): " << numOrigObs << "\t" << numAttrib << "\n";
 
   #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
@@ -93,7 +91,7 @@ namespace data {
 
 
   // read shuffled observation from the data file
-  bool Data::readRandObs(int argc, char** argv) {
+  bool DataRMA::readRandObs(int argc, char** argv) {
 
   	ucout << "Use Shuffled Obs\n";
 
@@ -115,7 +113,7 @@ namespace data {
   }
 
 
-  void Data::setDataDimensions() {
+  void DataRMA::setDataDimensions() {
     intData.resize(numOrigObs);
     distFeat.resize(numAttrib);
     vecFeature.resize(numAttrib);
@@ -123,7 +121,7 @@ namespace data {
   }
 
 
-  void Data::writeIntObs() {
+  void DataRMA::writeIntObs() {
     int i,j, obs;
     stringstream s;
     s << "int" << '.' ;
@@ -139,7 +137,7 @@ namespace data {
   }
 
 
-  void Data::writeOrigObs() {
+  void DataRMA::writeOrigObs() {
     int i,j, obs;
     stringstream s;
     s << "orig" << '.' ;
@@ -155,7 +153,7 @@ namespace data {
   }
 
 
-  void Data::setXStat() {
+  void DataRMA::setXStat() {
 
     int i, j, obs;
     avgX.resize(numAttrib);
@@ -185,7 +183,7 @@ namespace data {
   }
 
 
-  void Data::integerizeData() {
+  void DataRMA::integerizeData() {
 
     bool isSplit, flag;
     int i, j, k, l, r, p, q, o, obs;
@@ -464,7 +462,7 @@ namespace data {
   } // end integerizeData
 
 
-  void Data::setStandData(){
+  void DataRMA::setStandData(){
 
     int i, j, obs;
     avgY=0,
@@ -532,7 +530,7 @@ namespace data {
 
   }
 
-  void Data::setPosNegObs() {
+  void DataRMA::setPosNegObs() {
 
     numPosTrainObs=0;
     numNegTrainObs=0;
@@ -540,12 +538,19 @@ namespace data {
       if (origData[vecTrainData[i]].y==1) ++numPosTrainObs;
       else                                ++numNegTrainObs;
     }
+
+#ifdef ACRO_HAVE_MPI
+  if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
     ucout << "m^+ m^-: " << numPosTrainObs << "\t" << numNegTrainObs << "\n";
+#ifdef ACRO_HAVE_MPI
+  }
+#endif //  ACRO_HAVE_MPI
 
   }
 
   //  integerize into fixed bin
-  void Data::integerizeFixedLengthData() {
+  void DataRMA::integerizeFixedLengthData() {
 
     int i,j, obs, glMaxL=-1;
     int sizeBin = args->fixedSizeBin();

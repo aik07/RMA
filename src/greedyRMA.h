@@ -25,7 +25,7 @@ class GreedyRMA {
 
 public:
 
-  GreedyRMA(ArgRMA *args_, Data *data_) : args(args_), data(data_) { }
+  GreedyRMA(ArgRMA *args_, DataRMA *data_) : args(args_), data(data_) { }
 
   void   runGreedyRangeSearch();
 
@@ -76,9 +76,9 @@ public:
   vector<int>    Lmin, Umin;
   vector<double> W;
 
-  ArgRMA* args;
-  Data*   data;
-  Time    ts;
+  ArgRMA*   args;
+  DataRMA*  data;
+  Time      ts;
 
 };
 

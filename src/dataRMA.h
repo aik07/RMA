@@ -38,7 +38,7 @@ public:
   vector<int> X;  // integerized explanatory variables
   double      w;	// weight of each observation
 
-  friend class Data;
+  friend class DataRMA;
 
 };
 
@@ -58,19 +58,19 @@ public:
   vector<double> X;  // explanatory variables
   double         y;	 // dependent variable
 
-friend class Data;
+friend class DataRMA;
 
 };
 
 
-/////////////////////////// Data class ///////////////////////////
-class Data {
+/////////////////////////// DataRMA class ///////////////////////////
+class DataRMA {
 
 public:
 
-  Data() {}
+  DataRMA() {}
 
-  Data(int& argc_, char**& argv_, ArgRMA *args_):
+  DataRMA(int& argc_, char**& argv_, ArgRMA *args_):
       argc(argc_), argv(argv_), args(args_) {
 
     if (args->debug>=10) cout << "Data::readData\n";

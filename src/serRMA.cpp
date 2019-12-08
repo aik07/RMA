@@ -303,7 +303,7 @@ namespace pebblRMA {
 */
 
 
-  bool RMA::setData(Data* data_) {
+  void RMA::setData(DataRMA* data_) {
     data       = data_;
     numDistObs = data->numTrainObs;
     numAttrib  = data->numAttrib;
@@ -1886,8 +1886,8 @@ namespace pebblRMA {
 
 
   rmaSolution::rmaSolution(rmaSolution* toCopy) {
-    DEBUGPRX(100, global,  "Copy constructing rmaSolution at "
-	     << (void*) this << " from " << toCopy << endl; );
+    //DEBUGPRX(100, global,  "Copy constructing rmaSolution at "
+	  //   << (void*) this << " from " << toCopy << endl; );
     copy(toCopy);
     serial = ++(global->solSerialCounter);
   }

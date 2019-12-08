@@ -106,6 +106,8 @@ namespace pebblRMA {
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;
+
+		/*
 		Parameter& p = get_parameter_object("rampUpPoolLimitFac");
 		p.default_value = "1.0";
 
@@ -120,7 +122,7 @@ namespace pebblRMA {
 					   "of features.",
 					   "Maximum Monomial",
 					   utilib::ParameterNonnegative<double>());
-
+		*/
 		branchChoice::setupMPI();
 	}
 
@@ -139,7 +141,8 @@ namespace pebblRMA {
 			delete cutPtCaster;
 			cutPtCaster = NULL;
 		}
-		parallelBranching::reset(VBflag);
+		parallelBranching::reset();
+		//parallelBranching::reset(VBflag);
 	}
 
 
@@ -171,13 +174,15 @@ namespace pebblRMA {
 	   	outBuf << data->origData[i].y;
 	  }
 
+		outBuf << numTotalCutPts;
+
 		//TODO: fix this part!
 /*
 	  outBuf << distFeat
 		       << args->perLimitAttrib()
 		       << args->perCachedCutPts()
 					 << numTotalCutPts;
-*/
+//*/
 	} // end function parRMA::pack
 
 
@@ -200,25 +205,30 @@ namespace pebblRMA {
 			inBuf >> data->origData[i].y;
 		}
 
-//TODO: fix this part!
-/*
+		inBuf >> numTotalCutPts;
+
+    /*
 		inBuf >> distFeat
 		      >> args->perLimitAttrib()
 		      >> args->perCachedCutPts()
 					>> numTotalCutPts;
-*/
+		/*/
+
 		if (args->debug>=20) ucout << "parRMA::unpack done." << '\n';
 
-		/*
-		if (global()->args->debug>=20)ucout <<" distFeat: ";
-				for(size_type i=0; i<numAttrib; i++) {
-				ucout << distFeat[i] << ", ";
-		});
+		//*
+		if (args->debug>=20) {
 
-		if (global()->args->debug>=20)for(size_type i=0; i<numDistObs; i++) {
-				ucout <<" wt: " << intData[i].w << '\n';
-		});
-		*/
+			ucout << " distFeat: ";
+
+			for(size_type i=0; i<numAttrib; i++)
+			  ucout << distFeat[i] << ", ";
+
+		 for(size_type i=0; i<numDistObs; i++)
+				ucout <<" wt: " << data->intData[i].w << '\n';
+		}
+		//*/
+
 	} // end function parRMA::unpack
 
 
