@@ -299,8 +299,7 @@ namespace pebblRMA {
       //MPI_Comm_rank(MPI_COMM_WORLD,&rank);
       rank = uMPI::rank;
       sendbuf = numCC_SP ;
-      DEBUGPRX(10, this,
-	       cout << "Local non-stron branching SP is: " << numCC_SP << "\n");
+      DEBUGPR(10, cout << "Local non-stron branching SP is: " << numCC_SP << "\n");
 
       uMPI::reduceCast(&sendbuf,&recvbuf,1, MPI_INT, MPI_SUM);
 
@@ -418,7 +417,7 @@ namespace pebblRMA {
 
     s.close();  // close the data file
 
-    DEBUGPRX(0, this, cout << "distFeat :" << distFeat << "\n");
+    DEBUGPR(0, cout << "distFeat :" << distFeat << "\n");
 
     if (getInitialGuess()) W.resize(maxL+1);
 
@@ -529,12 +528,12 @@ namespace pebblRMA {
 
     for (j=0; j<numAttrib; ++j) {
 
-      DEBUGPRX(2, this, cout << "feat: " << j << "\n");
+      DEBUGPR(2, cout << "feat: " << j << "\n");
       setDistVal.clear();
       for (i=0; i<numObs; ++i)
 	setDistVal.insert(origData[i].X[j]);
 
-      DEBUGPRX(2, this, cout << "setDistVal: " ;
+      DEBUGPR(2, cout << "setDistVal: " ;
 	       for (it=setDistVal.begin(); it!=setDistVal.end(); ++it) cout << *it << " ";
 	       cout << '\n');
 
@@ -543,7 +542,7 @@ namespace pebblRMA {
       eps = min(delta, limitInterval) * interval ;
 
       eps0 = eps;
-      DEBUGPRX(2, this, cout << "delta: " << delta << "\n";
+      DEBUGPR(2, cout << "delta: " << delta << "\n";
 	       cout << "max: " << *setDistVal.rbegin()
 	       << " min: " << *setDistVal.begin() << "\n";
 	       cout << "eps: " << eps << "\n";
@@ -558,7 +557,7 @@ namespace pebblRMA {
       vecFeature[j].vecIntMinMax[0].maxOrigVal = *itp;
 
       for (it=setDistVal.begin(); it!=setDistVal.end(); ++it) {
-	DEBUGPRX(2, this, cout << "tmpL: " << *itp << " tmpU: " << *it
+	DEBUGPR(2, cout << "tmpL: " << *itp << " tmpU: " << *it
 		 << " diff: " << (*it-*itp) << endl);
         if ( (*it-*itp)>eps ) {
 	  vecFeature[j].vecIntMinMax[++k-1].maxOrigVal = *(--it);
@@ -569,7 +568,7 @@ namespace pebblRMA {
       }
       vecFeature[j].vecIntMinMax[k].maxOrigVal = *(--it);
 
-      DEBUGPRX(2, this, cout << "mapDblInt contains:";
+      DEBUGPR(2, cout << "mapDblInt contains:";
 	       for (itm = mapDblInt.begin(); itm != mapDblInt.end(); ++itm)
 		 cout << " [" << itm->first << ':' << itm->second << ']';
 	       cout << '\n');
@@ -584,7 +583,7 @@ namespace pebblRMA {
 	  copyIntMinMax[i].minOrigVal = vecFeature[j].vecIntMinMax[i].minOrigVal;
 	  copyIntMinMax[i].maxOrigVal = vecFeature[j].vecIntMinMax[i].maxOrigVal;
 	}
-	DEBUGPRX(2, this, cout << endl << "vecIntMin ";
+	DEBUGPR(2, cout << endl << "vecIntMin ";
 		 for (i=0; i<=k; ++i) cout << copyIntMinMax[i].minOrigVal << ' ';
 		 cout << "\nvecIntMax ";
 		 for (i=0; i<=k; ++i) cout << copyIntMinMax[i].maxOrigVal << ' ';
@@ -597,17 +596,17 @@ namespace pebblRMA {
 	  tmpU = copyIntMinMax[i].maxOrigVal;
 	  while ( (tmpU-tmpL) > limitInterval*interval && isSplit && eps>.0001) {
 	    isSplit=false;	eps *= shrinkDelta ;
-	    DEBUGPRX(2, this, cout << "new eps: " << eps << '\n');
+	    DEBUGPR(2, cout << "new eps: " << eps << '\n');
 	    for (q=0; q<=r; ++q) {
 	      l=0;
 	      tmpL1 = vecFeature[j].vecIntMinMax[i+p+q].minOrigVal;
 	      tmpU1 = vecFeature[j].vecIntMinMax[i+p+q].maxOrigVal;
-	      DEBUGPRX(2, this, cout << " q: " << q
+	      DEBUGPR(2, cout << " q: " << q
 		       << " tmpL2: " << tmpL1 << " tmpU2: " << tmpU1
 		       << " diff: " << tmpU1 - tmpL1 << endl);
 	      if ( ( tmpU1 - tmpL1 ) < 0 ) {
-		DEBUGPRX(2, this, cout << "Something Wrong!!!!!!!!!!!!!!!!!!!!!\n");
-		DEBUGPRX(2, this, cout << endl << "vecIntMin2 ";
+		DEBUGPR(2, cout << "Something Wrong!!!!!!!!!!!!!!!!!!!!!\n");
+		DEBUGPR(2, cout << endl << "vecIntMin2 ";
 			 for (o=0; o<=k+p; ++o) cout << vecFeature[j].vecIntMinMax[o].minOrigVal << ' ';
 			 cout << "\nvecIntMax2 ";
 			 for (o=0; o<=k+p; ++o) cout << vecFeature[j].vecIntMinMax[o].maxOrigVal << ' ';
@@ -616,18 +615,17 @@ namespace pebblRMA {
 		isSplit=true;
 		for (it=setDistVal.find(tmpL1); ; ++it) {
 		  tmp1U = *it;
-		  DEBUGPRX(2, this,
-			   cout << "tmpL1: " << tmpL1 << " tmpU1: " << tmp1U
+		  DEBUGPR(2, cout << "tmpL1: " << tmpL1 << " tmpU1: " << tmp1U
 			   << " diff: " << tmp1U-tmpL1 << endl);
 		  if ( ( tmp1U-tmpL1 ) > eps ) {
 		    ++l; ++r; flag=true;
 		    vecFeature[j].vecIntMinMax[i+p+l+q-1].maxOrigVal = tmpL1;
 		    vecFeature[j].vecIntMinMax[i+p+l+q].minOrigVal   = tmp1U;
-		    DEBUGPRX(2, this, cout << " idx: " << i+p+l+q-1
+		    DEBUGPR(2, cout << " idx: " << i+p+l+q-1
 			     << " tmpL4: " << vecFeature[j].vecIntMinMax[i+p+l+q-1].maxOrigVal
 			     << " tmpU4: " << vecFeature[j].vecIntMinMax[i+p+l+q].minOrigVal
 			     << endl);
-		    DEBUGPRX(2, this, cout << " i: " << i << "p: " << p << " r: " << r
+		    DEBUGPR(2, cout << " i: " << i << "p: " << p << " r: " << r
 			     << " l: " << l << " q: " << q    << endl);
 		  }
 		  tmpL1 = tmp1U ;
@@ -645,7 +643,7 @@ namespace pebblRMA {
 
 	} // end for (i=0; i<=k; ++i), each original interval
 
-	DEBUGPRX(2, this, cout << endl << "vecIntMin1 ";
+	DEBUGPR(2, cout << endl << "vecIntMin1 ";
 		 for (i=0; i<=k+p; ++i) cout << vecFeature[j].vecIntMinMax[i].minOrigVal << ' ';
 		 cout << "\nvecIntMax1 ";
 		 for (i=0; i<=k+p; ++i) cout << vecFeature[j].vecIntMinMax[i].maxOrigVal << ' ';
@@ -657,7 +655,7 @@ namespace pebblRMA {
 	  mapDblInt[*it] = o;
 	}
 
-	DEBUGPRX(2, this, cout << "mapDblInt1 contains:";
+	DEBUGPR(2, cout << "mapDblInt1 contains:";
 		 for (itm = mapDblInt.begin(); itm != mapDblInt.end(); ++itm)
 		   cout << " [" << itm->first << ':' << itm->second << ']';
 		 cout << '\n');
@@ -678,10 +676,10 @@ namespace pebblRMA {
 
     for (i=0; i<numObs ; ++i) {
       obs = sortedObsIdx[i];
-      DEBUGPRX(20, this, cout << "IntObs: " << obs << ": "
+      DEBUGPR(20, cout << "IntObs: " << obs << ": "
 	       << intData[obs] << '\n');
     }
-    DEBUGPRX(0, this, cout << "distFeat: " << distFeat << "\n");
+    DEBUGPR(0, cout << "distFeat: " << distFeat << "\n");
 
     maxL=0;
     for (j=0; j<numAttrib ; ++j) {
@@ -843,21 +841,21 @@ namespace pebblRMA {
     vecCoveredObs.resize(sortedObsIdx.size());
     copy(sortedObsIdx.begin(), sortedObsIdx.end(), vecCoveredObs.begin());
 
-    DEBUGPRX(10, this, cout << "Lmin " << Lmin );
-    DEBUGPRX(10, this, cout << "Umin " << Umin );
+    DEBUGPR(10, cout << "Lmin " << Lmin );
+    DEBUGPR(10, cout << "Umin " << Umin );
 
     ///////////////// Minimum Range ///////////////////////
     do {
       fondNewBox = false;
       for (j=0; j<numAttrib; ++j) { // for each feature
         if ( j != oldAttrib ) { // if this attribute is not restricted
-          DEBUGPRX(10, this, cout << "for featrue: " << j << "\n" );
+          DEBUGPR(10, cout << "for featrue: " << j << "\n" );
           setObjVec(j);
           tmpMin = getMinRange(j);
           if (tmpMin<minVal) { // && ( tmpL!=0 || tmpU != distFeat[j] ) ) {
             minVal = tmpMin; fondNewBox = true;
             optAttrib = j; optLower = tmpL; optUpper = tmpU;
-            DEBUGPRX(10, this, cout << "optAttrib: (a,b): " << optAttrib << ": "
+            DEBUGPR(10, cout << "optAttrib: (a,b): " << optAttrib << ": "
 		     << optLower << ", " << optUpper << " min: " << minVal << "\n") ;
           } // end for each cut-value
         } // end if this attribute is not restricted
@@ -867,8 +865,8 @@ namespace pebblRMA {
         Lmin[optAttrib] = optLower;
         Umin[optAttrib] = optUpper;
         oldAttrib = optAttrib;
-        DEBUGPRX(10, this, cout << "vecCoveredObs: " << vecCoveredObs);
-        DEBUGPRX(10, this, cout << "final optAttrib: (a,b): " << optAttrib
+        DEBUGPR(10, cout << "vecCoveredObs: " << vecCoveredObs);
+        DEBUGPR(10, cout << "final optAttrib: (a,b): " << optAttrib
 		 << ": " << optLower << ", " << optUpper << " min: " << minVal << "\n" );
       }
     } while( fondNewBox );
@@ -886,13 +884,13 @@ namespace pebblRMA {
       for (j=0; j<numAttrib; ++j) { // for each feature
         if ( j != oldAttrib ) { // if this attribute is not restricted
           setObjVec(j);
-          DEBUGPRX(10, this, cout << "for attribute: " << j << "tempMax: "
+          DEBUGPR(10, cout << "for attribute: " << j << "tempMax: "
 		   << tmpMax << " tmpL: "<< tmpL << " tmpU: "<< tmpU <<"\n");
           tmpMax = getMaxRange(j);
           if (tmpMax>maxVal) {
             maxVal = tmpMax; fondNewBox = true;
             optAttrib = j; optLower = tmpL; optUpper = tmpU;
-            DEBUGPRX(10, this, cout << "optAttrib: (a,b): " << optAttrib << ": "
+            DEBUGPR(10, cout << "optAttrib: (a,b): " << optAttrib << ": "
 		     << optLower << ", " << optUpper << " max: " << maxVal << "\n" );
           } // end for each cut-value
         } // end if this attribute is not restricted
@@ -902,8 +900,8 @@ namespace pebblRMA {
         Lmax[optAttrib] = optLower;
         Umax[optAttrib] = optUpper;
         oldAttrib = optAttrib;
-        DEBUGPRX(10, this, cout << "vecCoveredObs: " << vecCoveredObs);
-        DEBUGPRX(10, this, cout << "final optAttrib: (a,b): " << optAttrib
+        DEBUGPR(10, cout << "vecCoveredObs: " << vecCoveredObs);
+        DEBUGPR(10, cout << "final optAttrib: (a,b): " << optAttrib
 		 << ": " << optLower << ", " << optUpper << " max: " << maxVal << "\n" );
       }
     } while( fondNewBox );
@@ -915,17 +913,17 @@ namespace pebblRMA {
       guess->b.resize(numAttrib);
       copy(Lmax.begin(), Lmax.end(), guess->a.begin());
       copy(Umax.begin(), Umax.end(), guess->b.begin());
-      DEBUGPRX(10, this, cout << "chose max\n");
+      DEBUGPR(10, cout << "chose max\n");
     } else {
       maxObjValue=-minVal;
       guess->a.resize(numAttrib);
       guess->b.resize(numAttrib);
       copy(Lmin.begin(), Lmin.end(), guess->a.begin());
       copy(Umin.begin(), Umin.end(), guess->b.begin());
-      DEBUGPRX(10, this, cout << "chose min\n");
+      DEBUGPR(10, cout << "chose min\n");
     }
-    DEBUGPRX(10, this, cout << "Lmin: " << Lmin << "Umin: " << Umin);
-    DEBUGPRX(10, this, cout << "Lmax: " << Lmax << "Umax: " << Umax);
+    DEBUGPR(10, cout << "Lmin: " << Lmin << "Umin: " << Umin);
+    DEBUGPR(10, cout << "Lmax: " << Lmax << "Umax: " << Umax);
 
     guess->value = maxObjValue;	// store the current incumbent!
 
@@ -934,9 +932,9 @@ namespace pebblRMA {
 
     cout << "initialGuess: " << guess->value << " ";
     endTime();
-    DEBUGPRX(10, this, cout << "initial a: " << guess->a
+    DEBUGPR(10, cout << "initial a: " << guess->a
 	     << "initial b: " << guess->b);
-    DEBUGPRX(10, this, cout << "Final vecCoveredObs: " << vecCoveredObs);
+    DEBUGPR(10, cout << "Final vecCoveredObs: " << vecCoveredObs);
     return guess;
 
   } // end function solution* RMA::initialGuess()
@@ -954,8 +952,8 @@ namespace pebblRMA {
       if ( maxEndHere<0 ) { maxEndHere=0; s=i+1;}
     }
 
-    DEBUGPRX(10, this, cout << "Maximum contiguous sum is " << maxSoFar );
-    DEBUGPRX(10, this, cout << " feat (L,U): " << j << " ("
+    DEBUGPR(10, cout << "Maximum contiguous sum is " << maxSoFar );
+    DEBUGPR(10, cout << " feat (L,U): " << j << " ("
 	     << tmpL << ", " << tmpU << ")\n" );
     return maxSoFar;
   }
@@ -973,8 +971,8 @@ namespace pebblRMA {
       if ( minEndHere>0 ) { minEndHere=0; s=i+1; }
     }
 
-    DEBUGPRX(10, this, cout << "Minimum contiguous sum is " << minSoFar << " ");
-    DEBUGPRX(10, this, cout << " feat (L,U): " << j << " ("
+    DEBUGPR(10, cout << "Minimum contiguous sum is " << minSoFar << " ");
+    DEBUGPR(10, cout << " feat (L,U): " << j << " ("
 	     << tmpL << ", " << tmpU << ")\n" );
     return minSoFar;
   }
@@ -988,20 +986,20 @@ namespace pebblRMA {
       v = intData[obs].X[j];
       W[v] += intData[obs].w;
     }
-    DEBUGPRX(10, this, cout << "W: " << W << endl);
+    DEBUGPR(10, cout << "W: " << W << endl);
   }
 
 
   void RMA::dropObsNotCovered(const int &j, const int &lower, const int &upper) {
     int obs, l=-1;
-    DEBUGPRX(10, this, cout << "before drop: " << vecCoveredObs;);
+    DEBUGPR(10, cout << "before drop: " << vecCoveredObs;);
     for (int i=0 ; i<vecCoveredObs.size(); ++i) {
       obs = vecCoveredObs[i];
       if ( lower <= intData[obs].X[j] && intData[obs].X[j] <= upper )
         vecCoveredObs[++l] = obs;   // store covered observations
     }
     vecCoveredObs.resize(l+1);  // shrink the size of vecCoveredObs
-    DEBUGPRX(10, this, cout << "after drop: " << vecCoveredObs;);
+    DEBUGPR(10, cout << "after drop: " << vecCoveredObs;);
   }
 
 
@@ -1154,7 +1152,7 @@ namespace pebblRMA {
     setState(bounded);
 
     if (_branchChoice.branch[0].roundedBound < 0) {
-      DEBUGPRX(10, global(), cout << "Bound < 0. \n");
+      DEBUGPR(10, cout << "Bound < 0. \n");
       setState(dead);
       return;
     }
@@ -1162,7 +1160,7 @@ namespace pebblRMA {
     if ( _branchChoice.branchVar > numAttrib() ) {
       DEBUGPR(10, ucout << "al: " << al << "au: " << au
 	      << "bl: " << bl << "bu: " << bu );
-      DEBUGPRX(10, global(), cout << "branchVar > numAttrib. \n");
+      DEBUGPR(10, cout << "branchVar > numAttrib. \n");
       setState(dead);
       return;
     }
@@ -1448,14 +1446,14 @@ namespace pebblRMA {
         thisChoice.branch[i].roundedBound=-1;
       }
 
-    DEBUGPRX(10, global(), "Sorted version is " << thisChoice << "\n");
+    DEBUGPR(10, ucout << "Sorted version is " << thisChoice << "\n");
 
     if (thisChoice < _branchChoice) {
       //cout << "branchBound: " << thisChoice.branch[0].exactBound << " "
       //     << _branchChoice.branch[0].exactBound;
       _branchChoice = thisChoice;
-      DEBUGPR(50,ucout << "Improves best attribute: " << j << "\n");
-      DEBUGPRX(10, global(), "Branch choice now: " << _branchChoice << "\n");
+      DEBUGPR(50, ucout << "Improves best attribute: " << j << "\n");
+      DEBUGPR(10, ucout << "Branch choice now: " << _branchChoice << "\n");
       NumTiedSols=1;
       //foundBound=true;
     } else if (thisChoice == _branchChoice) {
@@ -1469,13 +1467,13 @@ namespace pebblRMA {
         //DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
         if ( rand_num  <= 1.0 /  NumTiedSols ) {
           _branchChoice = thisChoice;
-          DEBUGPR(50,ucout << "Improves best attribute: " << j << "\n");
-          DEBUGPRX(10, global(), "Branch choice now is: " << _branchChoice << "\n");
+          DEBUGPR(50, ucout << "Improves best attribute: " << j << "\n");
+          DEBUGPR(10, ucout << "Branch choice now is: " << _branchChoice << "\n");
         }
       } else if (global()->branchSelection()==2) {
         _branchChoice = thisChoice;
-        DEBUGPR(50,ucout << "Improves best attribute: " << j << "\n");
-        DEBUGPRX(10, global(), "Branch choice now is: " << _branchChoice << "\n");
+        DEBUGPR(50, ucout << "Improves best attribute: " << j << "\n");
+        DEBUGPR(10, ucout << "Branch choice now is: " << _branchChoice << "\n");
       }
     }
 
@@ -1623,7 +1621,7 @@ namespace pebblRMA {
           }
 
           //cout << "(j, cutValue) " << j << ", " << cutValue << "\n";
-          DEBUGPRX(10, global(), cout << "sortedOBS1: " << coveredObs);
+          DEBUGPR(10, ucout << "sortedOBS1: " << coveredObs);
 	  branchingProcess(j, cutValue);
 
           // compare objectives instead of bounds
@@ -1716,7 +1714,7 @@ namespace pebblRMA {
         }
 
         //cout << "(j, cutValue) " << j << ", " << cutValue << "\n";
-        DEBUGPRX(10, global(), cout << "sortedOBS1: " << coveredObs);
+        DEBUGPR(10, cout << "sortedOBS1: " << coveredObs);
 	branchingProcess(j, cutValue);
 
         // compare objectives instead of bounds
@@ -2277,8 +2275,8 @@ namespace pebblRMA {
     sortedECidx1.resize(vecEquivClass1.size());
     for (int i=0; i<vecEquivClass1.size(); ++i) sortedECidx1[i] = i;
 
-    DEBUGPR(20,ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n");
-    DEBUGPR(25,ucout << "vecEquivClass1: \n");
+    DEBUGPR(20, ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n");
+    DEBUGPR(25, ucout << "vecEquivClass1: \n");
     DEBUGPR(30, for (int i=0; i<vecEquivClass1.size(); ++i)
 		  cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n" );
 
@@ -2384,9 +2382,9 @@ namespace pebblRMA {
 
     vecEquivClass1.resize(sizeEC);
 
-    DEBUGPR(20,ucout << "Size of sortedObs1: " << coveredObs1.size() << "\n");
-    DEBUGPR(20,ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n");
-    DEBUGPR(25,ucout << "vecEquivClass1: \n" );
+    DEBUGPR(20, ucout << "Size of sortedObs1: " << coveredObs1.size() << "\n");
+    DEBUGPR(20, ucout << "Size of vecEquivClass1: " << vecEquivClass1.size() << "\n");
+    DEBUGPR(25, ucout << "vecEquivClass1: \n" );
     DEBUGPR(30, for (int i=0; i<vecEquivClass1.size(); ++i)
 		  cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n" );
   }  // end function RMASub::setEquivClassBC
@@ -2400,8 +2398,8 @@ namespace pebblRMA {
 
 
   void RMASub::printCurrentBounds() {
-    DEBUGPRX(10, global(), "Best local choice is " <<  _branchChoice << "\n");
-    DEBUGPRX(20, global(), " optFeat=" << _branchChoice.branchVar
+    DEBUGPR(10, ucout << "Best local choice is " <<  _branchChoice << "\n");
+    DEBUGPR(20, ucout << " optFeat=" << _branchChoice.branchVar
 	     << " optCutValue=" << _branchChoice.cutVal
 	     << " minBound=" << _branchChoice.branch[0].exactBound << endl);
   } // end junction RMASub::printCurrentBounds
@@ -2411,7 +2409,7 @@ namespace pebblRMA {
   // RMASolution methods
 
   rmaSolution::rmaSolution(RMA* global_) : solution(global_), global(global_) {
-    DEBUGPRX(100,global, "Creating rmaSolution at " << (void*) this
+    DEBUGPRX(100, global, "Creating rmaSolution at " << (void*) this
 	     << " with global=" << global << endl);
     // Only one solution representation in this application,
     // so typeId can just be 0.

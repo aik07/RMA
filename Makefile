@@ -23,7 +23,7 @@ LIBSPECS=$(patsubst %,-l%,$(LIBS))
 
 ####################################### FLAGS ##########################################
 DEBUGFLAGS=-g -fpermissive -O0
-MISCCXXFLAGS= -std=c++98
+MISCCXXFLAGS= #-std=c++98
 
 # include
 CXXFLAGS=$(DEFSYMBOLS) $(INCLUDES) $(MISCCXXFLAGS) $(DEBUGFLAGS) 
@@ -34,7 +34,7 @@ LDFLAGS=$(DEBUGFLAGS) $(LIBLOCATIONS)
 ######################################################################################
 
 SRCDIR=./src
-OBJDIR=./
+OBJDIR=./obj
 _HEADERS=serRMA.h parRMA.h
 _SOURCES=main.cpp serRMA.cpp parRMA.cpp
 _OBJECTS = $(_SOURCES:%.cpp=%.o)

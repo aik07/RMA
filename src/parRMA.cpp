@@ -180,8 +180,7 @@ namespace pebblRMA {
   
   // Destructor.
   parRMA::~parRMA() {
-    if (cutPtCaster == 0)
-      delete cutPtCaster;
+    if (cutPtCaster == 0) delete cutPtCaster;
     branchChoice::freeMPI();
   }
   

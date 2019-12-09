@@ -33,7 +33,7 @@ namespace pebblRMA {
     
   public:
     
-    parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
+    parRMA(MPI_Comm comm_);
     ~parRMA();
     
     parallelBranchSub * blankParallelSub();
