@@ -3,7 +3,7 @@
 CXX=mpicxx
 
 RMA_DIR=/home/kagawa/Projects/thesis/code/RMA
-PEBBL_DIR=/home/kagawa/Projects/thesis/code/pebbl/installpebbl
+PEBBL_DIR=/home/kagawa/Projects/thesis/installpebbl
 MPI_ROOT=/usr/lib/x86_64-linux-gnu/openmpi #/opt/openmpi/1.10.1
 
 ######################################### SYMBOLS ########################################
@@ -35,9 +35,9 @@ HDRDIR=./src
 SRCDIR=./src
 OBJDIR=./obj
 _HEADERS=Time.h driverRMA.h argRMA.h baseRMA.h dataRMA.h \
-         serRMA.h parRMA.h # greedyRMA.h
+         serRMA.h parRMA.h greedyRMA.h
 _SOURCES=driverRMA.cpp argRMA.cpp baseRMA.cpp dataRMA.cpp \
-         serRMA.cpp parRMA.cpp  driver.cpp #greedyRMA.cpp
+         serRMA.cpp parRMA.cpp  driver.cpp greedyRMA.cpp
 _OBJECTS=$(_SOURCES:.cpp=.o)
 
 SOURCES = $(patsubst %, $(SRCDIR)/%, $(_SOURCES))
