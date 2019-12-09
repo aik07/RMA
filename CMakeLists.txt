@@ -1,25 +1,20 @@
-cmake_minimum_required(VERSION 3.0)
-project(rma)
+cmake_minimum_required(VERSION 3.5)
+project(RMA CXX)
+include(CMakePackageConfigHelpers)
 
-include_directories(src)
+set(include_install_dir "include" CACHE PATH "Relative location where to install headers.")
+set(rma_header_install_dir ${include_install_dir}/pebbl)
+set(lib_install_dir "lib" CACHE PATH "Relative location where to install libraries.")
+set(package_install_dir ${lib_install_dir}/rma)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set (CMAKE_PREFIX_PATH "../../pebbl/build")
+message("MPI enabled.")
+find_package(MPI REQUIRED)
+include_directories(SYSTEM ${MPI_CXX_INCLUDE_PATH})
 
-set( CMAKE_CXX_STANDARD 11 )
-set( CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall" )
 
-set ( PEBBBL_LINK_LIBS libpebbl.a )
-link_directories( ../../pebbl/build/src/pebbl  )
+add_subdirectory(src)
 
-FIND_PACKAGE( MPI   REQUIRED )
-
-file(GLOB SOURCES "src/*.cpp")
-
-add_executable(rma ${SOURCES})
-
-add_library( rma STATIC ${SOURCES} )
-
-install( TARGET rma DESTINATION PEBBL_LINK_LIBS )
-
-#target_link_libraries(librma ${PROJECT_LINK_LIBS} )
+configure_package_config_file(rma-config.cmake.in rma-config.cmake
+                              INSTALL_DESTINATION ${package_install_dir}
+                              PATH_VARS include_install_dir)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/rma-config.cmake DESTINATION ${package_install_dir})

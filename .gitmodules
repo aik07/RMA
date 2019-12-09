@@ -1,0 +1,3 @@
+[submodule "pebbl"]
+	path = pebbl
+	url = https://github.com/PEBBL/pebbl.git
