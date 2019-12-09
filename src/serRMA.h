@@ -427,5 +427,7 @@ inline branchSub* RMA::blankSub() {
 
 ostream& operator<<(ostream& os, pebblRMA::branchChoice& bc);
 ostream& operator<<(ostream& os, pebblRMA::EquivClass&   obj);
+ostream& operator<<(ostream& os, const vector<int>& v);
+ostream& operator<<(ostream& os, const deque<bool>& v);
 
 #endif

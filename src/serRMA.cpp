@@ -2035,3 +2035,19 @@ ostream& operator<<(ostream& os, pebblRMA::EquivClass& obj)  {
   obj.write(os);
   return os;
 }
+
+ostream& operator<<(ostream& os, const vector<int>& v)  {
+	os << "(";
+	for (vector<int>::const_iterator i = v.begin(); i != v.end(); ++i)
+		os << " " << *i;
+	os << " )\n";
+	return os;
+}
+
+ostream& operator<<(ostream& os, const deque<bool>& v)  {
+	os << "(";
+	for (deque<bool>::const_iterator i = v.begin(); i != v.end(); ++i)
+		os << " " << *i;
+	os << " )\n";
+	return os;
+}
