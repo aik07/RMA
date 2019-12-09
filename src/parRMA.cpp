@@ -8,40 +8,8 @@
 
 #ifdef ACRO_HAVE_MPI
 
-/*
-#include <stdlib.h>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <stack>
-#include <cmath>
-#include <fstream>
-#include <sstream>
-#include <algorithm>    // std::in
-#include <mpi.h>
-#include <utility>
-#include <utilib/logEvent.h>
-#include <utilib/_math.h>
-#include <utilib/stl_auxiliary.h>
-#include <utilib/exception_mngr.h>
-#include <utilib/comments.h>
-#include <utilib/mpiUtil.h>
-#include <utilib/std_headers.h>
-#include <utilib/PackBuf.h>
-#include <utilib/BitArray.h>
-#include <pebbl/fundamentals.h>
-#include <pebbl/packedSolution.h>
-#include <pebbl/parPebblBase.h>
-#include <pebbl/ThreadObj.h>
-#include <pebbl/SelfAdjustThread.h>
-#include <pebbl/coTree.h>
-#include <pebbl/outBufferQ.h>
-#include <pebbl/parBranching.h>
-*/
-
 #include "parRMA.h"
-//#include "serRMA.h"
-
+#include "serRMA.h"
 
 using namespace utilib;
 using namespace std;
@@ -121,20 +89,21 @@ namespace pebblRMA {
       ptrParRMA->mmapCachedCutPts[j] = v;
       //ptrParRMA->mapCachedCutPts.add(hash_bj(tempVecCutPts)%ptrParRMA->totalCutPts, tempCutPt);
       */
+
     return true;
   }
   
   
   void CutPtThd::setCutPtThd(const int& _j, const int& _v) {
-    j = _j;		v = _v;
+    j = _j;  v = _v;
   }
   
   
   // Logic to relay information to other nodes.
   void CutPtThd::relayLoadBuffer(PackBuffer* buf) {
-		*buf << j << v << originator;
-		DEBUGPR(20,ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
-			<< "), originator=" << originator << "\n");
+    *buf << j << v << originator;
+    DEBUGPR(20,ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
+	    << "), originator=" << originator << "\n");
   }
   
   

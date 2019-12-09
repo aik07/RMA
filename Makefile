@@ -23,7 +23,7 @@ LIBSPECS=$(patsubst %,-l%,$(LIBS))
 
 ####################################### FLAGS ##########################################
 DEBUGFLAGS=-g -fpermissive -O0
-MISCCXXFLAGS= #-std=c++98
+MISCCXXFLAGS= -std=c++11 #-std=c++98
 
 # include
 CXXFLAGS=$(DEFSYMBOLS) $(INCLUDES) $(MISCCXXFLAGS) $(DEBUGFLAGS) 

@@ -17,15 +17,13 @@
 #include <ctime>
 #include <cmath>
 #include <cstdlib>
-#include  <stdlib.h>
+#include <stdlib.h>
 #include <limits>
-
 
 #include <pebbl_config.h>
 #include <pebbl/bb/branching.h>
 #include <pebbl/misc/chunkAlloc.h>
 #include <pebbl/utilib/ParameterSet.h>
-//#include <pebbl/utilib/SimpleHashTable.h>
 #include <pebbl/utilib/seconds.h>
 #include <pebbl/utilib/exception_mngr.h>
 #include <pebbl/utilib/comments.h>
@@ -54,7 +52,7 @@ namespace pebblRMA {
     bool operator<(const CutPt& rhs) const {
       return j < rhs.j;
     };
-  } ;
+  };
   
   
   // RMAObs class contains info about each observation
@@ -263,25 +261,25 @@ namespace pebblRMA {
     double endTime();
 
     /************************ get parameters ************************/
-    double perCachedCutPts() const {return _perCachedCutPts;}
-    bool binarySearchCutVal() const {return _binarySearchCutVal;}
-    double perLimitAttrib() const {return _perLimitAttrib;}
-    bool getInitialGuess() const {return _getInitialGuess;}
-    bool checkObjVal() const {return _checkObjVal;}
-    bool bruteForceEC() const {return _bruteForceEC;}
-    bool bruteForceIncumb() const {return _bruteForceIncumb;}
-    bool writingInstances() const {return _writeInstances;}
-    bool writingNodeTime() const {return _writeNodeTime;}
-    bool writingCutPts() const {return _writeCutPts;}
-    bool testWeight() const {return _testWt;}
-    int maxBoundedSP() const {return _maxBoundedSP;}
-    double rampUpSizeFact() const {return _rampUpSizeFact;}
-    bool countingSort() const {return _countingSort;}
-    int branchSelection() const {return _branchSelection;}
-    double delta() const {return _delta;}
-    double shrinkDelta() const {return _shrinkDelta;}
-    double limitInterval() const {return _limitInterval;}
-    int fixedSizeBin() const {return _fixedSizeBin;}
+    double perCachedCutPts()    const {return _perCachedCutPts;}
+    bool   binarySearchCutVal() const {return _binarySearchCutVal;}
+    double perLimitAttrib()     const {return _perLimitAttrib;}
+    bool   getInitialGuess()    const {return _getInitialGuess;}
+    bool   checkObjVal()        const {return _checkObjVal;}
+    bool   bruteForceEC()       const {return _bruteForceEC;}
+    bool   bruteForceIncumb()   const {return _bruteForceIncumb;}
+    bool   writingInstances()   const {return _writeInstances;}
+    bool   writingNodeTime()    const {return _writeNodeTime;}
+    bool   writingCutPts()      const {return _writeCutPts;}
+    bool   testWeight()         const {return _testWt;}
+    int    maxBoundedSP()       const {return _maxBoundedSP;}
+    double rampUpSizeFact()     const {return _rampUpSizeFact;}
+    bool   countingSort()       const {return _countingSort;}
+    int    branchSelection()    const {return _branchSelection;}
+    double delta()              const {return _delta;}
+    double shrinkDelta()        const {return _shrinkDelta;}
+    double limitInterval()      const {return _limitInterval;}
+    int    fixedSizeBin()       const {return _fixedSizeBin;}
 
   protected:
     /**************** RMA optional parameters ****************/

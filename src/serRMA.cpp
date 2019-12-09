@@ -294,6 +294,7 @@ namespace pebblRMA {
 
 
   RMA::~RMA() {
+
     if ( perCachedCutPts() <1 ) {
       int rank, sendbuf, recvbuf;
       //MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -311,6 +312,9 @@ namespace pebblRMA {
         cout << "Total non-strong branching SP is: " << recvbuf << "\n";
       }
     }
+    
+    workingSol.decrementRefs();
+    
     /*
       if (verifyLog()) {
       verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
