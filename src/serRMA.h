@@ -14,16 +14,29 @@
 #include <ctime>
 #include <cstdlib>
 #include <limits>
-#include <acro_config.h>
-#include <pebbl/branching.h>
-#include <pebbl/chunkAlloc.h>
-#include <utilib/ParameterSet.h>
-#include <utilib/SimpleHashTable.h>
-#include <utilib/seconds.h>
+
+#include <map>
+#include <stack>
+#include <cmath>
+#include <fstream>
+#include <sstream>
+#include <stdlib.h>     /* exit, EXIT_FAILURE */
+
+#include <pebbl_config.h>
+
+#include <pebbl/utilib/exception_mngr.h>
+#include <pebbl/utilib/comments.h>
+//#include <pebbl/fundamentals.h>
+
+#include <pebbl/bb/branching.h>
+//#include <pebbl/chunkAlloc.h>
+#include <pebbl/utilib/ParameterSet.h>
+//#include <utilib/SimpleHashTable.h>
+#include <pebbl/utilib/seconds.h>
 
 #ifdef ACRO_HAVE_MPI
-#include <pebbl/parBranching.h>
-#include <utilib/PackBuf.h>
+#include <pebbl/pbb/parBranching.h>
+#include <pebbl/utilib/PackBuf.h>
 #endif
 
 using namespace utilib;

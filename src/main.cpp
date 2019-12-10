@@ -4,10 +4,19 @@
  * Author: Ai Kagawa
  */
 
-#include <acro_config.h>
+#include <pebbl_config.h>
 #include "serRMA.h"
 
 #ifdef ACRO_HAVE_MPI
+#include "parRMA.h"
+#else
+typedef void parRMA;
+#endif
+
+
+/*
+#ifdef ACRO_HAVE_MPI
+
 #include "parRMA.h"
 #define outstream ucout
 #define IO(action) if (uMPI::iDoIO) { CommonIO::end_tagging(); action; }
@@ -17,9 +26,10 @@ typedef void parRMA;
 #define outstream cout
 #define IO(action) action;
 #endif
+*/
 
 using namespace pebblRMA;
 
-int main(int argc, char** argv) {
+int main(int argc, char* argv[]){
   return driver<RMA,parRMA>(argc,argv);
 }

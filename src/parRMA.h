@@ -6,16 +6,47 @@
  *  Solves Rectangle Maximum Agreement.
  */
 
-#ifndef pebbl_paralleRMA_h
-#define pebbl_paralleRMA_h
+#ifndef pebbl_paralle_RMA_h
+#define pebbl_paralle_RMA_h
 
 #include <iostream>
-#include <acro_config.h>
+#include <pebbl_config.h>
 
-#ifdef ACRO_HAVE_MPI
-#include <pebbl/parBranching.h>
+#include <stdlib.h>
+#include <iostream>
+#include <map>
+#include <vector>
+#include <stack>
+#include <cmath>
+#include <fstream>
+#include <sstream>
+#include <algorithm>    // std::in
+#include <mpi.h>
 #include <vector>
 #include "serRMA.h"
+
+//#include <utility>
+#include <pebbl/utilib/logEvent.h>
+//#include <pebbl/utilib/_math.h>
+#include <pebbl/utilib/stl_auxiliary.h>
+#include <pebbl/utilib/exception_mngr.h>
+#include <pebbl/utilib/comments.h>
+#include <pebbl/utilib/mpiUtil.h>
+#include <pebbl/utilib/std_headers.h>
+#include <pebbl/utilib/PackBuf.h>
+#include <pebbl/utilib/BitArray.h>
+//#include <pebbl/fundamentals.h>
+#include <pebbl/pbb/packedSolution.h>
+#include <pebbl/pbb/parPebblBase.h>
+//#include <pebbl/pbb/reposThreadObj.h>
+//#include <pebbl/SelfAdjustThread.h>
+//#include <pebbl/coTree.h>
+//#include <pebbl/outBufferQ.h>
+
+#include <pebbl/pbb/parBranching.h>
+
+#ifdef ACRO_HAVE_MPI
+
 
 using namespace utilib;
 using namespace std;
@@ -23,9 +54,9 @@ using namespace pebbl;
 
 namespace pebblRMA {
 
-#ifdef ACRO_HAVE_MPI
+	using utilib::ParameterSet;
+
 	class CutPtThd;
-#endif
 
 	//**************************************************************************
 	//  The parallel branching class...
@@ -33,7 +64,7 @@ namespace pebblRMA {
 
 	public:
 
-		parRMA();
+		parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
 		~parRMA();
 
 		parallelBranchSub * blankParallelSub();

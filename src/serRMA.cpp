@@ -7,27 +7,7 @@
 // Ai Kagawa
 //
 
-#include <acro_config.h>
-#include <utilib/exception_mngr.h>
-#include <utilib/comments.h>
-#include <pebbl/fundamentals.h>
 #include "serRMA.h"
-#include <iostream>
-#include <map>
-#include <vector>
-#include <stack>
-#include <cmath>
-#include <fstream>
-#include <sstream>
-#include <algorithm>    // std::min
-#include <ctime>        // std::time
-#include <cstdlib>      // std::rand, std::srand
-#include <stdlib.h>     /* exit, EXIT_FAILURE */
-
-using namespace utilib;
-using namespace std;
-using namespace pebbl;
-
 
 namespace pebblRMA {
 
@@ -47,7 +27,7 @@ namespace pebblRMA {
   void branchChoiceCombiner(void* invec, void* inoutvec,
                             int* len, MPI_Datatype* datatype) {
 #ifdef ACRO_VALIDATING
-    if (*datatype != branchChoices::mpiType) {
+    if (*datatype != branchChoice::mpiType) {
   		cerr << "Datatype error in branchChoiceCombiner\n";
   		exit(1);
     }
@@ -65,7 +45,7 @@ namespace pebblRMA {
                         int *len, MPI_Datatype *datatype) {
 
 #ifdef ACRO_VALIDATING
-    if (*datatype != branchChoices::mpiType) {
+    if (*datatype != branchChoice::mpiType) {
   		cerr << "Datatype error in branchChoiceRand\n";
   		exit(1);
     }

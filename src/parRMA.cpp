@@ -6,47 +6,12 @@
 // Ai Kagawa
 //
 
-#include <acro_config.h>
+
 #ifdef ACRO_HAVE_MPI
 
-#include <stdlib.h>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <stack>
-#include <cmath>
-#include <fstream>
-#include <sstream>
-#include <algorithm>    // std::in
-#include <mpi.h>
-#include <utility>
-#include <utilib/logEvent.h>
-#include <utilib/_math.h>
-#include <utilib/stl_auxiliary.h>
-#include <utilib/exception_mngr.h>
-#include <utilib/comments.h>
-#include <utilib/mpiUtil.h>
-#include <utilib/std_headers.h>
-#include <utilib/PackBuf.h>
-#include <utilib/BitArray.h>
-#include <pebbl/fundamentals.h>
-#include <pebbl/packedSolution.h>
-#include <pebbl/parPebblBase.h>
-#include <pebbl/ThreadObj.h>
-#include <pebbl/SelfAdjustThread.h>
-#include <pebbl/coTree.h>
-#include <pebbl/outBufferQ.h>
-#include <pebbl/parBranching.h>
 #include "parRMA.h"
-#include "serRMA.h"
 
-
-using namespace utilib;
-using namespace std;
-using namespace pebbl;
-
-
-namespace pebblRMA {
+namespace pebbl {
 
 	////////////////////// cutPtRecThd methods (Begining) //////////////////////////////////
 
@@ -154,7 +119,7 @@ namespace pebblRMA {
 
 	///////////////////////////////////// parRMA methods //////////////////////////////////////
 
-	parRMA::parRMA() : RMA(), cutPtCaster(NULL) {
+	parRMA::parRMA(MPI_Comm comm_) : RMA(), cutPtCaster(NULL) {
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;
