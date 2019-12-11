@@ -102,7 +102,7 @@ namespace pebblRMA {
 
 	///////////////////////////////////// parRMA methods //////////////////////////////////////
 
-	parRMA::parRMA(MPI_Comm comm_) : RMA(), cutPtCaster(NULL) { //, mpiComm(MPI_COMM_WORLD)
+	parRMA::parRMA(MPI_Comm comm_) : RMA(), cutPtCaster(NULL)  { // , mpiComm(comm_)
 
 		// Default is not to spend time on a dumb ramp up
 		rampUpPoolLimitFac = 1.0;
@@ -134,7 +134,7 @@ namespace pebblRMA {
 	}
 
 	/// Note: use VB flag?
-	void parRMA::reset(const bool& VBflag) {
+	void parRMA::reset(bool VBflag) {
 		RMA::reset();
 		registerFirstSolution(new rmaSolution(this));
 		if (cutPtCaster) {
