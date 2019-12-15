@@ -9,61 +9,33 @@
 
 namespace rma {
 
-DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
+  DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
 
 #ifdef ACRO_HAVE_MPI
-  uMPI::init(&argc, &argv, MPI_COMM_WORLD);
+    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
 #endif // ACRO_HAVE_M
 
-  //cout << setprecision(6) << fixed;
+    //cout << setprecision(6) << fixed;
 
-  setup(argc, argv);     // setup all paramaters
-  setData(argc, argv);   // set data
+    setup(argc, argv);     // setup all paramaters
 
-#ifdef ACRO_HAVE_MPI
-  int nprocessors = uMPI::size;
-  /// Do parallel optimization if MPI indicates that we're using more than one processor
-  if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {
-    /// Manage parallel I/O explicitly with the utilib::CommonIO tools
-    CommonIO::begin();
-    CommonIO::setIOFlush(1);
-    parallel = true;
-    prma     = new parRMA(MPI_COMM_WORLD);
-    rma      = prma;
-  } else {
-#endif // ACRO_HAVE_MPI
-    rma = new RMA;
-#ifdef ACRO_HAVE_MPI
+    /*
+      #ifdef ACRO_HAVE_MPI
+      if (uMPI::rank==0) {
+      #endif //  ACRO_HAVE_MPI */
+    setData(argc, argv);   // set data
+    /*
+      #ifdef ACRO_HAVE_MPI
+      }
+      #endif //  ACRO_HAVE_MPI*/
+
+    setupRMA(argc, argv);  // (setup) RMA
+
   }
-#endif // ACRO_HAVE_MPI
 
-rma->setParameters(this); // passing arguments
-rma->setData(data);
+  void DriverRMA::setupRMA(int& argc, char**& argv) {
 
-/*
 #ifdef ACRO_HAVE_MPI
-  if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-*/
-  exception_mngr::set_stack_trace(false);
-  rma->setup(argc,argv);
-  exception_mngr::set_stack_trace(true);
-
-
-/*
-#ifdef ACRO_HAVE_MPI
-  }
-#endif //  ACRO_HAVE_MPI
-*/
-
-  //setupRMA(argc, argv);  // setup RMA
-
-}
-
-/*
-void DriverRMA::setupRMA(int& argc, char**& argv) {
-
-  #ifdef ACRO_HAVE_MPI
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
     if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {
@@ -74,56 +46,78 @@ void DriverRMA::setupRMA(int& argc, char**& argv) {
       prma     = new parRMA(MPI_COMM_WORLD);
       rma      = prma;
     } else {
-  #endif // ACRO_HAVE_MPI
+#endif // ACRO_HAVE_MPI
       rma = new RMA;
-  #ifdef ACRO_HAVE_MPI
+#ifdef ACRO_HAVE_MPI
     }
-  #endif // ACRO_HAVE_MPI
+#endif // ACRO_HAVE_MPI
 
-  rma->setParameters(this); // passing arguments
-  rma->setData(data);
+    rma->setParameters(this); // passing arguments
+    rma->setData(data);
 
-}
-*/
+    exception_mngr::set_stack_trace(false);
+    rma->setup(argc,argv);
+    exception_mngr::set_stack_trace(true);
 
-// solve RMA
-void DriverRMA::solveRMA() {
-
-#ifdef ACRO_HAVE_MPI
-  if (parallel) {
-    prma->reset();
-		prma->printConfiguration();
-		CommonIO::begin_tagging();
-  } else {
-#endif //  ACRO_HAVE_MPI
-    rma->reset();
-#ifdef ACRO_HAVE_MPI
   }
-#endif //  ACRO_HAVE_MPI
 
-  rma->mmapCachedCutPts.clear();
-  rma->workingSol.value = -inf;
-  rma->numDistObs       = data->numTrainObs;	    // only use training data
-  rma->setSortObsNum(data->vecTrainData);
-  //setDataWts();
 
-  rma->resetTimers();
-  InitializeTiming();
-  rma->solve();
-  //if (args->printBBdetail) rma->solve();  // print out B&B details
-  //else                     rma->search();
-
-#ifdef ACRO_HAVE_MPI
-  if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-    rma->printSolutionTime();
-#ifdef ACRO_HAVE_MPI
+  void DriverRMA::solveRMA() {
+    if (exactRMA()) {
+      if (initGuess()) {
+	solveGreedyRMA();
+	//rma->setInitGreedySol();
+      }
+      solveExactRMA();
+    } else {
+      solveGreedyRMA();
+    }
   }
+
+
+  void DriverRMA::solveGreedyRMA() {
+    grma = new GreedyRMA(this, data);
+    grma->runGreedyRangeSearch();
+  }
+
+
+  // solve RMA
+  void DriverRMA::solveExactRMA() {
+
+#ifdef ACRO_HAVE_MPI
+    if (parallel) {
+      prma->reset();
+      if (printBBdetails()) prma->printConfiguration();
+      CommonIO::begin_tagging();
+    } else {
+#endif //  ACRO_HAVE_MPI
+      rma->reset();
+#ifdef ACRO_HAVE_MPI
+    }
 #endif //  ACRO_HAVE_MPI
 
-CommonIO::end();
-uMPI::done();
+    rma->mmapCachedCutPts.clear();
+    rma->workingSol.value = -inf;
+    rma->numDistObs       = data->numTrainObs;	    // only use training data
+    rma->setSortObsNum(data->vecTrainData);
+    //setDataWts();
 
-} // end function solveExactRMA()
+    rma->resetTimers();
+    InitializeTiming();
+    if (printBBdetails()) rma->solve();  // print out B&B details
+    else                rma->search();
+
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+      rma->printSolutionTime();
+#ifdef ACRO_HAVE_MPI
+    }
+#endif //  ACRO_HAVE_MPI
+
+    // CommonIO::end();
+    // uMPI::done();
+
+  } // end function solveExactRMA()
 
 } // end namespace rma

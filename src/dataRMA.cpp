@@ -8,8 +8,45 @@
 
 namespace data {
 
+
+  DataRMA::DataRMA(int& argc, char**& argv, ArgRMA *args_): args(args_) {
+
+    if (args->debug>=10) cout << "Data::readData\n";
+
+    readData(argc, argv);
+    setDataDimensions();
+
+    numTrainObs = numOrigObs;
+    vecTrainData.resize(numTrainObs);
+    standTrainData.resize(numTrainObs);
+    distFeat.resize(numAttrib);
+
+    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
+    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
+
+    //setStandData();
+
+    if (args->delta() != -1)
+       integerizeData(origTrainData, intTrainData);
+    else {
+      intTrainData.resize(numTrainObs);
+      for (int i=0; i<numTrainObs; ++i) { // for each observation
+        intTrainData[i].X.resize(numAttrib);
+        for (int j=0; j<numAttrib; j++) { // for each attribute
+	        intTrainData[i].X[j] = origTrainData[i].X[j];
+	        if ( distFeat[j] < intTrainData[i].X[j] ) distFeat[j] = intTrainData[i].X[j];
+	      }
+        intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
+      } // end for
+    }
+
+    setPosNegObs();
+
+  } // end constructor DataRMA( int, char**, ArgRMA)
+
+
   //bool DataRMA::readData(int argc, char** argv) {
-  bool DataRMA::readData() {
+  bool DataRMA::readData(int& argc, char**& argv) {
 
     unsigned int i, j;
     double tmp;
@@ -48,16 +85,16 @@ namespace data {
     s.clear();
     s.seekg(0, ios::beg);
 
-    origData.resize(numOrigObs);
+    origTrainData.resize(numOrigObs);
     for (i=0; i<numOrigObs; ++i) { // for each observation
-      origData[i].X.resize(numAttrib);
+      origTrainData[i].X.resize(numAttrib);
       for (j=0; j<numAttrib; j++) // for each attribute
-        s >> origData[i].X[j];
-      s >> origData[i].y ;
+        s >> origTrainData[i].X[j];
+      s >> origTrainData[i].y ;
     } // end while
 
     for (i=0; i<numOrigObs; ++i)   // for each observation
-      if (origData[i].y==0) origData[i].y=-1;
+      if (origTrainData[i].y==0) origTrainData[i].y=-1;
 
 /*
     if (isLPBoost()) {
@@ -114,29 +151,29 @@ namespace data {
 
 
   void DataRMA::setDataDimensions() {
-    intData.resize(numOrigObs);
+    intTrainData.resize(numOrigObs);
     distFeat.resize(numAttrib);
     vecFeature.resize(numAttrib);
     // if (isREPR()) standData.resize(numOrigObs);
   }
 
-
-  void DataRMA::writeIntObs() {
+  template <class T>
+  void DataRMA::writeObs(T vecData) {
     int i,j, obs;
     stringstream s;
-    s << "int" << '.' ;
+    (typeid(T) == typeid(int)) ? s << "int" << '.' : s << "orig" << '.' ;
     ofstream os(s.str().c_str());
     for ( i=0; i<numTrainObs; ++i ) {
       for ( j=0; j<numAttrib; ++j ) {
         obs = vecTrainData[i];
-        os << intData[obs].X[j] << " " ;
+        os << vecData[obs].X[j] << " " ;
       }
       os << "\n";
     }
     os.close();
   }
 
-
+/*
   void DataRMA::writeOrigObs() {
     int i,j, obs;
     stringstream s;
@@ -151,7 +188,7 @@ namespace data {
     }
     os.close();
   }
-
+*/
 
   void DataRMA::setXStat() {
 
@@ -164,7 +201,7 @@ namespace data {
     for (i=0; i<numTrainObs; ++i) {
       obs = vecTrainData[i];
       for (j=0; j<numAttrib; ++j) {
-        avgX[j] += origData[obs].X[j];
+        avgX[j] += origTrainData[obs].X[j];
       }
     }
 
@@ -174,7 +211,7 @@ namespace data {
       avgX[j] /= numTrainObs;		// get avgX  for each attribute
       for (i=0; i<numTrainObs; ++i) {
         obs = vecTrainData[i];
-        sdX[j] += pow(origData[obs].X[j]-avgX[j], 2);
+        sdX[j] += pow(origTrainData[obs].X[j]-avgX[j], 2);
       }
       sdX[j] /= numTrainObs;
       sdX[j] = sqrt(sdX[j]);
@@ -183,7 +220,7 @@ namespace data {
   }
 
 
-  void DataRMA::integerizeData() {
+  void DataRMA::integerizeData(vector<DataXy> origData, vector<DataXw> intData) {
 
     bool isSplit, flag;
     int i, j, k, l, r, p, q, o, obs;
@@ -434,8 +471,8 @@ namespace data {
     if (uMPI::rank==0) {
   #endif //  ACRO_HAVE_MPI
     if (writePred()) {
-      writeIntObs();
-      writeOrigObs();
+      writeObs(origTrainData);
+      writeObs(intTrainData);
     }
   #ifdef ACRO_HAVE_MPI
     }
@@ -462,7 +499,7 @@ namespace data {
   } // end integerizeData
 
 
-  void DataRMA::setStandData(){
+  void DataRMA::setStandData(vector<DataXy> origData, vector<DataXy> standData) {
 
     int i, j, obs;
     avgY=0,
@@ -535,8 +572,8 @@ namespace data {
     numPosTrainObs=0;
     numNegTrainObs=0;
     for (int i=0; i<numTrainObs; ++i) {
-      if (origData[vecTrainData[i]].y==1) ++numPosTrainObs;
-      else                                ++numNegTrainObs;
+      if (origTrainData[vecTrainData[i]].y==1) ++numPosTrainObs;
+      else                                     ++numNegTrainObs;
     }
 
 #ifdef ACRO_HAVE_MPI
@@ -550,7 +587,7 @@ namespace data {
   }
 
   //  integerize into fixed bin
-  void DataRMA::integerizeFixedLengthData() {
+  void DataRMA::integerizeFixedLengthData(vector<DataXy> origData, vector<DataXw> intData) {
 
     int i,j, obs, glMaxL=-1;
     int sizeBin = args->fixedSizeBin();
@@ -560,10 +597,10 @@ namespace data {
     for (i=0; i<numTrainObs; ++i) {
       obs = vecTrainData[i];
       for (j=0; j<numAttrib; ++j) {
-        if ( standData[obs].X[j] < minX[j] )
-          minX[j] = standData[obs].X[j] ;  // get minX[j]
-        if ( standData[obs].X[j] > maxX[j] )
-          maxX[j] = standData[obs].X[j] ;  // get maxX[j]
+        if ( standTrainData[obs].X[j] < minX[j] )
+          minX[j] = standTrainData[obs].X[j] ;  // get minX[j]
+        if ( standTrainData[obs].X[j] > maxX[j] )
+          maxX[j] = standTrainData[obs].X[j] ;  // get maxX[j]
       }
     }
 

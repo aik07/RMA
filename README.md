@@ -50,7 +50,7 @@ Please read the user guide about how to use parameters for the RMA solver.
 
 <p align="center">
 
-<img src="https://github.com/aik7/RMA/blob/devel/figures/rma_class_struct.png" width="400">
+<img src="https://github.com/aik7/RMA/blob/devel/figures/rma_class_struct.png" width="300">
 
 ## Source files at src directory
 ```

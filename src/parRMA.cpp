@@ -170,8 +170,8 @@ namespace pebblRMA {
 		//for (int i=0; i<numDistObs; ++i)  outBuf << sortedObsIdx[i];
 
 	  for (int i=0; i<numDistObs; ++i) {
-	   	outBuf << data->intData[i].X << data->intData[i].w;
-	   	outBuf << data->origData[i].y;
+	   	outBuf << data->intTrainData[i].X << data->intTrainData[i].w;
+	   	outBuf << data->origTrainData[i].y;
 	  }
 
 		outBuf << numTotalCutPts;
@@ -197,12 +197,12 @@ namespace pebblRMA {
 		//sortedObsIdx.resize(numDistObs);
 		//for (int i=0; i<numDistObs; ++i)  inBuf >> sortedObsIdx[i];
 
-		data->intData.resize(numDistObs);
-		data->origData.resize(numDistObs);
+		data->intTrainData.resize(numDistObs);
+		data->origTrainData.resize(numDistObs);
 		for (int i=0; i<numDistObs; ++i) {
-			data->intData[i].X.resize(numAttrib);
-			inBuf >> data->intData[i].X >> data->intData[i].w;
-			inBuf >> data->origData[i].y;
+			data->intTrainData[i].X.resize(numAttrib);
+			inBuf >> data->intTrainData[i].X >> data->intTrainData[i].w;
+			inBuf >> data->origTrainData[i].y;
 		}
 
 		inBuf >> numTotalCutPts;
@@ -225,7 +225,7 @@ namespace pebblRMA {
 			  ucout << distFeat[i] << ", ";
 
 		 for(size_type i=0; i<numDistObs; i++)
-				ucout <<" wt: " << data->intData[i].w << '\n';
+				ucout <<" wt: " << data->intTrainData[i].w << '\n';
 		}
 		//*/
 

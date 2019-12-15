@@ -39,6 +39,8 @@ public:
 
   ////////////////////// parameters //////////////////////////////
 
+  bool   exactRMA()           const {return _exactRMA;}
+  
   bool   binarySearchCutVal() const {return _binarySearchCutVal;}
   double perCachedCutPts()    const {return _perCachedCutPts;}
   double perLimitAttrib()     const {return _perLimitAttrib;}
@@ -64,10 +66,14 @@ public:
   double shrinkDelta()        const {return _shrinkDelta;}
   double maxInterval()        const {return _maxInterval;}
 
+  bool   printBBdetails()     const {return _printBBdetails;}
+  
   int    fixedSizeBin()       const {return _fixedSizeBin;}
 
-protected:
+private:
 
+  bool   _exactRMA;            // solve exactRMA
+  
   // for non-strong branching ...
   bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint
   double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
@@ -98,6 +104,9 @@ protected:
   // for fixed size bin integerization
   int    _fixedSizeBin;
 
+  // for printing more details
+  bool   _printBBdetails;
+  
   double _rampUpSizeFact;      // TODO: what is this?
 
  };

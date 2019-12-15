@@ -9,46 +9,46 @@
 namespace greedyRMA {
 
   void GreedyRMA::runGreedyRangeSearch() {
-    
+
     ts.startTime();
-    
+
     getMinOptRange();		// get oprimal range for minimum objective value
-    
+
     getMaxOptRange();		// get oprimal range for maximum objective value
-    
+
     chooseMinOrMaxRange();
-    
+
     printSolution();
-    
+
   } // end function greedyRMA
-  
-  
+
+
   void GreedyRMA::printSolution() {
-    
+
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-      
+
       ucout << "GRMA Solution: " << maxObjValue << "\t";
       ts.endCPUTime();
       if (args->debug>=2) cout << ts.endWallTime();
       //if (args->printBoost()) {
       if (args->debug>=2) cout << "L: " << L << "U: " << U;
       //}
-		
+
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
   }
-  
-  
+
+
   /************************** Final Optimal Range **************************/
   void GreedyRMA::chooseMinOrMaxRange() {
-    
+
     L.resize(data->numAttrib);
     U.resize(data->numAttrib);
-    
+
     (args->randSeed()) ? srand((NumNegTiedSols+NumPosTiedSols)*time(NULL)*100) : srand(1);
     double rand_num = (rand() % 10001 ) / 10000.0 ;
     //DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
@@ -361,9 +361,9 @@ namespace greedyRMA {
 
       obs = vecCoveredObs[i];
 
-      if ( lower <= data->intData[obs].X[j]
-	   && data->intData[obs].X[j] <= upper)
-	//&& data->intData[obs].w!=0)
+      if ( lower <= data->intTrainData[obs].X[j]
+	   && data->intTrainData[obs].X[j] <= upper)
+	//&& data->intTrainData[obs].w!=0)
         vecCoveredObs[++l] = obs;   // store covered observations
     }
 
@@ -382,8 +382,8 @@ namespace greedyRMA {
 
     for (i=0; i<vecCoveredObs.size(); ++i) {
       obs = vecCoveredObs[i];
-      v = data->intData[obs].X[j];
-      W[v] += data->intData[obs].w;
+      v = data->intTrainData[obs].X[j];
+      W[v] += data->intTrainData[obs].w;
     }
 
     if (args->debug>=10) ucout << "W: " << W ;
@@ -391,4 +391,3 @@ namespace greedyRMA {
   }
 
 } // namespace greedyRMA
-

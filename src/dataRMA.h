@@ -69,59 +69,24 @@ class DataRMA {
 public:
 
   DataRMA() {}
-
-  DataRMA(int& argc_, char**& argv_, ArgRMA *args_):
-      argc(argc_), argv(argv_), args(args_) {
-
-    if (args->debug>=10) cout << "Data::readData\n";
-
-    readData();
-    setDataDimensions();
-
-    numTrainObs = numOrigObs;
-    vecTrainData.resize(numTrainObs);
-    standData.resize(numTrainObs);
-    distFeat.resize(numAttrib);
-
-    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
-    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
-
-    //setStandData();
-
-    if (args->delta() != -1)
-       integerizeData();
-    else {
-      intData.resize(numOrigObs);
-      for (int i=0; i<numOrigObs; ++i) { // for each observation
-        intData[i].X.resize(numAttrib);
-        for (int j=0; j<numAttrib; j++) { // for each attribute
-	        intData[i].X[j] = origData[i].X[j];
-	        if ( distFeat[j] < intData[i].X[j] ) distFeat[j] = intData[i].X[j];
-	      }
-        intData[i].w = origData[i].y * 1.0 / (double) numTrainObs;
-      } // end for
-    }
-
-    setPosNegObs();
-
-  } // end constructor Data( int, char**, ArgRMA)
-
+  DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
   //bool readData(int argc, char** argv);
-  bool readData();
+  bool readData(int& argc, char**& argv);
   bool readRandObs(int argc, char** argv);
 
   void setDataDimensions();
 
-  void integerizeData();
-  void setStandData();
+  void integerizeData(vector<DataXy> origData, vector<DataXw> intData);
+  void setStandData(vector<DataXy> origData, vector<DataXy> stdandData);
 
   void setPosNegObs();
 
-  void integerizeFixedLengthData();
+  void integerizeFixedLengthData(vector<DataXy> origData, vector<DataXw> stdandData);
 
-  void writeIntObs();
-  void writeOrigObs();
+  template <class T> void writeObs(T vecData);
+  //void writeIntObs();
+  //void writeOrigObs();
 
   void setXStat();
 
@@ -133,7 +98,7 @@ public:
 
   int numOrigObs;                // # of observations in original data
   int numTrainObs;               // # of distinct observation after discretization
-  int numTestObs;                // # of testing observations
+
   int numAttrib;                 // # of attributes
   int numPosTrainObs;
   int numNegTrainObs;
@@ -145,9 +110,9 @@ public:
   vector<int>     vecTrainData;  // contains only training dataset observations
   vector<int>     vecTestData;   // contains only training dataset observations
 
-  vector<DataXy>  origData;      // original datasets X and y
-  vector<DataXw>  intData;       // discretized data X abd w (weight)
-  vector<DataXy>  standData;
+  vector<DataXy>  origTrainData;      // original datasets X and y
+  vector<DataXw>  intTrainData;       // discretized data X abd w (weight)
+  vector<DataXy>  standTrainData;
 
   vector<Feature> vecFeature;    // contains features original and integeried values
 
@@ -156,8 +121,6 @@ public:
   double   cpuTime;
 
   ArgRMA   *args;
-  int      argc;
-  char**   argv;
 
 };
 

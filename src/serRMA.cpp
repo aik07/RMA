@@ -337,7 +337,7 @@ namespace pebblRMA {
 
     // Write data
     for (size_type i=0; i<numDistObs; i++) {
-      os << data->intData[i].w << ';';
+      os << data->intTrainData[i].w << ';';
 
       // Restore stream state
       os.precision(oldPrecision);
@@ -406,7 +406,7 @@ namespace pebblRMA {
 
   void RMA::setWeight(vector<double> wt, vector<int> train) {
     for (unsigned int i=0; i<wt.size(); ++i)
-      data->intData[train[i]].w = wt[i];
+      data->intTrainData[train[i]].w = wt[i];
   }
 
   // Routine added by AK to write out the number of B&B node and CPU time.
@@ -738,8 +738,8 @@ namespace pebblRMA {
     /*
       for (int i=0; i<numDistObs(); ++i)
       for (int j=0; j<numAttrib(); ++j)
-      if ( workingSol()->a[j] <= global()->intData[i].X[j] &&
-      global()->intData[i].X[j] <= workingSol()->b[j] ) {
+      if ( workingSol()->a[j] <= global()->intTrainData[i].X[j] &&
+      global()->intTrainData[i].X[j] <= workingSol()->b[j] ) {
       if ( j==numAttrib()-1)
       workingSol()->isCovered[i]= true;
       } else {
@@ -1164,7 +1164,7 @@ namespace pebblRMA {
     buckets.resize(size);
 
     for (int i=0; i<coveredObs.size(); i++) {
-      v = global()->data->intData[coveredObs[i]].X[j];
+      v = global()->data->intTrainData[coveredObs[i]].X[j];
       if ( au[j] < bl[j] ) { 	// no overlapping
         if (v<au[j]) v -= al[j];
         else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
@@ -1197,7 +1197,7 @@ namespace pebblRMA {
 
     for (int i=0; i<sortedECidx.size(); i++) {
       obs = vecEquivClass[sortedECidx[i]].getObs();
-      v = global()->data->intData[obs].X[j];
+      v = global()->data->intTrainData[obs].X[j];
       if ( au[j] < bl[j] ) { 	// no overlapping
         if (v<au[j]) v -= al[j];
         else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
@@ -1274,7 +1274,7 @@ namespace pebblRMA {
 
     for ( i=0; i < numEC ; ++i ) {
       obs = vecEquivClass[sortedECidx[i]].getObs();
-      v = global()->data->intData[obs].X[j];
+      v = global()->data->intTrainData[obs].X[j];
       if ( au[j] < bl[j] ) { 	// no overlapping
         if (v<au[j]) v -= al[j];
         else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
@@ -1288,7 +1288,7 @@ namespace pebblRMA {
 
     for ( i=numEC-1; i>=0 ; --i ) {
       obs = vecEquivClass[sortedECidx[i]].getObs();
-      v = global()->data->intData[obs].X[j];
+      v = global()->data->intTrainData[obs].X[j];
       if ( au[j] < bl[j] ) { 	// no overlapping
         if (v<au[j]) v -= al[j];
         else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
@@ -1523,26 +1523,26 @@ namespace pebblRMA {
       obs = vecEquivClass[sortedECidx[i]].getObs();
 
       // if the observation's jth attribute value = cut-value
-      if ( global()->data->intData[obs].X[j] == v ) {
+      if ( global()->data->intTrainData[obs].X[j] == v ) {
         covgWt += vecEquivClass[sortedECidx[i]].getWt();
         //cout << "vecEquivClass1: " << sortedECidx[i]
         //     << " covgWt: " << covgWt << endl;
       } else if (au[j]<bl[j] && au[j]<=v && v<=bl[j]
-              && au[j]<=global()->data->intData[obs].X[j]
-              && global()->data->intData[obs].X[j]<=bl[j]) {
+              && au[j]<=global()->data->intTrainData[obs].X[j]
+              && global()->data->intTrainData[obs].X[j]<=bl[j]) {
         covgWt += vecEquivClass[sortedECidx[i]].getWt();
         //cout << "vecEquivClass2: " << sortedECidx[i]
         //     << " covgWt: " << covgWt << endl;
 
-      } else if (global()->data->intData[obs].X[j]<v) {
+      } else if (global()->data->intTrainData[obs].X[j]<v) {
         if (globalPtr->args->debug>=0) cout << "X[j] < v! ";
         //*
         if (globalPtr->args->debug>=20) {
           cout << "curObs: " << curObs << " attribute: " << j << "; "
-               << global()->data->intData[obs].X[j]
+               << global()->data->intTrainData[obs].X[j]
                << " < cutVal: " << v << "\n";
           for (int i=0; i<coveredObs.size(); ++i)
-            cout << global()->data->intData[sortedECidx[i]].X[j]
+            cout << global()->data->intTrainData[sortedECidx[i]].X[j]
                  << " bound (" << al[j] << ", " << au[j] << ", "
                  << bl[j] << ", " << bu[j] << ")\n )";
         }
@@ -1601,7 +1601,7 @@ namespace pebblRMA {
       if (globalPtr->args->debug>=15) cout << "There is only one covered observation" << "\n";
       vecEquivClass.resize(1);
       vecEquivClass[0].addObsWt(coveredObs[0],
-				global()->data->intData[coveredObs[0]].w);
+				global()->data->intTrainData[coveredObs[0]].w);
       return;
     }
 
@@ -1610,7 +1610,7 @@ namespace pebblRMA {
     int obs1 = coveredObs[0];
     int obs2 = coveredObs[1];
     int k=0;
-    vecEquivClass[0].addObsWt(obs1, global()->data->intData[obs1].w);
+    vecEquivClass[0].addObsWt(obs1, global()->data->intTrainData[obs1].w);
 
     for (int i=1; i<coveredObs.size(); ++i) { // for each sorted, covered observation
 
@@ -1618,13 +1618,13 @@ namespace pebblRMA {
 
         if ( isInSameClass(obs1, obs2, j, au[j], bl[j]) ) {
           if (j==numAttrib()-1) { // if it is in the same equivalent class
-            vecEquivClass[k].addObsWt(obs2, global()->data->intData[obs2].w);
+            vecEquivClass[k].addObsWt(obs2, global()->data->intTrainData[obs2].w);
             if (i!=coveredObs.size()-1)  // if not the last observation
               obs2=coveredObs[i+1];
           }
 
         } else {  // detected obs1 and obs2 are in different equivClass
-          vecEquivClass[++k].addObsWt(obs2, global()->data->intData[obs2].w);
+          vecEquivClass[++k].addObsWt(obs2, global()->data->intTrainData[obs2].w);
           if (i!=coveredObs.size()-1) { // if not the last observation
             obs1 = coveredObs[i];
             obs2 = coveredObs[i+1];
@@ -1742,8 +1742,8 @@ namespace pebblRMA {
       idxEC = sortedECidx[i];
       obs = vecEquivClass[idxEC].getObs();
       // if covered, put the equiv class index to sortedECidx1
-      if ( global()->data->intData[obs].X[j] >= al_
-	   && global()->data->intData[obs].X[j] <= bu_ )
+      if ( global()->data->intTrainData[obs].X[j] >= al_
+	   && global()->data->intTrainData[obs].X[j] <= bu_ )
         sortedECidx1[++k] = idxEC;
     } // end each equivalence class
 
@@ -1756,16 +1756,16 @@ namespace pebblRMA {
 			     const int& j, const int& au_, const int& bl_) {
 
     // if obs1.feat == obs2.feat
-    if ( global()->data->intData[obs1].X[j]
-	 == global()->data->intData[obs2].X[j] )
+    if ( global()->data->intTrainData[obs1].X[j]
+	 == global()->data->intTrainData[obs2].X[j] )
       return true;
 
     //  OR obs1.feat, obs2.feat in [au, bl]
     if ( au_<=bl_
-	 && ( au_<= global()->data->intData[obs1].X[j]
-	      && global()->data->intData[obs1].X[j]<=bl_)
-	 && ( au_<= global()->data->intData[obs2].X[j]
-	      && global()->data->intData[obs2].X[j]<=bl_)	)  {
+	 && ( au_<= global()->data->intTrainData[obs1].X[j]
+	      && global()->data->intTrainData[obs1].X[j]<=bl_)
+	 && ( au_<= global()->data->intTrainData[obs2].X[j]
+	      && global()->data->intTrainData[obs2].X[j]<=bl_)	)  {
       return true;
     }
     return false;
@@ -1954,11 +1954,11 @@ namespace pebblRMA {
     for (int i=0; i<global->numDistObs; ++i) { // for each observation
       obs = global->sortedObsIdx[i];
       for (int j=0; j< global->data->numAttrib; ++j) { // for each attribute
-      	if ( a[j] <= global->data->intData[obs].X[j]
-	     && global->data->intData[obs].X[j] <= b[j] ) {
+      	if ( a[j] <= global->data->intTrainData[obs].X[j]
+	     && global->data->intTrainData[obs].X[j] <= b[j] ) {
           // if this observation is covered by this solution
           if (j== global->data->numAttrib-1)
-            wt+= global->data->intData[obs].w;
+            wt+= global->data->intTrainData[obs].w;
         } else break; // else go to the next observation
       }  // end for each attribute
     }  // end for each observation
@@ -1975,11 +1975,11 @@ namespace pebblRMA {
     for (int i=0; i<coveredObs.size(); ++i) { // for each observation
       obs = coveredObs[i];
       for (int j=0; j< global->data->numAttrib; ++j) { // for each attribute
-      	if ( A[j] <= global->data->intData[obs].X[j]
-	     && global->data->intData[obs].X[j] <= B[j] ) {
+      	if ( A[j] <= global->data->intTrainData[obs].X[j]
+	     && global->data->intTrainData[obs].X[j] <= B[j] ) {
           // if this observation is covered by this solution
           if (j== global->data->numAttrib-1)
-            wt+= global->data->intData[obs].w;
+            wt+= global->data->intTrainData[obs].w;
         } else break; // else go to the next observation
       }  // end for each attribute
     }  // end for each observation

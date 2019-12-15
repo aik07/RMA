@@ -13,6 +13,8 @@ namespace arg {
 
 ArgRMA::ArgRMA():
 
+  _exactRMA(true),
+  
   _binarySearchCutVal(false),
   _perCachedCutPts(0.000001),
   _perLimitAttrib(1.0),
@@ -38,9 +40,15 @@ ArgRMA::ArgRMA():
 
   _fixedSizeBin(-1),
 
+  _printBBdetails(false),
+
   _rampUpSizeFact(1.0)
 
   {
+
+    create_categorized_parameter("exactRMA", _exactRMA,
+      "<bool>", "true", "solve RMA exactly", "RMA");
+
     create_categorized_parameter("binarySearchCutVal", _binarySearchCutVal,
       "<bool>", "false", "binary search cut values in each feature", "RMA");
 
@@ -96,6 +104,10 @@ ArgRMA::ArgRMA():
 
     create_categorized_parameter("maxInterval", _maxInterval, "<double>",
       "inf", "set the maximum interval length for recursive integerization", "RMA");
+
+    
+    create_categorized_parameter("printBBdetails", _printBBdetails, "<bool>",
+      "false", "print the complete output of the PEBBL branch-and bound", "RMA");
 
     create_categorized_parameter("rampUpSizeFact", _rampUpSizeFact, "<double>",
       "1.00", "if (#storedCutPts) <= rampUpSizeFact * (#processors),"

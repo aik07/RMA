@@ -11,6 +11,7 @@
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
+#include <pebbl/bb/branching.h>
 
 #include "baseRMA.h"
 #include "dataRMA.h"
@@ -38,7 +39,7 @@ namespace rma {
   using namespace greedyRMA;
 
 
-  class DriverRMA : public BaseRMA {
+  class DriverRMA : virtual public BaseRMA {
 
   public:
 
@@ -54,10 +55,13 @@ namespace rma {
       data = new DataRMA(argc, argv, (ArgRMA *) this);
     }
 
-    //void setupRMA(int& argc, char**& argv);
-    void solveRMA();
+    void setupRMA(int& argc, char**& argv);
 
-  private:
+    void solveRMA();
+    void solveGreedyRMA();
+    void solveExactRMA();
+
+    //  private:
 
     bool          parallel;
 
