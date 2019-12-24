@@ -267,40 +267,32 @@ namespace pebblRMA {
   solution* RMA::initialGuess() {
 
     if (!args->initGuess()) return NULL;
-/*
-    rmaSolution* guess = new rmaSolution(this);
-    grma = new GreedyRMA(data);
-    grma->runGreedyRangeSearch();
-    guess->isPosIncumb = grma->isPosIncumb;
-    guess->value       = grma->maxObjValue;
-    guess->a           = grma->L;
-    guess->b           = grma->U;
+
+    //guess = new rmaSolution(this);
+    //setInitialGuess();
     return guess;
-*/
-    return NULL;
+
+    //return NULL;
   }
 
-/*
-  void RMA::setParameters(ArgPMA* args, Data* param, const int& deb_int) {
 
-    debug = deb_int;
+  void RMA::setInitialGuess(bool isPosIncumb, double maxObjValue,
+                            vector<int> L, vector<int> U) {
+    guess = new rmaSolution(this);
+    //grma = new GreedyRMA(data);
+    //grma->runGreedyRangeSearch();
+    guess->isPosIncumb = isPosIncumb;
+    guess->value       = maxObjValue;
+    guess->a           = L;
+    guess->b           = U;
 
-    _perCachedCutPts = param->_perCachedCutPts;
-    _binarySearchCutVal = param->_binarySearchCutVal;
-    _perLimitAttrib = param->_perLimitAttrib;
-
-    _checkObjVal = param->_checkObjVal;
-
-    _writeInstances = param->_writeInstances;
-    _writeNodeTime = param->_writeNodeTime;
-    _writeCutPts = param->_writeCutPts;
-
-    _rampUpSizeFact = param->_rampUpSizeFact;
-    _countingSort = param->_countingSort;
-    _branchSelection = param->_branchSelection;
+    // TODO: fix this code!
+    workingSol.isPosIncumb = isPosIncumb;
+    workingSol.value       = maxObjValue;
+    workingSol.a           = L;
+    workingSol.b           = U;
 
   }
-*/
 
 
   void RMA::setData(DataRMA* data_) {

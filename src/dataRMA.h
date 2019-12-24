@@ -71,24 +71,23 @@ public:
   DataRMA() {}
   DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
-  //bool readData(int argc, char** argv);
   bool readData(int& argc, char**& argv);
   bool readRandObs(int argc, char** argv);
 
   void setDataDimensions();
-
-  void integerizeData(vector<DataXy> origData, vector<DataXw> intData);
-  void setStandData(vector<DataXy> origData, vector<DataXy> stdandData);
-
   void setPosNegObs();
+  void setIntTrainData();
+  void setNumMaxDistVal();
 
-  void integerizeFixedLengthData(vector<DataXy> origData, vector<DataXw> stdandData);
+  void setXStat(vector<DataXy> &origData);
+  void setYStat(vector<DataXy> &origData);
+
+  void setStandDataX (vector<DataXy>& origData, vector<DataXy> &standData);
+  void setStandDataY (vector<DataXy>& origData, vector<DataXy> &standData);
+  void integerizeData(vector<DataXy>& origData, vector<DataXw> &intData);
+  void integerizeFixedLengthData(vector<DataXy> &origData, vector<DataXw> &stdandData);
 
   template <class T> void writeObs(T vecData);
-  //void writeIntObs();
-  //void writeOrigObs();
-
-  void setXStat();
 
 //protected:
 
@@ -103,7 +102,7 @@ public:
   int numPosTrainObs;
   int numNegTrainObs;
   int numTotalCutPts;            // # of cutpoints for RMA
-  int maxL;	                     // maximum distinct value among attributes
+  int numMaxDistVal;             // maximum distinct value among attributes
 
   vector<int>     distFeat;	     // distinct features after discretization
   vector<int>     vecRandObs;    // contains randomize all observations

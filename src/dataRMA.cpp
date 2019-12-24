@@ -11,35 +11,12 @@ namespace data {
 
   DataRMA::DataRMA(int& argc, char**& argv, ArgRMA *args_): args(args_) {
 
-    if (args->debug>=10) cout << "Data::readData\n";
-
     readData(argc, argv);
     setDataDimensions();
 
-    numTrainObs = numOrigObs;
-    vecTrainData.resize(numTrainObs);
-    standTrainData.resize(numTrainObs);
-    distFeat.resize(numAttrib);
-
-    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
-    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
-
     //setStandData();
-
-    if (args->delta() != -1)
-       integerizeData(origTrainData, intTrainData);
-    else {
-      intTrainData.resize(numTrainObs);
-      for (int i=0; i<numTrainObs; ++i) { // for each observation
-        intTrainData[i].X.resize(numAttrib);
-        for (int j=0; j<numAttrib; j++) { // for each attribute
-	        intTrainData[i].X[j] = origTrainData[i].X[j];
-	        if ( distFeat[j] < intTrainData[i].X[j] ) distFeat[j] = intTrainData[i].X[j];
-	      }
-        intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
-      } // end for
-    }
-
+    setIntTrainData();
+    setNumMaxDistVal();
     setPosNegObs();
 
   } // end constructor DataRMA( int, char**, ArgRMA)
@@ -51,6 +28,8 @@ namespace data {
     unsigned int i, j;
     double tmp;
     string line;
+
+    if (args->debug>=10) cout << "Data::readData\n";
 
     tc.startTime();
 
@@ -151,76 +130,153 @@ namespace data {
 
 
   void DataRMA::setDataDimensions() {
-    intTrainData.resize(numOrigObs);
+
+    numTrainObs = numOrigObs;
+
+    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
+
+    intTrainData.resize(numTrainObs);
+    standTrainData.resize(numTrainObs);
+
+    for (int i=0; i<numTrainObs; ++i)  {
+      intTrainData[i].X.resize(numAttrib);
+      standTrainData[i].X.resize(numAttrib);
+    }
+
     distFeat.resize(numAttrib);
     vecFeature.resize(numAttrib);
-    // if (isREPR()) standData.resize(numOrigObs);
+
+    vecTrainData.resize(numTrainObs);
+    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
+
   }
 
-  template <class T>
-  void DataRMA::writeObs(T vecData) {
-    int i,j, obs;
-    stringstream s;
-    (typeid(T) == typeid(int)) ? s << "int" << '.' : s << "orig" << '.' ;
-    ofstream os(s.str().c_str());
-    for ( i=0; i<numTrainObs; ++i ) {
-      for ( j=0; j<numAttrib; ++j ) {
-        obs = vecTrainData[i];
-        os << vecData[obs].X[j] << " " ;
-      }
-      os << "\n";
+
+  void DataRMA::setIntTrainData() {
+    if (args->delta() != -1)
+       integerizeData(origTrainData, intTrainData);
+    else {
+      for (int i=0; i<numTrainObs; ++i) { // for each observation
+        for (int j=0; j<numAttrib; j++) { // for each attribute
+          intTrainData[i].X[j] = origTrainData[i].X[j];
+          if ( distFeat[j] < intTrainData[i].X[j] )
+            distFeat[j] = intTrainData[i].X[j];
+        }
+        intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
+      } // end for
     }
-    os.close();
   }
 
-/*
-  void DataRMA::writeOrigObs() {
-    int i,j, obs;
-    stringstream s;
-    s << "orig" << '.' ;
-    ofstream os(s.str().c_str());
-    for ( i=0; i<numTrainObs; ++i ) {
-      for ( j=0; j<numAttrib; ++j ) {
-        obs = vecTrainData[i];
-        os << origData[obs].X[j] << " " ;
-      }
-      os << "\n";
+
+  void DataRMA::setNumMaxDistVal() {
+    numMaxDistVal=0;
+    for (int j=0; j<numAttrib ; ++j) {
+      numTotalCutPts += distFeat[j];
+      if ( numMaxDistVal-1 < distFeat[j] )
+           numMaxDistVal = distFeat[j]+1;
     }
-    os.close();
   }
-*/
 
-  void DataRMA::setXStat() {
+  void DataRMA::setPosNegObs() {
+
+    numPosTrainObs=0;
+    numNegTrainObs=0;
+    for (int i=0; i<numTrainObs; ++i) {
+      if (origTrainData[vecTrainData[i]].y==1) ++numPosTrainObs;
+      else                                     ++numNegTrainObs;
+    }
+
+#ifdef ACRO_HAVE_MPI
+  if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+    ucout << "m^+ m^-: " << numPosTrainObs << "\t" << numNegTrainObs << "\n";
+#ifdef ACRO_HAVE_MPI
+  }
+#endif //  ACRO_HAVE_MPI
+
+  }
+
+
+  // set avgX and sdX, average and standard devication vectors for X
+  void DataRMA::setXStat(vector<DataXy> &origData) {
 
     int i, j, obs;
     avgX.resize(numAttrib);
     sdX.resize(numAttrib);
 
-    for (j=0; j<numAttrib; ++j) { avgX[j]=0, sdX[j]=0;}
+    for (j=0; j<numAttrib; ++j) { avgX[j] = 0; sdX[j] = 0; }
 
-    for (i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      for (j=0; j<numAttrib; ++j) {
-        avgX[j] += origTrainData[obs].X[j];
-      }
-    }
+    /////////////////// get average of X in each attribute /////////////////////
+    for (i=0; i<numTrainObs; ++i)
+      for (j=0; j<numAttrib; ++j) avgX[j] += origData[i].X[j];
 
-    ////////////////////////////////////////////////////////////////////////////
-    // get std dev of X in each attribute
+    /////////////////// get std dev of X in each attribute ///////////////////////////
     for (j=0; j<numAttrib; ++j) {
-      avgX[j] /= numTrainObs;		// get avgX  for each attribute
-      for (i=0; i<numTrainObs; ++i) {
-        obs = vecTrainData[i];
-        sdX[j] += pow(origTrainData[obs].X[j]-avgX[j], 2);
-      }
+      avgX[j] /= numTrainObs;
+      for (i=0; i<numTrainObs; ++i) sdX[j] += pow(origData[i].X[j]-avgX[j], 2);
       sdX[j] /= numTrainObs;
       sdX[j] = sqrt(sdX[j]);
     }
 
+  } // enf setXStat function
+
+
+  // set avgX and sdX, average and standard devication vectors for X
+  void DataRMA::setYStat(vector<DataXy> &origData) {
+
+    int i;
+    avgY = 0,
+    sdY  = 0;
+
+    ////////////////////////////////////////////////////////////////////////////
+    for (i=0; i<numTrainObs; ++i) avgY += origData[i].y; // get avg of y
+
+    avgY /= numTrainObs; // get average response value
+
+    for (i=0; i<numTrainObs; ++i) sdY += pow(origData[i].y-avgY, 2); // get std dev of y
+
+    sdY /= numTrainObs;
+    sdY = sqrt(sdY);
+
   }
 
 
-  void DataRMA::integerizeData(vector<DataXy> origData, vector<DataXw> intData) {
+  void DataRMA::setStandDataX(vector<DataXy> &origData, vector<DataXy> &standData) {
+
+    int i, j;
+
+    setXStat(origData);
+
+    // standardize X in each attribute
+    for (j=0; j<numAttrib; ++j)
+      for (i=0; i<numTrainObs; ++i)
+        standData[i].X[j] = (origData[i].X[j] - avgX[j]) / sdX[j];
+
+    for (i=0; i<numTrainObs; ++i)
+      standData[i].y = (origData[i].y - avgY) / sdY;
+
+    ////////////////////////////////////////////////////////////////////////////
+    if ( args->debug >=1 )
+      for (int i=0; i<numTrainObs; ++i)
+        cout << "obs: " << i << ": " << standData[i] << "\n";
+
+  }
+
+  void DataRMA::setStandDataY(vector<DataXy> &origData, vector<DataXy> &standData) {
+
+    int i;
+
+    setYStat(origData);
+
+    // standardize y
+    for (i=0; i<numTrainObs; ++i)
+      standData[i].y = (origData[i].y - avgY) / sdY;
+
+  }
+
+
+
+  void DataRMA::integerizeData(vector<DataXy> &origData, vector<DataXw> &intData) {
 
     bool isSplit, flag;
     int i, j, k, l, r, p, q, o, obs;
@@ -240,6 +296,14 @@ namespace data {
     vector<IntMinMax> copyIntMinMax;  // a vector contins min and max for each integerized value
 
     tc.startTime();
+
+    maxX.resize(numAttrib);
+    minX.resize(numAttrib);
+
+    for (j=0; j<numAttrib; ++j) {
+      minX[j] = inf ;
+      maxX[j] = -inf;
+    }
 
     //if (isLPBoost()) setXStat();
 
@@ -478,11 +542,11 @@ namespace data {
     }
   #endif //  ACRO_HAVE_MPI
 */
-    maxL=0;
+    numMaxDistVal=0;
     for (j=0; j<numAttrib ; ++j) {
       numTotalCutPts += distFeat[j];
-      if ( maxL-1 < distFeat[j] )
-        maxL = distFeat[j]+1;
+      if ( numMaxDistVal-1 < distFeat[j] )
+        numMaxDistVal = distFeat[j]+1;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -499,99 +563,12 @@ namespace data {
   } // end integerizeData
 
 
-  void DataRMA::setStandData(vector<DataXy> origData, vector<DataXy> standData) {
-
-    int i, j, obs;
-    avgY=0,
-    sdY=0;
-    avgX.resize(numAttrib);
-    sdX.resize(numAttrib);
-    maxX.resize(numAttrib);
-    minX.resize(numAttrib);
-
-    for (j=0; j<numAttrib; ++j) {
-      avgX[j]=0;
-      sdX[j]=0;
-      minX[j] = inf ;
-      maxX[j] = -inf;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    for (i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      avgY += origData[obs].y ;
-      for (j=0; j<numAttrib; ++j) avgX[j] += origData[obs].X[j];
-    }
-
-    avgY /= numTrainObs; // get average response value
-
-    // get std dev of y in each attribute
-    for (i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      sdY += pow(origData[obs].y-avgY, 2);
-    }
-    sdY /= numTrainObs;  sdY = sqrt(sdY);
-
-    // standardize response value
-    for (i=0; i<numTrainObs; ++i) {
-      obs = vecTrainData[i];
-      standData[obs].y = (origData[obs].y - avgY) / sdY ;
-      standData[obs].X.resize(numAttrib);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // get std dev of X in each attribute
-    for (j=0; j<numAttrib; ++j) {
-      avgX[j] /= numTrainObs;
-      for (i=0; i<numTrainObs; ++i) {
-        obs = vecTrainData[i];
-        sdX[j] += pow(origData[obs].X[j]-avgX[j], 2);
-      }
-      sdX[j] /= numTrainObs; sdX[j] = sqrt(sdX[j]);
-    }
-
-    // standardize X in each attribute
-    for (j=0; j<numAttrib; ++j)
-      for (i=0; i<numTrainObs; ++i) {
-        obs = vecTrainData[i];
-        standData[obs].X[j]
-          = (origData[obs].X[j] - avgX[j]) / sdX[j] ;
-      }
-
-    ////////////////////////////////////////////////////////////////////////////
-    if ( args->debug >=1 )
-      for (int i=0; i<numTrainObs; ++i) {
-        obs = vecTrainData[i];
-        cout << "obs: " << obs << ": " << standData[obs] << "\n";
-      }
-
-  }
-
-  void DataRMA::setPosNegObs() {
-
-    numPosTrainObs=0;
-    numNegTrainObs=0;
-    for (int i=0; i<numTrainObs; ++i) {
-      if (origTrainData[vecTrainData[i]].y==1) ++numPosTrainObs;
-      else                                     ++numNegTrainObs;
-    }
-
-#ifdef ACRO_HAVE_MPI
-  if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-    ucout << "m^+ m^-: " << numPosTrainObs << "\t" << numNegTrainObs << "\n";
-#ifdef ACRO_HAVE_MPI
-  }
-#endif //  ACRO_HAVE_MPI
-
-  }
-
   //  integerize into fixed bin
-  void DataRMA::integerizeFixedLengthData(vector<DataXy> origData, vector<DataXw> intData) {
+  void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData, vector<DataXw> &intData) {
 
     int i,j, obs, glMaxL=-1;
     int sizeBin = args->fixedSizeBin();
-    maxL=0;
+    numMaxDistVal=0;
 
     // fix X matrix
     for (i=0; i<numTrainObs; ++i) {
@@ -606,20 +583,20 @@ namespace data {
 
     distFeat.resize(numAttrib);
     for (j=0; j<numAttrib; ++j) {
-      maxL=-1;
+      numMaxDistVal=-1;
       for (int i=0; i<numTrainObs; ++i) {
         obs = vecTrainData[i];
         intData[obs].X.resize(numAttrib);
         intData[obs].X[j] = floor ( (origData[obs].X[j]-minX[j])
                                 / ((maxX[j]-minX[j])/(double)sizeBin) ) ;
-        if (maxL<intData[obs].X[j] ) maxL = intData[obs].X[j];
+        if (numMaxDistVal<intData[obs].X[j] ) numMaxDistVal = intData[obs].X[j];
       }
 
-      distFeat[j] =  maxL;
-      if ( glMaxL<maxL ) glMaxL=maxL;
+      distFeat[j] =  numMaxDistVal;
+      if ( glMaxL<numMaxDistVal ) glMaxL=numMaxDistVal;
 
-      vecFeature[j].vecIntMinMax.resize(maxL);
-      for (int i=0; i<maxL; ++i) {
+      vecFeature[j].vecIntMinMax.resize(numMaxDistVal);
+      for (int i=0; i<numMaxDistVal; ++i) {
         vecFeature[j].vecIntMinMax[0].minOrigVal
               = (double) i * ((maxX[j]-minX[j])/(double)sizeBin) + minX[j];
         vecFeature[j].vecIntMinMax[0].maxOrigVal
@@ -627,6 +604,23 @@ namespace data {
       }
     }
 
+  }
+
+
+  template <class T>
+  void DataRMA::writeObs(T vecData) {
+    int i,j, obs;
+    stringstream s;
+    (typeid(T) == typeid(int)) ? s << "int" << '.' : s << "orig" << '.' ;
+    ofstream os(s.str().c_str());
+    for ( i=0; i<numTrainObs; ++i ) {
+      for ( j=0; j<numAttrib; ++j ) {
+        obs = vecTrainData[i];
+        os << vecData[obs].X[j] << " " ;
+      }
+      os << "\n";
+    }
+    os.close();
   }
 
 

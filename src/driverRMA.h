@@ -57,6 +57,8 @@ namespace rma {
 
     void setupRMA(int& argc, char**& argv);
 
+    void resetExactRMA();
+
     void solveRMA();
     void solveGreedyRMA();
     void solveExactRMA();

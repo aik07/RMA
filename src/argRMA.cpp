@@ -14,13 +14,13 @@ namespace arg {
 ArgRMA::ArgRMA():
 
   _exactRMA(true),
-  
+
   _binarySearchCutVal(false),
   _perCachedCutPts(0.000001),
   _perLimitAttrib(1.0),
 
   _randSeed(true),
-  _initGuess(false),  //true
+  _initGuess(true),  
   _branchSelection(0),
   _countingSort(false),
 
@@ -105,7 +105,7 @@ ArgRMA::ArgRMA():
     create_categorized_parameter("maxInterval", _maxInterval, "<double>",
       "inf", "set the maximum interval length for recursive integerization", "RMA");
 
-    
+
     create_categorized_parameter("printBBdetails", _printBBdetails, "<bool>",
       "false", "print the complete output of the PEBBL branch-and bound", "RMA");
 

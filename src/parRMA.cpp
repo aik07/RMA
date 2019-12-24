@@ -164,8 +164,7 @@ namespace pebblRMA {
 	void parRMA::pack(PackBuffer& outBuf) {
 
 	  if (args->debug>=20) ucout << "parRMA::pack invoked..." << '\n';
-	  outBuf << numDistObs << numAttrib; // << _iterations;
-		//outBuf << _delta << _shrinkDelta << _limitInterval;
+	  outBuf << numDistObs << numAttrib;
 
 		//for (int i=0; i<numDistObs; ++i)  outBuf << sortedObsIdx[i];
 
@@ -174,15 +173,8 @@ namespace pebblRMA {
 	   	outBuf << data->origTrainData[i].y;
 	  }
 
-		outBuf << numTotalCutPts;
+		outBuf << distFeat << numTotalCutPts;
 
-		//TODO: fix this part!
-/*
-	  outBuf << distFeat
-		       << args->perLimitAttrib()
-		       << args->perCachedCutPts()
-					 << numTotalCutPts;
-//*/
 	} // end function parRMA::pack
 
 
@@ -191,8 +183,7 @@ namespace pebblRMA {
 
 		if (args->debug>=20)
 			ucout << "parRMA::unpack invoked... " << '\n';
-		inBuf >> numDistObs >> numAttrib; //>> _iterations;
-		//inBuf >> _delta >> _shrinkDelta >> _limitInterval;
+		inBuf >> numDistObs >> numAttrib;
 
 		//sortedObsIdx.resize(numDistObs);
 		//for (int i=0; i<numDistObs; ++i)  inBuf >> sortedObsIdx[i];
@@ -205,18 +196,11 @@ namespace pebblRMA {
 			inBuf >> data->origTrainData[i].y;
 		}
 
-		inBuf >> numTotalCutPts;
+		inBuf >> distFeat >> numTotalCutPts;
 
-    /*
-		inBuf >> distFeat
-		      >> args->perLimitAttrib()
-		      >> args->perCachedCutPts()
-					>> numTotalCutPts;
-		/*/
 
 		if (args->debug>=20) ucout << "parRMA::unpack done." << '\n';
 
-		//*
 		if (args->debug>=20) {
 
 			ucout << " distFeat: ";
@@ -227,7 +211,6 @@ namespace pebblRMA {
 		 for(size_type i=0; i<numDistObs; i++)
 				ucout <<" wt: " << data->intTrainData[i].w << '\n';
 		}
-		//*/
 
 	} // end function parRMA::unpack
 

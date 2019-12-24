@@ -74,7 +74,7 @@ public:
   vector<int>    L, U;
   vector<int>    Lmax, Umax;
   vector<int>    Lmin, Umin;
-  vector<double> W;
+  vector<double> vecWeight;
 
   ArgRMA*   args;
   DataRMA*  data;

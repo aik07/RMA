@@ -301,7 +301,7 @@ namespace greedyRMA {
     double minSoFar=inf;
 
     for (int i=Lmin[j]; i <= Umin[j]; ++i) {
-      minEndHere += W[i] ; // getObjCovered(j, i);
+      minEndHere += vecWeight[i] ; // getObjCovered(j, i);
       if (minEndHere < minSoFar) {
 	minSoFar=minEndHere;
 	tmpL=s;
@@ -332,7 +332,7 @@ namespace greedyRMA {
     double maxSoFar=-inf;    // min so far
 
     for (int i=Lmax[j]; i <= Umax[j]; ++i) {
-      maxEndHere += W[i] ; // getObjCovered(j, i);
+      maxEndHere += vecWeight[i] ; // getObjCovered(j, i);
       if ( maxEndHere > maxSoFar ) {
 	maxSoFar=maxEndHere;
 	tmpL=s;
@@ -377,16 +377,16 @@ namespace greedyRMA {
 
     int i, v, obs;
 
-    W.resize(data->maxL);
-    for (i=0; i<data->maxL; ++i)	W[i] = 0;
+    vecWeight.resize(data->numMaxDistVal);
+    for (i=0; i<data->numMaxDistVal; ++i)	vecWeight[i] = 0;
 
     for (i=0; i<vecCoveredObs.size(); ++i) {
       obs = vecCoveredObs[i];
       v = data->intTrainData[obs].X[j];
-      W[v] += data->intTrainData[obs].w;
+      vecWeight[v] += data->intTrainData[obs].w;
     }
 
-    if (args->debug>=10) ucout << "W: " << W ;
+    if (args->debug>=10) ucout << "vecWeight: " << vecWeight ;
 
   }
 

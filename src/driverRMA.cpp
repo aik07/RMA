@@ -19,15 +19,13 @@ namespace rma {
 
     setup(argc, argv);     // setup all paramaters
 
-    /*
-      #ifdef ACRO_HAVE_MPI
-      if (uMPI::rank==0) {
-      #endif //  ACRO_HAVE_MPI */
+#ifdef ACRO_HAVE_MPI
+if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
     setData(argc, argv);   // set data
-    /*
-      #ifdef ACRO_HAVE_MPI
-      }
-      #endif //  ACRO_HAVE_MPI*/
+#ifdef ACRO_HAVE_MPI
+}
+#endif //  ACRO_HAVE_MPI
 
     setupRMA(argc, argv);  // (setup) RMA
 
@@ -53,7 +51,14 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
 
     rma->setParameters(this); // passing arguments
+
+#ifdef ACRO_HAVE_MPI
+if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
     rma->setData(data);
+#ifdef ACRO_HAVE_MPI
+}
+#endif //  ACRO_HAVE_MPI
 
     exception_mngr::set_stack_trace(false);
     rma->setup(argc,argv);
@@ -64,9 +69,13 @@ namespace rma {
 
   void DriverRMA::solveRMA() {
     if (exactRMA()) {
+
+      resetExactRMA();
+
       if (initGuess()) {
-	solveGreedyRMA();
-	//rma->setInitGreedySol();
+	       solveGreedyRMA();
+         rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
+                              grma->L, grma->U);
       }
       solveExactRMA();
     } else {
@@ -80,9 +89,7 @@ namespace rma {
     grma->runGreedyRangeSearch();
   }
 
-
-  // solve RMA
-  void DriverRMA::solveExactRMA() {
+  void DriverRMA::resetExactRMA() {
 
 #ifdef ACRO_HAVE_MPI
     if (parallel) {
@@ -100,12 +107,16 @@ namespace rma {
     rma->workingSol.value = -inf;
     rma->numDistObs       = data->numTrainObs;	    // only use training data
     rma->setSortObsNum(data->vecTrainData);
-    //setDataWts();
+
+  }
+
+  // solve RMA
+  void DriverRMA::solveExactRMA() {
 
     rma->resetTimers();
     InitializeTiming();
     if (printBBdetails()) rma->solve();  // print out B&B details
-    else                rma->search();
+    else                  rma->search();
 
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {

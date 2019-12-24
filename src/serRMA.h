@@ -213,6 +213,9 @@ public:
   solution*  initialGuess();
   bool       haveIncumbentHeuristic() { return true; }
 
+  void setInitialGuess(bool isPosIncumb, double maxObjValue,
+                       vector<int> L, vector<int> U);
+
   //void setsortedObsIdx();
   void setSortObsNum(vector<int> & train) { sortedObsIdx = train; }
   void setCachedCutPts(const int& j, const int& v);
@@ -254,7 +257,7 @@ public:
   size_type numDistObs;		// # of distinct observations
 
   rmaSolution workingSol;
-  rmaSolution guess;
+  rmaSolution *guess;
 
   // for cut-point caching
   int                numCC_SP;	       // # of subproblems using cutpoint caching
@@ -270,6 +273,7 @@ public:
   DataRMA*   data;
   ArgRMA*    args;
   //GreedyRMA* grma;
+
 
 }; // end class RMA ************************************************************************
 
