@@ -222,7 +222,7 @@ namespace pebblRMA {
   //////////////////// RMA class methods ////////////////////
 
   // RMA constructor
-  RMA::RMA() : workingSol(this), numTotalCutPts(0), numCC_SP(0) {
+  RMA::RMA() : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
 
     //version_info += ", RMA example 1.1";
     min_num_required_args = 1;
@@ -295,14 +295,14 @@ namespace pebblRMA {
   }
 
 
-  void RMA::setData(DataRMA* data_) {
+  void RMA::setData(data::DataRMA* data_) {
     data       = data_;
-    numDistObs = data->numTrainObs;
-    numAttrib  = data->numAttrib;
-    distFeat   = data->distFeat;
 
-    for (int j=0; j<data->numAttrib; ++j)
-      numTotalCutPts += data->distFeat[j];
+    //numDistObs = data->numTrainObs;
+    //numAttrib  = data->numAttrib;
+
+    //for (int j=0; j<data->numAttrib; ++j)
+      //numTotalCutPts += data->distFeat[j];
 
   }
 
@@ -328,7 +328,7 @@ namespace pebblRMA {
     std::ios_base::fmtflags oldFlags = os.setf(ios::scientific);
 
     // Write data
-    for (size_type i=0; i<numDistObs; i++) {
+    for (size_type i=0; i<data->numOrigObs; i++) {
       os << data->intTrainData[i].w << ';';
 
       // Restore stream state
@@ -1108,7 +1108,7 @@ namespace pebblRMA {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-          < global()->numTotalCutPts * global()->args->perCachedCutPts() )
+          < global()->data->numTotalCutPts * global()->args->perCachedCutPts() )
       strongBranching();
 
     else { // if not, only check the storedCutPts
@@ -1299,10 +1299,10 @@ namespace pebblRMA {
 
     tmpMin = inf;
     tmpMax = -inf;
-    //minVal = inf;
-    //maxVal = -inf;
-    minVal = globalPtr->args->initGuess() ?   workingSol()->value : inf;
-    maxVal = globalPtr->args->initGuess() ?  -workingSol()->value : -inf;
+    //minVal = globalPtr->args->initGuess() ?   workingSol()->value : inf;
+    //maxVal = globalPtr->args->initGuess() ?  -workingSol()->value : -inf;
+    minVal = inf;
+    maxVal = -inf;
     optMinAttrib=-1;
     optMaxAttrib=-1;
 
@@ -1901,14 +1901,14 @@ namespace pebblRMA {
     outStream << "rectangle: a: " << a << "rectangle: b: " << b << "\n";
     cout << "rectangle: a: " << a << "rectangle: b: " << b << "\n";
 
-    for (int i=0; i<global->numAttrib; ++i) {
+    for (int i=0; i<global->data->numAttrib; ++i) {
       if (0<a[i])	// if lower bound changed
 	cout << a[i] << "<=";
-      if ( 0<a[i] || b[i]<global->distFeat[i] )
+      if ( 0<a[i] || b[i]<global->data->distFeat[i] )
 	cout << "x" << i ;
-      if (b[i]<global->distFeat[i])
+      if (b[i]<global->data->distFeat[i])
 	cout << "<=" << b[i];
-      if ( 0<a[i] || b[i]<global->distFeat[i] )
+      if ( 0<a[i] || b[i]<global->data->distFeat[i] )
 	cout << ", ";
     }
     cout << "\n";
@@ -1943,7 +1943,7 @@ namespace pebblRMA {
     int obs;
     double wt=0.0;
 
-    for (int i=0; i<global->numDistObs; ++i) { // for each observation
+    for (int i=0; i<global->data->numOrigObs; ++i) { // for each observation
       obs = global->sortedObsIdx[i];
       for (int j=0; j< global->data->numAttrib; ++j) { // for each attribute
       	if ( a[j] <= global->data->intTrainData[obs].X[j]

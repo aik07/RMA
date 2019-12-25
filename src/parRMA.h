@@ -24,7 +24,6 @@
 #ifdef ACRO_HAVE_MPI
 
 #include <pebbl/utilib/logEvent.h>
-//#include <pebbl/utilib/_math.h>
 #include <pebbl/utilib/stl_auxiliary.h>
 #include <pebbl/utilib/exception_mngr.h>
 #include <pebbl/utilib/comments.h>
@@ -32,7 +31,6 @@
 #include <pebbl/utilib/std_headers.h>
 #include <pebbl/utilib/PackBuf.h>
 #include <pebbl/utilib/BitArray.h>
-//#include <pebbl/misc/fundamentals.h>
 #include <pebbl/comm/mpiComm.h>
 #include <pebbl/comm/coTree.h>
 #include <pebbl/comm/outBufferQ.h>
@@ -66,24 +64,7 @@ class CutPtThd;
    ~parRMA();
 
    parallelBranchSub * blankParallelSub();
-   /*
-     bool setup(int& argc,char**& argv) {
-     return parallelBranching::setup(argc,argv);
-     }
-   */
-   /*
-     void setParameters(ArgRMA* args_) { args=args_; }
-
-     void setParameter(Data* data, const int& deb_int) {
-     debug = deb_int;
-     //////////////////////////////////////////
-     //loadBalDebug = data->loadBalDebug;
-     }
-   */
-   virtual void printSolutionTime() const {
-     ucout << "ERMA Solution: " << incumbentValue
-	   << "\tCPU time: " << totalCPU << "\n";
-   }
+   //loadBalDebug = data->loadBalDebug;
 
    // Need this to make sure the extra thread is set up
    void placeTasks();
@@ -93,7 +74,7 @@ class CutPtThd;
    int spPackSize();
 
    virtual bool continueRampUp() {
-     return (spCount() <= rampUpFeatureFac*numAttrib)
+     return (spCount() <= rampUpFeatureFac * data->numAttrib)
        && parallelBranching::continueRampUp();
    }
 

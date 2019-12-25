@@ -22,8 +22,6 @@
 #include <pebbl/utilib/memdebug.h>
 #include <pebbl/utilib/ParameterSet.h>
 #include <pebbl/utilib/seconds.h>
-//#include <pebbl/misc/fundamentals.h>
-//#include <SimpleHashTable.h>
 
 #ifdef ACRO_HAVE_MPI
   #include <pebbl/pbb/parBranching.h>
@@ -37,9 +35,6 @@
 using namespace std;
 using namespace pebbl;
 using namespace utilib;
-using namespace arg;
-using namespace data;
-//using namespace greedyRMA;
 
 
 namespace pebblRMA {
@@ -205,8 +200,8 @@ public:
   virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
 
   //void setParameters(ArgPMA* args, Data* data, const int& deb_int);
-  void setParameters(ArgRMA* args_) { args=args_; }
-  void setData(DataRMA* data_);
+  void setParameters(arg::ArgRMA* args_) { args=args_; }
+  void setData(data::DataRMA* data_);
 
   bool       setupProblem(int& argc,char**& argv) { return true; }
   branchSub* blankSub();
@@ -217,7 +212,7 @@ public:
                        vector<int> L, vector<int> U);
 
   //void setsortedObsIdx();
-  void setSortObsNum(vector<int> & train) { sortedObsIdx = train; }
+  void setSortedObsIdx(vector<int> & train) { sortedObsIdx = train; }
   void setCachedCutPts(const int& j, const int& v);
 
   //double getWeight(double pred, set<int> CovgIdx);
@@ -241,39 +236,30 @@ public:
   void   startTime();
   double endTime();
 
-  virtual void printSolutionTime() const {
+  void printSolutionTime() const {
     ucout << "ERMA Solution: " << incumbentValue
 	        << "\tCPU time: "    << searchTime << "\n";
   }
 
-  // contains l_j-1 = (# of distinct value observed in the feature)
-  vector<int> distFeat;
   vector<int> sortedObsIdx; 	// store sorted observations
 
   vector<vector<CutPtOrder> > CutPtOrders;				// to plot cut points
-
-  size_type numObs;				// # of observations
-  size_type numAttrib;		// # of attribute
-  size_type numDistObs;		// # of distinct observations
 
   rmaSolution workingSol;
   rmaSolution *guess;
 
   // for cut-point caching
   int                numCC_SP;	       // # of subproblems using cutpoint caching
-  int                numTotalCutPts;   // # of total cutpoints
   multimap<int, int> mmapCachedCutPts; // map to store already chosen cut points in another branches
 
   bool     _verifyLog;
   ostream* _vlFile;
 
   clock_t timeStart, timeEnd, clockTicksTaken;
-  double timeInSeconds;
+  double  timeInSeconds;
 
-  DataRMA*   data;
-  ArgRMA*    args;
-  //GreedyRMA* grma;
-
+  data::DataRMA*   data;
+  arg::ArgRMA*     args;
 
 }; // end class RMA ************************************************************************
 
@@ -372,7 +358,7 @@ public:
                  const int& bl, const int& bu) const;
   void   printCurrentBounds() ;
   void   printBounds(vector<double> Bounds, vector<int> Order,
-		     const int& j) const;
+		                 const int& j) const;
 
   void setCutPts(); // TODO: What is this for?????
 
@@ -381,10 +367,10 @@ public:
 protected:
   RMA* globalPtr;  // A pointer to the global branching object
   //inline double getObjectiveVal() const {return abs(posCovgWt-negCovgWt); };
-  inline int         numObs()     { return global()->numObs; };
-  inline int         numDistObs() { return global()->numDistObs; };
-  inline int         numAttrib()  { return global()->numAttrib; };
-  inline vector<int> distFeat()   { return global()->distFeat; };
+  inline int         numObs()     { return global()->data->numOrigObs; };
+  inline int         numDistObs() { return global()->data->numOrigObs; };
+  inline int         numAttrib()  { return global()->data->numAttrib; };
+  inline vector<int> distFeat()   { return global()->data->distFeat; };
 
 public:
 
@@ -425,7 +411,7 @@ inline branchSub* RMA::blankSub() {
   RMASub *temp = new RMASub();
   temp->RMASubFromRMA(this);
   return temp;
-};
+}
 
 } //********************* namespace pebbl ********************************
 

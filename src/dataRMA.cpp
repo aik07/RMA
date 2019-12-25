@@ -73,18 +73,9 @@ namespace data {
     } // end while
 
     for (i=0; i<numOrigObs; ++i)   // for each observation
-      if (origTrainData[i].y==0) origTrainData[i].y=-1;
+      if (origTrainData[i].y==0)
+        origTrainData[i].y=-1.0;
 
-/*
-    if (isLPBoost()) {
-      for (i=0; i<numOrigObs; ++i)   // for each observation
-        if (origData[i].y==0) origData[i].y=-1;
-      for (i=0; i<numOrigObs; ++i)   // for each observation
-        if (origData[i].y!=-1 && origData[i].y!=1)
-          cerr << "y:" << origData[i].y
-            << " Data contains not only -1(0) or +1!" << '\n';
-    }
-*/
     s.close();  // close the data file
 
     // for (int i=0; i<numOrigObs; ++i)
@@ -169,7 +160,8 @@ namespace data {
 
 
   void DataRMA::setNumMaxDistVal() {
-    numMaxDistVal=0;
+    numMaxDistVal  = 0;
+    numTotalCutPts = 0;
     for (int j=0; j<numAttrib ; ++j) {
       numTotalCutPts += distFeat[j];
       if ( numMaxDistVal-1 < distFeat[j] )

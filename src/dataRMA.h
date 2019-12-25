@@ -48,7 +48,7 @@ class DataXy {
 
 public:
 
-  DataXy() {}
+  DataXy() : y(0.0) {}
   DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
   int read(istream& is)        { is >> X >> y;        return 0; }
@@ -69,6 +69,7 @@ class DataRMA {
 public:
 
   DataRMA() {}
+  DataRMA(ArgRMA *args_): args(args_) {}
   DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
   bool readData(int& argc, char**& argv);

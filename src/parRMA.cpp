@@ -126,12 +126,14 @@ namespace pebblRMA {
 		branchChoice::setupMPI();
 	}
 
+
 	// Destructor.
 	parRMA::~parRMA() {
 		if (cutPtCaster == 0)
 			delete cutPtCaster;
 		branchChoice::freeMPI();
 	}
+
 
 	/// Note: use VB flag?
 	void parRMA::reset(bool VBflag) {
@@ -164,16 +166,17 @@ namespace pebblRMA {
 	void parRMA::pack(PackBuffer& outBuf) {
 
 	  if (args->debug>=20) ucout << "parRMA::pack invoked..." << '\n';
-	  outBuf << numDistObs << numAttrib;
 
-		//for (int i=0; i<numDistObs; ++i)  outBuf << sortedObsIdx[i];
+		outBuf << data->numOrigObs << data->numAttrib;
 
-	  for (int i=0; i<numDistObs; ++i) {
+		for (int i=0; i<data->numOrigObs; ++i)  outBuf << sortedObsIdx[i];
+
+	  for (int i=0; i<data->numOrigObs; ++i) {
 	   	outBuf << data->intTrainData[i].X << data->intTrainData[i].w;
-	   	outBuf << data->origTrainData[i].y;
+	   	//outBuf << data->origTrainData[i].y;
 	  }
 
-		outBuf << distFeat << numTotalCutPts;
+		outBuf << data->distFeat << data->numTotalCutPts;
 
 	} // end function parRMA::pack
 
@@ -181,34 +184,36 @@ namespace pebblRMA {
 	// unpack
 	void parRMA::unpack(UnPackBuffer& inBuf) {
 
-		if (args->debug>=20)
-			ucout << "parRMA::unpack invoked... " << '\n';
-		inBuf >> numDistObs >> numAttrib;
+		if (args->debug>=20) ucout << "parRMA::unpack invoked... " << '\n';
 
-		//sortedObsIdx.resize(numDistObs);
-		//for (int i=0; i<numDistObs; ++i)  inBuf >> sortedObsIdx[i];
+		data = new data::DataRMA(args);
 
-		data->intTrainData.resize(numDistObs);
-		data->origTrainData.resize(numDistObs);
-		for (int i=0; i<numDistObs; ++i) {
-			data->intTrainData[i].X.resize(numAttrib);
+		inBuf >> data->numOrigObs >> data->numAttrib;
+
+    sortedObsIdx.resize(data->numOrigObs);
+		for (int i=0; i<data->numOrigObs; ++i)  inBuf >> sortedObsIdx[i];
+
+		data->intTrainData.resize(data->numOrigObs);
+		//data->origTrainData.resize(data->numOrigObs);
+
+		for (int i=0; i<data->numOrigObs; ++i) {
+			data->intTrainData[i].X.resize(data->numAttrib);
 			inBuf >> data->intTrainData[i].X >> data->intTrainData[i].w;
-			inBuf >> data->origTrainData[i].y;
+			//inBuf >> data->origTrainData[i].y;
 		}
 
-		inBuf >> distFeat >> numTotalCutPts;
-
+		inBuf >> data->distFeat >> data->numTotalCutPts;
 
 		if (args->debug>=20) ucout << "parRMA::unpack done." << '\n';
 
 		if (args->debug>=20) {
 
-			ucout << " distFeat: ";
+			ucout << " data->distFeat: ";
 
-			for(size_type i=0; i<numAttrib; i++)
-			  ucout << distFeat[i] << ", ";
+			for(size_type i=0; i<data->numAttrib; i++)
+			  ucout << data->distFeat[i] << ", ";
 
-		 for(size_type i=0; i<numDistObs; i++)
+		 for(size_type i=0; i<data->numOrigObs; i++)
 				ucout <<" wt: " << data->intTrainData[i].w << '\n';
 		}
 
@@ -216,9 +221,9 @@ namespace pebblRMA {
 
 
 	int parRMA::spPackSize() {
-		return 5*(numAttrib+2)*sizeof(int)	//  al << au << bl << bu << subState
+		return 5*(data->numAttrib+2)*sizeof(int)	//  al << au << bl << bu << subState
 				+  2*sizeof(int)+3*(sizeof(double)+ sizeof(int)) // size of branchChoice
-				+  (numAttrib+2)*sizeof(bool);		// vecCheckedFeat
+				+  (data->numAttrib+2)*sizeof(bool);		// vecCheckedFeat
 	} // end function parRMA::spPackSize
 
 
@@ -329,7 +334,7 @@ return;
 	    	return NULL;
 	    }
 
-	    if ((_branchChoice.branchVar < 0) || (_branchChoice.branchVar >= global()->numAttrib)) {
+	    if ((_branchChoice.branchVar < 0) || (_branchChoice.branchVar >= numAttrib())) {
 	    	ucout << "parRMASub::makeParallelChild: invalid branching variable\n";
 	    	return NULL;
 	    }
@@ -423,7 +428,7 @@ return;
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-          < globalPtr->numTotalCutPts * globalPtr->args->perCachedCutPts() )
+          < globalPtr->data->numTotalCutPts * globalPtr->args->perCachedCutPts() )
       return;
 
     // if not, only check the storedCutPts
@@ -551,7 +556,7 @@ return;
 		// -- the first (remainder) processors have one more variable
 
 		isCachedCutPts = false;
-		int size = uMPI::size;
+		size_type size = uMPI::size;
 		size_type rank = uMPI::rank;
 
 		// if there are enough discoverd cut points (storedCutPts) check only the list
@@ -581,21 +586,22 @@ return;
 
 		printCurrentBounds();
 
-		if (global()->args->debug>=1) cout << "Best local choice is " <<  _branchChoice <<
-                           " NumTiedSols: " << NumTiedSols << '\n';
+		if (global()->args->debug>=1)
+			cout << "Best local choice is " <<  _branchChoice
+           << " NumTiedSols: " << NumTiedSols << '\n';
 
 		/******************* rampUpIncumbentSync *******************/
 
 		if (global()->args->debug>=1)
 			cout << rank << ": BEFORE rampUpIncumbentSync():"
-													 << pGlobal()->rampUpMessages << '\n';
+					 << pGlobal()->rampUpMessages << '\n';
 
 		// Better incumbents may have been found along the way
 		pGlobal()->rampUpIncumbentSync();
 
 		if (global()->args->debug>=1)
 			cout << rank << ": AFTER rampUpIncumbentSync():"
-													<< pGlobal()->rampUpMessages << '\n';
+					 << pGlobal()->rampUpMessages << '\n';
 
 		/******************* Global Choice *******************/
 		// Now determine the globally best branching choice by global reduction.
@@ -621,8 +627,9 @@ return;
 
 		pGlobal()->rampUpMessages += 2*(uMPI::rank > 0);
 
-		if (global()->args->debug>=20) cout << rank << ": after reduceCast:"
-										<< pGlobal()->rampUpMessages << '\n';
+		if (global()->args->debug>=20)
+			cout << rank << ": after reduceCast:"
+			     << pGlobal()->rampUpMessages << '\n';
 
 		if (global()->args->debug>=20)
 			cout << "Best global choice is " << bestBranch << '\n';

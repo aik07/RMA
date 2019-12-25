@@ -32,14 +32,7 @@ typedef void parRMA;
 
 namespace rma {
 
-  using namespace utilib;
-  using namespace base;
-  using namespace data;
-  using namespace pebblRMA;
-  using namespace greedyRMA;
-
-
-  class DriverRMA : virtual public BaseRMA {
+  class DriverRMA : virtual public base::BaseRMA {
 
   public:
 
@@ -51,10 +44,7 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
     }
 
-    void setData(int& argc, char**& argv) {
-      data = new DataRMA(argc, argv, (ArgRMA *) this);
-    }
-
+    void setData(int& argc, char**& argv);
     void setupRMA(int& argc, char**& argv);
 
     void resetExactRMA();
@@ -63,19 +53,19 @@ namespace rma {
     void solveGreedyRMA();
     void solveExactRMA();
 
-    //  private:
+    void printSolutionTime();
+
+private:
 
     bool          parallel;
 
-    DataRMA*      data;
-    GreedyRMA*    grma;
+    data::DataRMA*        data;
+    greedyRMA::GreedyRMA* grma;
 
-    RMA*          rma ;
-    parRMA*       prma;
+    pebblRMA::RMA*        rma ;
+    pebblRMA::parRMA*     prma;
 
     Time          tc;
-    double        wallTime;
-    double        cpuTime;
 
   };
 
