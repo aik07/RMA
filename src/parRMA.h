@@ -73,11 +73,12 @@ class CutPtThd;
    void unpack(UnPackBuffer &inBuf);
    int spPackSize();
 
+/*
    virtual bool continueRampUp() {
      return (spCount() <= rampUpFeatureFac * data->numAttrib)
        && parallelBranching::continueRampUp();
    }
-
+*/
    /// Note: use VB flag?
    void reset(bool VBflag=true);
 

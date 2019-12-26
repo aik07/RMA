@@ -549,8 +549,8 @@ namespace data {
       }
 
     if ( args->debug >=1 ) cout << "integerizeProblem: \t";
-    if ( args->debug >=1 ) tc.endCPUTime();
-    if ( args->debug >=2 ) tc.endWallTime();
+    if ( args->debug >=1 ) tc.getCPUTime();
+    if ( args->debug >=2 ) tc.getWallTime();
 
   } // end integerizeData
 

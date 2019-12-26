@@ -270,9 +270,11 @@ namespace pebblRMA {
 
     //guess = new rmaSolution(this);
     //setInitialGuess();
-    return guess;
 
-    //return NULL;
+    if (uMPI::rank==0)
+      return guess;
+    else
+      return NULL;
   }
 
 
@@ -291,18 +293,6 @@ namespace pebblRMA {
     workingSol.value       = maxObjValue;
     workingSol.a           = L;
     workingSol.b           = U;
-
-  }
-
-
-  void RMA::setData(data::DataRMA* data_) {
-    data       = data_;
-
-    //numDistObs = data->numTrainObs;
-    //numAttrib  = data->numAttrib;
-
-    //for (int j=0; j<data->numAttrib; ++j)
-      //numTotalCutPts += data->distFeat[j];
 
   }
 

@@ -17,13 +17,7 @@ namespace rma {
 
     setup(argc, argv);     // setup all paramaters
 
-#ifdef ACRO_HAVE_MPI
-if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
     setData(argc, argv);   // set data
-#ifdef ACRO_HAVE_MPI
-}
-#endif //  ACRO_HAVE_MPI
 
     setupRMA(argc, argv);  // (setup) RMA
 
@@ -55,11 +49,11 @@ if (uMPI::rank==0) {
 #endif // ACRO_HAVE_MPI
 
     rma->setParameters(this); // passing arguments
+    rma->setData(data);
 
 #ifdef ACRO_HAVE_MPI
 if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-    rma->setData(data);
     rma->setSortedObsIdx(data->vecTrainData);
 #ifdef ACRO_HAVE_MPI
 }

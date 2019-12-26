@@ -30,10 +30,10 @@ namespace greedyRMA {
 #endif //  ACRO_HAVE_MPI
 
       ucout << "GRMA Solution: " << maxObjValue << "\t";
-      ts.endCPUTime();
-      if (args->debug>=2) cout << ts.endWallTime();
+      ucout << "CPU Time: " << ts.getCPUTime() << "\n";
+      if (args->debug>=2) ucout << ts.getWallTime();
       //if (args->printBoost()) {
-      if (args->debug>=2) cout << "L: " << L << "U: " << U;
+      if (args->debug>=2) ucout << "L: " << L << "U: " << U;
       //}
 
 #ifdef ACRO_HAVE_MPI

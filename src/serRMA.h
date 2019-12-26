@@ -199,9 +199,8 @@ public:
   RMA();					// constructor
   virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
 
-  //void setParameters(ArgPMA* args, Data* data, const int& deb_int);
   void setParameters(arg::ArgRMA* args_) { args=args_; }
-  void setData(data::DataRMA* data_);
+  void setData(data::DataRMA* data_)     { data = data_; }
 
   bool       setupProblem(int& argc,char**& argv) { return true; }
   branchSub* blankSub();
@@ -211,7 +210,6 @@ public:
   void setInitialGuess(bool isPosIncumb, double maxObjValue,
                        vector<int> L, vector<int> U);
 
-  //void setsortedObsIdx();
   void setSortedObsIdx(vector<int> & train) { sortedObsIdx = train; }
   void setCachedCutPts(const int& j, const int& v);
 
@@ -235,12 +233,12 @@ public:
 
   void   startTime();
   double endTime();
-
+/*
   void printSolutionTime() const {
     ucout << "ERMA Solution: " << incumbentValue
 	        << "\tCPU time: "    << searchTime << "\n";
   }
-
+*/
   vector<int> sortedObsIdx; 	// store sorted observations
 
   vector<vector<CutPtOrder> > CutPtOrders;				// to plot cut points

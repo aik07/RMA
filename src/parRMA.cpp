@@ -186,16 +186,12 @@ namespace pebblRMA {
 
 		if (args->debug>=20) ucout << "parRMA::unpack invoked... " << '\n';
 
-		data = new data::DataRMA(args);
-
 		inBuf >> data->numOrigObs >> data->numAttrib;
 
     sortedObsIdx.resize(data->numOrigObs);
 		for (int i=0; i<data->numOrigObs; ++i)  inBuf >> sortedObsIdx[i];
 
 		data->intTrainData.resize(data->numOrigObs);
-		//data->origTrainData.resize(data->numOrigObs);
-
 		for (int i=0; i<data->numOrigObs; ++i) {
 			data->intTrainData[i].X.resize(data->numAttrib);
 			inBuf >> data->intTrainData[i].X >> data->intTrainData[i].w;
