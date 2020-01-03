@@ -21,66 +21,66 @@ using namespace data;
 
 namespace greedyRMA {
 
-class GreedyRMA {
+  class GreedyRMA {
+    
+  public:
+    
+    GreedyRMA(ArgRMA *args_, DataRMA *data_) : args(args_), data(data_) { }
+    
+    void   runGreedyRangeSearch();
 
-public:
+    void   chooseMinOrMaxRange();
+    
+    void   getMinOptRange();
+    void   getMaxOptRange();
 
-  GreedyRMA(ArgRMA *args_, DataRMA *data_) : args(args_), data(data_) { }
+    void   setOptMin(const int &j);
+    void   setOptMax(const int &j);
 
-  void   runGreedyRangeSearch();
+    //TODO: combine min max range search together
+    double runMinKadane(const int& j) ;
+    double runMaxKadane(const int& j) ;
 
-  void   chooseMinOrMaxRange();
+    void   setObjVec(const int &j);
 
-  void   getMinOptRange();
-  void   getMaxOptRange();
+    void   dropObsNotCovered(const int &j, const int& lower, const int& upper);
 
-  void   setOptMin(const int &j);
-  void   setOptMax(const int &j);
+    double getObjCovered(const int& j, const int& v);
 
-  //TODO: combine min max range search together
-  double runMinKadane(const int& j) ;
-  double runMaxKadane(const int& j) ;
+    void   printSolution();
 
-  void   setObjVec(const int &j);
+    void   setInit1DRules();
+    void   set1DOptRange(const int& j);
 
-  void   dropObsNotCovered(const int &j, const int& lower, const int& upper);
+    // private:
 
-  double getObjCovered(const int& j, const int& v);
+    bool   isPosIncumb;
+    bool   foundBox;
+    int    NumNegTiedSols;
+    int    NumPosTiedSols;
 
-  void   printSolution();
+    int    tmpL, tmpU;
+    double tmpObj, tmpMin, tmpMax;
+    double maxObjValue, minVal, maxVal;
 
-  void   setInit1DRules();
-  void   set1DOptRange(const int& j);
+    int    optAttrib;
+    int    prevAttrib;
+    int    optLower, optUpper;
 
-// private:
+    int    obs;
+    bool   fondNewBox;
 
-  bool   isPosIncumb;
-  bool   foundBox;
-  int    NumNegTiedSols;
-  int    NumPosTiedSols;
+    vector<int>    vecCoveredObs;
+    vector<int>    L, U;
+    vector<int>    Lmax, Umax;
+    vector<int>    Lmin, Umin;
+    vector<double> vecWeight;
 
-  int    tmpL, tmpU;
-  double tmpObj, tmpMin, tmpMax;
-  double maxObjValue, minVal, maxVal;
+    ArgRMA*   args;
+    DataRMA*  data;
+    Time      ts;
 
-  int    optAttrib;
-  int    prevAttrib;
-  int    optLower, optUpper;
-
-  int    obs;
-  bool   fondNewBox;
-
-  vector<int>    vecCoveredObs;
-  vector<int>    L, U;
-  vector<int>    Lmax, Umax;
-  vector<int>    Lmin, Umin;
-  vector<double> vecWeight;
-
-  ArgRMA*   args;
-  DataRMA*  data;
-  Time      ts;
-
-};
+  };
 
 
 } // namespace greedyRMA

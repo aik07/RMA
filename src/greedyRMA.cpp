@@ -9,9 +9,9 @@
 namespace greedyRMA {
 
   void GreedyRMA::runGreedyRangeSearch() {
-
+    
     ts.startTime();
-
+    
     getMinOptRange();		// get oprimal range for minimum objective value
 
     getMaxOptRange();		// get oprimal range for maximum objective value

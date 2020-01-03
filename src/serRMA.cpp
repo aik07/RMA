@@ -8,14 +8,14 @@
 
 namespace pebblRMA {
 
-//////////////////// MPI methods ////////////////////
-//#define MPI_UP1 OMPI_PREDEFINED_GLOBAL(MPI_Datatype,	MPI_TYPE_CREATE_RESIZED)
-
+  //////////////////// MPI methods ////////////////////
+  //#define MPI_UP1 OMPI_PREDEFINED_GLOBAL(MPI_Datatype,	MPI_TYPE_CREATE_RESIZED)
+  
 #ifdef ACRO_HAVE_MPI
-
+  
   void branchChoiceCombiner(void* invec, void* inoutvec,
                             int* len, MPI_Datatype* datatype) {
-
+    
 #ifdef ACRO_VALIDATING
     if (*datatype != branchChoice::mpiType) {
       cerr << "Datatype error in branchChoiceCombiner\n";
@@ -28,7 +28,7 @@ namespace pebblRMA {
     int n = *len;
     for (int i=0; i<n; i++)
       if (inPtr[i] < inOutPtr[i])
-	      inOutPtr[i] = inPtr[i];
+	inOutPtr[i] = inPtr[i];
 
   }
 
@@ -71,7 +71,7 @@ namespace pebblRMA {
   }
 
 
-//////////////////// branchChoice class methods ////////////////////
+  //////////////////// branchChoice class methods ////////////////////
 
   void branchChoice::setupMPIDatum(void* address, MPI_Datatype thisType,
 				   MPI_Datatype* type, MPI_Aint base, MPI_Aint* disp,
@@ -159,10 +159,10 @@ namespace pebblRMA {
     branch[1].set(b, 1e-5);
     branch[2].set(c, 1e-5);
 
-  	for (int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i)
       branch[i].whichChild=i;
 
-  	cutVal = cut;	branchVar = j;
+    cutVal = cut;	branchVar = j;
   }
 
 
@@ -177,9 +177,9 @@ namespace pebblRMA {
   bool branchChoice::operator<(const branchChoice& other) const {
     for(int i=0; i<3; i++) {
       if (branch[i].roundedBound < other.branch[i].roundedBound)
-	      return true;
+	return true;
       else if (branch[i].roundedBound > other.branch[i].roundedBound)
-	      return false;
+	return false;
     }
     return branchVar < other.branchVar;
   }
@@ -199,15 +199,15 @@ namespace pebblRMA {
   void branchChoice::possibleSwap(size_type i1, size_type i2) {
     register double roundedBound1 = branch[i1].roundedBound;
     register double roundedBound2 = branch[i2].roundedBound;
-      if (roundedBound1 < roundedBound2) {
-        branchItem tempItem(branch[i1]);
-        branch[i1] = branch[i2];
-        branch[i2] = tempItem;
-      }
+    if (roundedBound1 < roundedBound2) {
+      branchItem tempItem(branch[i1]);
+      branch[i1] = branch[i2];
+      branch[i2] = tempItem;
+    }
   }
 
 
-//////////////////// branchItem class methods ////////////////////
+  //////////////////// branchItem class methods ////////////////////
 
   void branchItem::set(double bound, double roundQuantum) {
     exactBound = bound;
@@ -756,7 +756,7 @@ namespace pebblRMA {
     } else if ( au[j]<=bl[j] && au[j]<=v && v<bl[j]  ) {
       return;
     } else if ( bl[j]<au[j] &&
-      min(au[j],bl[j])<=v && v<max(au[j],bl[j]) ) {
+		min(au[j],bl[j])<=v && v<max(au[j],bl[j]) ) {
 
       // Down Child
       printSP(j, al[j], v, v, v);
@@ -926,7 +926,7 @@ namespace pebblRMA {
         if (bl[j]>au[j]) numCutValues -= bl[j]-au[j];
 
         if (numCutValues==0)	{// if no cutValue in this feature,
-	        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+	  (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
           continue;			// then go to the next attribute.
         }
 
@@ -965,7 +965,7 @@ namespace pebblRMA {
 
             printSP(j, al[j], au[j], bl[j], bu[j]);
             if (global()->args->debug>=10) ucout << "j: " << j << " L: "<< L << " U: " << U
-                << " cutVal: " << cutValue << "\n";
+						 << " cutVal: " << cutValue << "\n";
 
           } else {
             if (firstFewCutPts) {
@@ -1056,7 +1056,7 @@ namespace pebblRMA {
 
           printSP(j, al[j], au[j], bl[j], bu[j]);
           if (global()->args->debug>=10) ucout << "j: " << j << " L: "<< L << " U: " << U
-              << " cutVal: " << cutValue << "\n";
+					       << " cutVal: " << cutValue << "\n";
 
         } else {
           if (firstFewCutPts) {
@@ -1071,7 +1071,7 @@ namespace pebblRMA {
 
         //cout << "(j, cutValue) " << j << ", " << cutValue << "\n";
         if (global()->args->debug>=10) ucout << "coveredObs: " << coveredObs;
-  			branchingProcess(j, cutValue);
+	branchingProcess(j, cutValue);
 
         // compare objectives instead of bounds
         //if ( vecObjValue[0] > vecObjValue[1] ) L = cutValue;
@@ -1098,7 +1098,7 @@ namespace pebblRMA {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-          < global()->data->numTotalCutPts * global()->args->perCachedCutPts() )
+	 < global()->data->numTotalCutPts * global()->args->perCachedCutPts() )
       strongBranching();
 
     else { // if not, only check the storedCutPts
@@ -1128,10 +1128,10 @@ namespace pebblRMA {
 
     // store cached cut-points
     if ( _branchChoice.branchVar < 0
-      || _branchChoice.branchVar > globalPtr->data->numAttrib )
+	 || _branchChoice.branchVar > globalPtr->data->numAttrib )
       return; //ucout << "ERROR! j is out of range for setCachedCutPts";
     else if ( _branchChoice.cutVal < 0
-      || _branchChoice.cutVal > globalPtr->data->distFeat[j] )
+	      || _branchChoice.cutVal > globalPtr->data->distFeat[j] )
       return; // ucout << "ERROR! v is out of range for setCachedCutPts";
     else
       globalPtr->setCachedCutPts(_branchChoice.branchVar, _branchChoice.cutVal);
@@ -1204,8 +1204,8 @@ namespace pebblRMA {
   }
 
 
-/*
-  void RMASub::countingSortObs(const int& j) {
+  /*
+    void RMASub::countingSortObs(const int& j) {
 
     int i, v, obs;
     int numObs = coveredObs.size();
@@ -1215,35 +1215,35 @@ namespace pebblRMA {
     sortedECidx1.resize(numObs);
 
     for ( i=0; i < numObs ; ++i ) {
-      obs = coveredObs[i];
-      v = data->arrayObs[obs].X[j];
-      if ( au[j] < bl[j] ) { 	// no overlapping
-        if (v<au[j]) v -= al[j];
-        else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
-        else if ( bl[j] < v ) v = v - (bl[j] - au[j]) - al[j];
-      } else v -= al[j];	// overlapping
-      ++vecCount[v] ;
+    obs = coveredObs[i];
+    v = data->arrayObs[obs].X[j];
+    if ( au[j] < bl[j] ) { 	// no overlapping
+    if (v<au[j]) v -= al[j];
+    else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
+    else if ( bl[j] < v ) v = v - (bl[j] - au[j]) - al[j];
+    } else v -= al[j];	// overlapping
+    ++vecCount[v] ;
     }
 
     for ( i=1; i < bucketSize ; ++i )
-      vecCount[i] += vecCount[i-1] ;
+    vecCount[i] += vecCount[i-1] ;
 
     for ( i=numObs-1; i>=0 ; --i ) {
-      obs = coveredObs[i];
-      v = data->arrayObs[obs].X[j];
-      if ( au[j] < bl[j] ) { 	// no overlapping
-        if (v<au[j]) v -= al[j];
-        else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
-        else if ( bl[j] < v ) v = v - (bl[j] - au[j]) - al[j];
-      } else v -= al[j];	// overlapping
-      coveredObs1[ vecCount[v]-1 ] = coveredObs[i] ;
-      --vecCount[v];
+    obs = coveredObs[i];
+    v = data->arrayObs[obs].X[j];
+    if ( au[j] < bl[j] ) { 	// no overlapping
+    if (v<au[j]) v -= al[j];
+    else if ( au[j]<=v && v<=bl[j] ) v = au[j] - al[j];
+    else if ( bl[j] < v ) v = v - (bl[j] - au[j]) - al[j];
+    } else v -= al[j];	// overlapping
+    coveredObs1[ vecCount[v]-1 ] = coveredObs[i] ;
+    --vecCount[v];
     }
 
     coveredObs = coveredObs1;
 
-  }
-*/
+    }
+  */
 
 
   void RMASub::countingSortEC(const int& j) {
@@ -1466,25 +1466,25 @@ namespace pebblRMA {
           s = bl[j];
       }
 
-/*
-      if ( tmpObj < minEndHere+tmpObj ) {
+      /*
+	if ( tmpObj < minEndHere+tmpObj ) {
         minEndHere = tmpObj;
         if (minEndHere < minSoFar) {
-          minSoFar=minEndHere;
-          aj=v;
-          bj=v;
-          if (au[j]<bl[j] && au[j]<v && v<=bl[j])
-            bj=bl[j];
+	minSoFar=minEndHere;
+	aj=v;
+	bj=v;
+	if (au[j]<bl[j] && au[j]<v && v<=bl[j])
+	bj=bl[j];
         }
-      } else {
+	} else {
         minEndHere += tmpObj;
         if (minEndHere < minSoFar) {
-          minSoFar=minEndHere;
-          bj=v;
-          if (au[j]<bl[j] && au[j]<v && v<=bl[j])
-            bj=bl[j];
+	minSoFar=minEndHere;
+	bj=v;
+	if (au[j]<bl[j] && au[j]<v && v<=bl[j])
+	bj=bl[j];
         }
-      }*/
+	}*/
     }
 
     if (globalPtr->args->debug>=10)
@@ -1510,8 +1510,8 @@ namespace pebblRMA {
         //cout << "vecEquivClass1: " << sortedECidx[i]
         //     << " covgWt: " << covgWt << endl;
       } else if (au[j]<bl[j] && au[j]<=v && v<=bl[j]
-              && au[j]<=global()->data->intTrainData[obs].X[j]
-              && global()->data->intTrainData[obs].X[j]<=bl[j]) {
+		 && au[j]<=global()->data->intTrainData[obs].X[j]
+		 && global()->data->intTrainData[obs].X[j]<=bl[j]) {
         covgWt += vecEquivClass[sortedECidx[i]].getWt();
         //cout << "vecEquivClass2: " << sortedECidx[i]
         //     << " covgWt: " << covgWt << endl;
@@ -1541,7 +1541,7 @@ namespace pebblRMA {
   }  // end function getObjValue
 
 
-	double RMASub::getBoundMerge() const {
+  double RMASub::getBoundMerge() const {
 
     int obs, idxEC;	// observation number
     double pBound=0.0, nBound=0.0; // weight for positive and negative observation
@@ -1690,8 +1690,8 @@ namespace pebblRMA {
 	} else {  // detected obs1 and obs2 are in different equivClass
 	  vecEquivClass1[++k]=vecEquivClass[idxEC2];  // push back all obs in the equivClass
 	  if (i!=sortedECidx1.size()-1) { // if not the last observation
-      idxEC1 = sortedECidx1[i];
-      idxEC2 = sortedECidx1[i+1];
+	    idxEC1 = sortedECidx1[i];
+	    idxEC2 = sortedECidx1[i+1];
 	    obs1 = vecEquivClass[idxEC1].getObs();
 	    obs2 = vecEquivClass[idxEC2].getObs();
 	  }
@@ -1709,7 +1709,7 @@ namespace pebblRMA {
     if (globalPtr->args->debug>=25) ucout << "vecEquivClass1: \n";
     if (globalPtr->args->debug>=30)
       for (int i=0; i<vecEquivClass1.size(); ++i)
-			  cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n";
+	cout << "EC: " << i << ": " << vecEquivClass1[i] << "\n";
 
   }  // end function RMASub::mergeEquivClass
 
@@ -1801,7 +1801,7 @@ namespace pebblRMA {
       vector<CutPtOrder> row; // Create an empty row
       global()->CutPtOrders.push_back(row); // Add the row to the vector
       global()->CutPtOrders[numBarnch].push_back
-               (CutPtOrder(count, _branchChoice.branchVar, _branchChoice.cutVal));
+	(CutPtOrder(count, _branchChoice.branchVar, _branchChoice.cutVal));
     } else {
       bool thisBranch = false;
       for (int i=0; i<numBarnch; ++i) {
@@ -1816,7 +1816,7 @@ namespace pebblRMA {
 	  }
 	  if (thisBranch) {
 	    global()->CutPtOrders[i].push_back
-                     (CutPtOrder(count, _branchChoice.branchVar, _branchChoice.cutVal));
+	      (CutPtOrder(count, _branchChoice.branchVar, _branchChoice.cutVal));
 	    break;
 	  }
 	}
@@ -1869,7 +1869,7 @@ namespace pebblRMA {
 
   rmaSolution::rmaSolution(rmaSolution* toCopy) {
     //DEBUGPRX(100, global,  "Copy constructing rmaSolution at "
-	  //   << (void*) this << " from " << toCopy << endl; );
+    //   << (void*) this << " from " << toCopy << endl; );
     copy(toCopy);
     serial = ++(global->solSerialCounter);
   }

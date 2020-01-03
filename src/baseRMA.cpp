@@ -1,11 +1,10 @@
-
 #include "baseRMA.h"
 
 
 namespace base {
   
-////////////////////// Base class methods ////////////////////////
-
+  ////////////////////// Base class methods ////////////////////////
+  
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
   bool BaseRMA::setup(int& argc, char**& argv) {
@@ -57,9 +56,9 @@ namespace base {
   				  unsigned int min_num_required_args__) {
 
     if (argc > 0)
-       solver_name = argv[0];
+      solver_name = argv[0];
     else
-       solver_name = "unknown";
+      solver_name = "unknown";
     if (!parameters_registered) {
       register_parameters();
       parameters_registered=true;
@@ -92,7 +91,7 @@ namespace base {
 	write_parameter_values(ucout);
 	ucout << endl << utilib::Flush;
       }
-      #ifdef ACRO_HAVE_MPI
+#ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
     
@@ -123,7 +122,7 @@ namespace base {
   // "/" or "\" in the name and removes it and everything before it.
 
   void BaseRMA::setName(const char* cname) {
-  #if defined (TFLOPS)
+#if defined (TFLOPS)
     problemName = cname;
     int i=problemName.size();
     while (i >= 0) {
@@ -131,9 +130,9 @@ namespace base {
       i--;
     }
     if (i >= 0)
-       problemName.erase(0,i+1);
+      problemName.erase(0,i+1);
     // TODO: remove the .extension part for this case
-  #else
+#else
     problemName = cname;
     size_type i = problemName.rfind("/");
     if (i == string::npos)
@@ -150,8 +149,8 @@ namespace base {
     if ((endOfName == ".dat") || (endOfName == ".DAT"))
       problemName.erase(n-4,n);
     if ((endOfName == ".data") || (endOfName == ".DATA"))
-        problemName.erase(n-5,n);
-  #endif
+      problemName.erase(n-5,n);
+#endif
   }
 
 } // end namespacs base

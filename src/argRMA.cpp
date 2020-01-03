@@ -11,38 +11,38 @@ using utilib::ParameterNonnegative;
 
 namespace arg {
 
-ArgRMA::ArgRMA():
+  ArgRMA::ArgRMA():
 
-  _exactRMA(true),
+    _exactRMA(true),
 
-  _binarySearchCutVal(false),
-  _perCachedCutPts(0.000001),
-  _perLimitAttrib(1.0),
+    _binarySearchCutVal(false),
+    _perCachedCutPts(0.000001),
+    _perLimitAttrib(1.0),
 
-  _randSeed(true),
-  _initGuess(true),  
-  _branchSelection(0),
-  _countingSort(false),
+    _randSeed(true),
+    _initGuess(true),  
+    _branchSelection(0),
+    _countingSort(false),
 
-  _testWt(false),
+    _testWt(false),
 
-  _checkObjVal(false),
-  _bruteForceEC(false),
-  _bruteForceIncumb(false),
+    _checkObjVal(false),
+    _bruteForceEC(false),
+    _bruteForceIncumb(false),
 
-  _writeInstances(false),
-  _writeNodeTime(false),
-  _writeCutPts(false),
+    _writeInstances(false),
+    _writeNodeTime(false),
+    _writeCutPts(false),
 
-  _delta(-1),
-  _shrinkDelta(.95),
-  _maxInterval(inf),
+    _delta(-1),
+    _shrinkDelta(.95),
+    _maxInterval(inf),
 
-  _fixedSizeBin(-1),
+    _fixedSizeBin(-1),
 
-  _printBBdetails(false),
+    _printBBdetails(false),
 
-  _rampUpSizeFact(1.0)
+    _rampUpSizeFact(1.0)
 
   {
 

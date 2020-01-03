@@ -50,116 +50,116 @@ using namespace utilib;
 
 namespace pebblRMA {
 
-class RMA;
-class RMASub;
-class CutPtThd;
+  class RMA;
+  class RMASub;
+  class CutPtThd;
+  
+  //**************************************************************************
+  //  The parallel branching class...
+  class parRMA : virtual public parallelBranching, virtual public RMA {
+    
+  public:
 
- //**************************************************************************
- //  The parallel branching class...
- class parRMA : virtual public parallelBranching, virtual public RMA {
+    parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
+    ~parRMA();
 
- public:
+    parallelBranchSub * blankParallelSub();
+    //loadBalDebug = data->loadBalDebug;
 
-   parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
-   ~parRMA();
+    // Need this to make sure the extra thread is set up
+    void placeTasks();
 
-   parallelBranchSub * blankParallelSub();
-   //loadBalDebug = data->loadBalDebug;
+    void pack(PackBuffer &outBuf);
+    void unpack(UnPackBuffer &inBuf);
+    int spPackSize();
 
-   // Need this to make sure the extra thread is set up
-   void placeTasks();
+    /*
+      virtual bool continueRampUp() {
+      return (spCount() <= rampUpFeatureFac * data->numAttrib)
+      && parallelBranching::continueRampUp();
+      }
+    */
+    /// Note: use VB flag?
+    void reset(bool VBflag=true);
 
-   void pack(PackBuffer &outBuf);
-   void unpack(UnPackBuffer &inBuf);
-   int spPackSize();
+    // In parallel, restrict writing to verification log to processor
+    // 0 when ramping up.
+    bool verifyLog() {
+      return _verifyLog && (!rampingUp() || (uMPI::rank == 0));
+    };
 
-/*
-   virtual bool continueRampUp() {
-     return (spCount() <= rampUpFeatureFac * data->numAttrib)
-       && parallelBranching::continueRampUp();
-   }
-*/
-   /// Note: use VB flag?
-   void reset(bool VBflag=true);
+    ostream* openVerifyLogFile();
 
-   // In parallel, restrict writing to verification log to processor
-   // 0 when ramping up.
-   bool verifyLog() {
-     return _verifyLog && (!rampingUp() || (uMPI::rank == 0));
-   };
+    void setCachedCutPts(const int& j, const int& v) ;
 
-   ostream* openVerifyLogFile();
+    CutPtThd* cutPtCaster;		    // Thread to broadcast cut point data
+    MessageID cutPtBroadcastTag;	// Message tag
 
-   void setCachedCutPts(const int& j, const int& v) ;
+  protected:
+    double rampUpFeatureFac;
 
-   CutPtThd* cutPtCaster;		    // Thread to broadcast cut point data
-   MessageID cutPtBroadcastTag;	// Message tag
-
- protected:
-   double rampUpFeatureFac;
-
- };//************************************************************************
-
-
- //**************************************************************************
- //  The parallel branchSub class...
- class parRMASub : virtual public parallelBranchSub, virtual public RMASub {
-
- public:
-
-   parRMASub() {} //RMASub()
-   virtual ~parRMASub() {}
-
-   // Return a pointer to the global branching object
-   parRMA* global() const { return globalPtr; }
-
-   // Return a pointer to the parallel global base class object
-   parallelBranching* pGlobal() const { return global(); }
-
-   void setGlobalInfo(parRMA* global_) {
-     globalPtr = global_;
-     RMASub::setGlobalInfo(global_);	// set serial layer pointer etc.
-   };
-
-   virtual parallelBranchSub* makeParallelChild(int whichChild);
-
-   void pack(utilib::PackBuffer &outBuffer);
-   void unpack(utilib::UnPackBuffer & inBuffer);
-
-   void boundComputation(double* controlParam);
-   void parStrongBranching(const int& firstIdx, const int& lastIdx);
-   void setLiveCachedCutPts();
-   void parCachedBranching(int firstIdx, int lastIdx);
-
-   void setNumLiveCutPts();
-
- protected:
-   parRMA* globalPtr;  // A pointer to the global parallel branching object
-
- private:
-   int numLiveCutPts;
-   bool isCachedCutPts;
-
- };// **********************************************************
+  };//************************************************************************
 
 
- // **********************************************************
- // CutPtThd
- class CutPtThd : public broadcastPBThread {
- public:
-   CutPtThd(parRMA* global_, MessageID msgID);
+  //**************************************************************************
+  //  The parallel branchSub class...
+  class parRMASub : virtual public parallelBranchSub, virtual public RMASub {
 
-   // virtual functions
-   bool unloadBuffer();
-   void initialLoadBuffer(PackBuffer* buf) { relayLoadBuffer(buf); };
-   void relayLoadBuffer(PackBuffer* buf);
+  public:
 
-   void setCutPtThd(const int& f, const int& v);
-   void preBroadcastMessage(const int& owningProc);
+    parRMASub() {} //RMASub()
+    virtual ~parRMASub() {}
 
-   int j, v;
-   parRMA* ptrParRMA;
- }; // **********************************************************
+    // Return a pointer to the global branching object
+    parRMA* global() const { return globalPtr; }
+
+    // Return a pointer to the parallel global base class object
+    parallelBranching* pGlobal() const { return global(); }
+
+    void setGlobalInfo(parRMA* global_) {
+      globalPtr = global_;
+      RMASub::setGlobalInfo(global_);	// set serial layer pointer etc.
+    };
+
+    virtual parallelBranchSub* makeParallelChild(int whichChild);
+
+    void pack(utilib::PackBuffer &outBuffer);
+    void unpack(utilib::UnPackBuffer & inBuffer);
+
+    void boundComputation(double* controlParam);
+    void parStrongBranching(const int& firstIdx, const int& lastIdx);
+    void setLiveCachedCutPts();
+    void parCachedBranching(int firstIdx, int lastIdx);
+
+    void setNumLiveCutPts();
+
+  protected:
+    parRMA* globalPtr;  // A pointer to the global parallel branching object
+
+  private:
+    int numLiveCutPts;
+    bool isCachedCutPts;
+
+  };// **********************************************************
+
+
+  // **********************************************************
+  // CutPtThd
+  class CutPtThd : public broadcastPBThread {
+  public:
+    CutPtThd(parRMA* global_, MessageID msgID);
+
+    // virtual functions
+    bool unloadBuffer();
+    void initialLoadBuffer(PackBuffer* buf) { relayLoadBuffer(buf); };
+    void relayLoadBuffer(PackBuffer* buf);
+
+    void setCutPtThd(const int& f, const int& v);
+    void preBroadcastMessage(const int& owningProc);
+
+    int j, v;
+    parRMA* ptrParRMA;
+  }; // **********************************************************
 
 } // namespace lpboost
 

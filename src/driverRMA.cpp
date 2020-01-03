@@ -10,13 +10,13 @@
 namespace rma {
 
   DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
-
+    
 #ifdef ACRO_HAVE_MPI
     uMPI::init(&argc, &argv, MPI_COMM_WORLD);
 #endif // ACRO_HAVE_M
-
+    
     setup(argc, argv);     // setup all paramaters
-
+    
     setData(argc, argv);   // set data
 
     setupRMA(argc, argv);  // (setup) RMA
@@ -52,11 +52,11 @@ namespace rma {
     rma->setData(data);
 
 #ifdef ACRO_HAVE_MPI
-if (uMPI::rank==0) {
+    if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-    rma->setSortedObsIdx(data->vecTrainData);
+      rma->setSortedObsIdx(data->vecTrainData);
 #ifdef ACRO_HAVE_MPI
-}
+    }
 #endif //  ACRO_HAVE_MPI
 
     //exception_mngr::set_stack_trace(false);
@@ -74,13 +74,13 @@ if (uMPI::rank==0) {
       if (initGuess()) {
 
 #ifdef ACRO_HAVE_MPI
-if (uMPI::rank==0) {
+	if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-	       solveGreedyRMA();
-         rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
-                              grma->L, grma->U);
+	  solveGreedyRMA();
+	  rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
+			       grma->L, grma->U);
 #ifdef ACRO_HAVE_MPI
-}
+	}
 #endif //  ACRO_HAVE_MPI
 
       }
@@ -90,11 +90,11 @@ if (uMPI::rank==0) {
     } else {
 
 #ifdef ACRO_HAVE_MPI
-if (uMPI::rank==0) {
+      if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-      solveGreedyRMA();
+	solveGreedyRMA();
 #ifdef ACRO_HAVE_MPI
-}
+      }
 #endif //  ACRO_HAVE_MPI
 
     }
@@ -139,13 +139,13 @@ if (uMPI::rank==0) {
     else                  rma->search();
 
 #ifdef ACRO_HAVE_MPI
-  if (uMPI::rank==0) {
+    if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-   tc.getCPUTime();
-   tc.getWallTime();
-   printSolutionTime();
+      tc.getCPUTime();
+      tc.getWallTime();
+      printSolutionTime();
 #ifdef ACRO_HAVE_MPI
-  }
+    }
 #endif //  ACRO_HAVE_MPI
 
     CommonIO::end();

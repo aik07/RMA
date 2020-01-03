@@ -33,17 +33,17 @@ typedef void parRMA;
 namespace rma {
 
   class DriverRMA : virtual public base::BaseRMA {
-
+    
   public:
-
+    
     DriverRMA(int& argc, char**& argv);
-
+    
     ~DriverRMA() {
 #ifdef ACRO_HAVE_MPI
       if (parallel) { CommonIO::end(); uMPI::done(); }
 #endif // ACRO_HAVE_MPI
     }
-
+    
     void setData(int& argc, char**& argv);
     void setupRMA(int& argc, char**& argv);
 
@@ -55,9 +55,9 @@ namespace rma {
 
     void printSolutionTime();
 
-private:
+  private:
 
-    bool          parallel;
+    bool                  parallel;
 
     data::DataRMA*        data;
     greedyRMA::GreedyRMA* grma;
