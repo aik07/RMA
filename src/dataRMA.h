@@ -48,7 +48,7 @@ class DataXy {
 
 public:
 
-  DataXy() {}
+  DataXy() : y(0.0) {}
   DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
   int read(istream& is)        { is >> X >> y;        return 0; }
@@ -69,61 +69,26 @@ class DataRMA {
 public:
 
   DataRMA() {}
+  DataRMA(ArgRMA *args_): args(args_) {}
+  DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
-  DataRMA(int& argc_, char**& argv_, ArgRMA *args_):
-      argc(argc_), argv(argv_), args(args_) {
-
-    if (args->debug>=10) cout << "Data::readData\n";
-
-    readData();
-    setDataDimensions();
-
-    numTrainObs = numOrigObs;
-    vecTrainData.resize(numTrainObs);
-    standData.resize(numTrainObs);
-    distFeat.resize(numAttrib);
-
-    for (int i=0; i<numTrainObs; ++i) vecTrainData[i]=i;
-    if (args->debug>=10) cout << "numTrainObs: " << numTrainObs << "\n";
-
-    //setStandData();
-
-    if (args->delta() != -1)
-       integerizeData();
-    else {
-      intData.resize(numOrigObs);
-      for (int i=0; i<numOrigObs; ++i) { // for each observation
-        intData[i].X.resize(numAttrib);
-        for (int j=0; j<numAttrib; j++) { // for each attribute
-	        intData[i].X[j] = origData[i].X[j];
-	        if ( distFeat[j] < intData[i].X[j] ) distFeat[j] = intData[i].X[j];
-	      }
-        intData[i].w = origData[i].y * 1.0 / (double) numTrainObs;
-      } // end for
-    }
-
-    setPosNegObs();
-
-  } // end constructor Data( int, char**, ArgRMA)
-
-
-  //bool readData(int argc, char** argv);
-  bool readData();
+  bool readData(int& argc, char**& argv);
   bool readRandObs(int argc, char** argv);
 
   void setDataDimensions();
-
-  void integerizeData();
-  void setStandData();
-
   void setPosNegObs();
+  void setIntTrainData();
+  void setNumMaxDistVal();
 
-  void integerizeFixedLengthData();
+  void setXStat(vector<DataXy> &origData);
+  void setYStat(vector<DataXy> &origData);
 
-  void writeIntObs();
-  void writeOrigObs();
+  void setStandDataX (vector<DataXy>& origData, vector<DataXy> &standData);
+  void setStandDataY (vector<DataXy>& origData, vector<DataXy> &standData);
+  void integerizeData(vector<DataXy>& origData, vector<DataXw> &intData);
+  void integerizeFixedLengthData(vector<DataXy> &origData, vector<DataXw> &stdandData);
 
-  void setXStat();
+  template <class T> void writeObs(T vecData);
 
 //protected:
 
@@ -133,21 +98,21 @@ public:
 
   int numOrigObs;                // # of observations in original data
   int numTrainObs;               // # of distinct observation after discretization
-  int numTestObs;                // # of testing observations
+
   int numAttrib;                 // # of attributes
   int numPosTrainObs;
   int numNegTrainObs;
   int numTotalCutPts;            // # of cutpoints for RMA
-  int maxL;	                     // maximum distinct value among attributes
+  int numMaxDistVal;             // maximum distinct value among attributes
 
   vector<int>     distFeat;	     // distinct features after discretization
   vector<int>     vecRandObs;    // contains randomize all observations
   vector<int>     vecTrainData;  // contains only training dataset observations
   vector<int>     vecTestData;   // contains only training dataset observations
 
-  vector<DataXy>  origData;      // original datasets X and y
-  vector<DataXw>  intData;       // discretized data X abd w (weight)
-  vector<DataXy>  standData;
+  vector<DataXy>  origTrainData;      // original datasets X and y
+  vector<DataXw>  intTrainData;       // discretized data X abd w (weight)
+  vector<DataXy>  standTrainData;
 
   vector<Feature> vecFeature;    // contains features original and integeried values
 
@@ -156,8 +121,6 @@ public:
   double   cpuTime;
 
   ArgRMA   *args;
-  int      argc;
-  char**   argv;
 
 };
 

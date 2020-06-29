@@ -1,43 +1,54 @@
-
 #include "baseRMA.h"
 
 
 namespace base {
   
-////////////////////// Base class methods ////////////////////////
-
+  ////////////////////// Base class methods ////////////////////////
+  
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
   bool BaseRMA::setup(int& argc, char**& argv) {
-
+    
     if (!processParameters(argc,argv,min_num_required_args))
       return false;
-
-    if (plist.size() == 0) {
+    
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+      if (plist.size() == 0) {
         ucout << "Using default values for all solver options" << std::endl;
-    } else {
-      ucout << "User-specified solver options: " << std::endl;
-      plist.write_parameters(ucout);
-      ucout << std::endl;
+      } else {
+	ucout << "User-specified solver options: " << std::endl;
+	plist.write_parameters(ucout);
+	ucout << std::endl;
+      }
+#ifdef ACRO_HAVE_MPI
     }
-
+#endif //  ACRO_HAVE_MPI
+    
     set_parameters(plist,false);
-
+    
     if ((argc > 0) && !checkParameters(argv[0]))
       return false;
-
+    
     if (!setupProblem(argc,argv))
       return false;
-
-    if (plist.unused() > 0) {
-      ucout << "\nERROR: unused parameters: " << std::endl;
-      plist.write_unused_parameters(ucout);
-      ucout << utilib::Flush;
-      return false;
+    
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+      if (plist.unused() > 0) {
+	ucout << "\nERROR: unused parameters: " << std::endl;
+	plist.write_unused_parameters(ucout);
+	ucout << utilib::Flush;
+	return false;
+      }
+#ifdef ACRO_HAVE_MPI
     }
-
+#endif //  ACRO_HAVE_MPI
+    
     return true;
-
+    
   }
 
 
@@ -45,9 +56,9 @@ namespace base {
   				  unsigned int min_num_required_args__) {
 
     if (argc > 0)
-       solver_name = argv[0];
+      solver_name = argv[0];
     else
-       solver_name = "unknown";
+      solver_name = "unknown";
     if (!parameters_registered) {
       register_parameters();
       parameters_registered=true;
@@ -72,12 +83,18 @@ namespace base {
       return false;
     }
 
-    if (debug_solver_params) {
-      ucout << "---- LPBoost Parameters ----" << endl;
-      write_parameter_values(ucout);
-      ucout << endl << utilib::Flush;
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+      if (debug_solver_params) {
+	ucout << "---- Parameters ----" << endl;
+	write_parameter_values(ucout);
+	ucout << endl << utilib::Flush;
+      }
+#ifdef ACRO_HAVE_MPI
     }
-
+#endif //  ACRO_HAVE_MPI
+    
     return true;
   }
 
@@ -105,7 +122,7 @@ namespace base {
   // "/" or "\" in the name and removes it and everything before it.
 
   void BaseRMA::setName(const char* cname) {
-  #if defined (TFLOPS)
+#if defined (TFLOPS)
     problemName = cname;
     int i=problemName.size();
     while (i >= 0) {
@@ -113,9 +130,9 @@ namespace base {
       i--;
     }
     if (i >= 0)
-       problemName.erase(0,i+1);
+      problemName.erase(0,i+1);
     // TODO: remove the .extension part for this case
-  #else
+#else
     problemName = cname;
     size_type i = problemName.rfind("/");
     if (i == string::npos)
@@ -132,8 +149,8 @@ namespace base {
     if ((endOfName == ".dat") || (endOfName == ".DAT"))
       problemName.erase(n-4,n);
     if ((endOfName == ".data") || (endOfName == ".DATA"))
-        problemName.erase(n-5,n);
-  #endif
+      problemName.erase(n-5,n);
+#endif
   }
 
 } // end namespacs base

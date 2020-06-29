@@ -11,6 +11,7 @@
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
+#include <pebbl/bb/branching.h>
 
 #include "baseRMA.h"
 #include "dataRMA.h"
@@ -30,15 +31,8 @@ typedef void parRMA;
 
 
 namespace rma {
-  
-  using namespace utilib;
-  using namespace base;
-  using namespace data;
-  using namespace pebblRMA;
-  using namespace greedyRMA;
-  
-  
-  class DriverRMA : public BaseRMA {
+
+  class DriverRMA : virtual public base::BaseRMA {
     
   public:
     
@@ -50,29 +44,31 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
     }
     
-    void setData(int& argc, char**& argv) {
-      data = new DataRMA(argc, argv, (ArgRMA *) this);
-    }
-    
+    void setData(int& argc, char**& argv);
     void setupRMA(int& argc, char**& argv);
+
+    void resetExactRMA();
+
     void solveRMA();
-    
+    void solveGreedyRMA();
+    void solveExactRMA();
+
+    void printSolutionTime();
+
   private:
-    
-    bool          parallel;
-    
-    DataRMA*      data;
-    GreedyRMA*    grma;
-    
-    RMA*          rma ;
-    parRMA*       prma;
-    
+
+    bool                  parallel;
+
+    data::DataRMA*        data;
+    greedyRMA::GreedyRMA* grma;
+
+    pebblRMA::RMA*        rma ;
+    pebblRMA::parRMA*     prma;
+
     Time          tc;
-    double        wallTime;
-    double        cpuTime;
-    
+
   };
-  
+
 } // end namespace rma
 
 #endif // RMA_h

@@ -25,82 +25,91 @@ using namespace utilib;
 using namespace pebbl;
 
 namespace arg {
+  
+  static double inf = numeric_limits<double>::infinity();
+  //static int intInf = numeric_limits<int>::max();
+  
+  /////////////////// Parameters for RMA class  ///////////////////
+  class ArgRMA : virtual public ParameterSet, virtual public CommonIO {
+    
+  public:
+    
+    ArgRMA();
+    virtual ~ArgRMA(){};
+  
+    ////////////////////// parameters //////////////////////////////
 
-static double inf = numeric_limits<double>::infinity();
-//static int intInf = numeric_limits<int>::max();
+    bool   exactRMA()           const {return _exactRMA;}
+  
+    bool   binarySearchCutVal() const {return _binarySearchCutVal;}
+    double perCachedCutPts()    const {return _perCachedCutPts;}
+    double perLimitAttrib()     const {return _perLimitAttrib;}
 
- /////////////////// Parameters for RMA class  ///////////////////
-class ArgRMA : virtual public ParameterSet, virtual public CommonIO {
+    bool   randSeed()           const {return _randSeed;}
+    bool   initGuess()          const {return _initGuess;}
+    int    branchSelection()    const {return _branchSelection;}
+    bool   countingSort()       const {return _countingSort;}
 
-public:
+    bool   testWeight()         const {return _testWt;}
 
-  ArgRMA();
-  virtual ~ArgRMA(){};
+    bool   checkObjVal()        const {return _checkObjVal;}
+    bool   bruteForceEC()       const {return _bruteForceEC;}
+    bool   bruteForceIncumb()   const {return _bruteForceIncumb;}
 
-  ////////////////////// parameters //////////////////////////////
+    bool   writingInstances()   const {return _writeInstances;}
+    bool   writingNodeTime()    const {return _writeNodeTime;}
+    bool   writingCutPts()      const {return _writeCutPts;}
 
-  bool   binarySearchCutVal() const {return _binarySearchCutVal;}
-  double perCachedCutPts()    const {return _perCachedCutPts;}
-  double perLimitAttrib()     const {return _perLimitAttrib;}
+    double rampUpSizeFact()     const {return _rampUpSizeFact;}
 
-  bool   randSeed()           const {return _randSeed;}
-  bool   initGuess()          const {return _initGuess;}
-  int    branchSelection()    const {return _branchSelection;}
-  bool   countingSort()       const {return _countingSort;}
+    double delta()              const {return _delta;}
+    double shrinkDelta()        const {return _shrinkDelta;}
+    double maxInterval()        const {return _maxInterval;}
 
-  bool   testWeight()         const {return _testWt;}
+    bool   printBBdetails()     const {return _printBBdetails;}
+  
+    int    fixedSizeBin()       const {return _fixedSizeBin;}
 
-  bool   checkObjVal()        const {return _checkObjVal;}
-  bool   bruteForceEC()       const {return _bruteForceEC;}
-  bool   bruteForceIncumb()   const {return _bruteForceIncumb;}
+  private:
 
-  bool   writingInstances()   const {return _writeInstances;}
-  bool   writingNodeTime()    const {return _writeNodeTime;}
-  bool   writingCutPts()      const {return _writeCutPts;}
+    bool   _exactRMA;            // solve exactRMA
+  
+    // for non-strong branching ...
+    bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint
+    double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
+    double _perLimitAttrib;      // percentages of features to check
 
-  double rampUpSizeFact()     const {return _rampUpSizeFact;}
+    bool   _randSeed;            // random seed for tied solution or bound
+    bool   _initGuess;	         // compute an initial incumbent
+    int    _branchSelection;     // random, first, or last one for tied branch
+    bool   _countingSort;        // use counting sourt (default is bucket sort)
 
-  double delta()              const {return _delta;}
-  double shrinkDelta()        const {return _shrinkDelta;}
-  double maxInterval()        const {return _maxInterval;}
+    // for validation
+    bool   _checkObjVal;	 // check the solution is right or not
+    bool   _bruteForceEC;        // brute force way to create equivalence classes
+    bool   _bruteForceIncumb;    // brute force way to check incumbent in each atrribute
 
-  int    fixedSizeBin()       const {return _fixedSizeBin;}
+    bool   _testWt;              // use test weight
 
-protected:
+    // for saving information
+    bool   _writeInstances;
+    bool   _writeNodeTime;       // make an output file containing BoundedSP and run time
+    bool   _writeCutPts;
 
-  // for non-strong branching ...
-  bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint
-  double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
-  double _perLimitAttrib;      // percentages of features to check
+    // for recursive integerization
+    double _delta;               // if the continuous value is less than delta, aggregate to the same integer
+    double _shrinkDelta;         // shrink delta
+    double _maxInterval;         // the maximum Interval length
 
-  bool   _randSeed;            // random seed for tied solution or bound
-  bool   _initGuess;	       // compute an initial incumbent
-  int    _branchSelection;     // random, first, or last one for tied branch
-  bool   _countingSort;        // use counting sourt (default is bucket sort)
+    // for fixed size bin integerization
+    int    _fixedSizeBin;
 
-  // for validation
-  bool   _checkObjVal;	       // check the solution is right or not
-  bool   _bruteForceEC;        // brute force way to create equivalence classes
-  bool   _bruteForceIncumb;    // brute force way to check incumbent in each atrribute
+    // for printing more details
+    bool   _printBBdetails;
+  
+    double _rampUpSizeFact;      // TODO: what is this?
 
-  bool   _testWt;              // use test weight
-
-  // for saving information
-  bool   _writeInstances;
-  bool   _writeNodeTime;       // make an output file containing BoundedSP and run time
-  bool   _writeCutPts;
-
-  // for recursive integerization
-  double _delta;               // if the continuous value is less than delta, aggregate to the same integer
-  double _shrinkDelta;         // shrink delta
-  double _maxInterval;         // the maximum Interval length
-
-  // for fixed size bin integerization
-  int    _fixedSizeBin;
-
-  double _rampUpSizeFact;      // TODO: what is this?
-
- };
+  };
 
 } // namespace arguments
 

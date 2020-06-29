@@ -34,19 +34,26 @@ public:
     timeStartCPU = clock();
   }
 
-  double endCPUTime() {
+  double getCPUTime() {
     timeEndCPU = clock();
     clockTicksTaken = timeEndCPU - timeStartCPU;
-    ucout <<  "CPU Time: " << clockTicksTaken / (double) CLOCKS_PER_SEC <<"\n";
     return clockTicksTaken / (double) CLOCKS_PER_SEC ;
   }
 
-  double endWallTime() {
+  double getWallTime() {
   	timeEndWall = get_wall_time();
-  	ucout <<  "Wall Time: " << timeEndWall - timeStartWall <<"\n";
     return  timeEndWall - timeStartWall ;
   }
 
+  void printCPUTime() {
+    ucout <<  "CPU Time: " << clockTicksTaken / (double) CLOCKS_PER_SEC <<"\n";
+  }
+
+  void printWallTime() {
+    ucout <<  "Wall Time: " << timeEndWall - timeStartWall <<"\n";
+  }
+
+private:
   double timeStartWall, timeEndWall;
   clock_t timeStartCPU, timeEndCPU, clockTicksTaken;
 

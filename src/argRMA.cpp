@@ -11,36 +11,44 @@ using utilib::ParameterNonnegative;
 
 namespace arg {
 
-ArgRMA::ArgRMA():
+  ArgRMA::ArgRMA():
 
-  _binarySearchCutVal(false),
-  _perCachedCutPts(0.000001),
-  _perLimitAttrib(1.0),
+    _exactRMA(true),
 
-  _randSeed(true),
-  _initGuess(false),  //true
-  _branchSelection(0),
-  _countingSort(false),
+    _binarySearchCutVal(false),
+    _perCachedCutPts(0.000001),
+    _perLimitAttrib(1.0),
 
-  _testWt(false),
+    _randSeed(true),
+    _initGuess(true),  
+    _branchSelection(0),
+    _countingSort(false),
 
-  _checkObjVal(false),
-  _bruteForceEC(false),
-  _bruteForceIncumb(false),
+    _testWt(false),
 
-  _writeInstances(false),
-  _writeNodeTime(false),
-  _writeCutPts(false),
+    _checkObjVal(false),
+    _bruteForceEC(false),
+    _bruteForceIncumb(false),
 
-  _delta(-1),
-  _shrinkDelta(.95),
-  _maxInterval(inf),
+    _writeInstances(false),
+    _writeNodeTime(false),
+    _writeCutPts(false),
 
-  _fixedSizeBin(-1),
+    _delta(-1),
+    _shrinkDelta(.95),
+    _maxInterval(inf),
 
-  _rampUpSizeFact(1.0)
+    _fixedSizeBin(-1),
+
+    _printBBdetails(false),
+
+    _rampUpSizeFact(1.0)
 
   {
+
+    create_categorized_parameter("exactRMA", _exactRMA,
+      "<bool>", "true", "solve RMA exactly", "RMA");
+
     create_categorized_parameter("binarySearchCutVal", _binarySearchCutVal,
       "<bool>", "false", "binary search cut values in each feature", "RMA");
 
@@ -96,6 +104,10 @@ ArgRMA::ArgRMA():
 
     create_categorized_parameter("maxInterval", _maxInterval, "<double>",
       "inf", "set the maximum interval length for recursive integerization", "RMA");
+
+
+    create_categorized_parameter("printBBdetails", _printBBdetails, "<bool>",
+      "false", "print the complete output of the PEBBL branch-and bound", "RMA");
 
     create_categorized_parameter("rampUpSizeFact", _rampUpSizeFact, "<double>",
       "1.00", "if (#storedCutPts) <= rampUpSizeFact * (#processors),"
