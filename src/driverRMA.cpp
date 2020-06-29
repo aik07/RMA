@@ -154,8 +154,10 @@ namespace rma {
   } // end function solveExactRMA()
 
   void DriverRMA::printSolutionTime() {
-    ucout << "ERMA Solution: " << rma->workingSol.value
-          << "\tCPU time: "    << tc.getCPUTime() << "\n";
+    ucout << "ERMA Solution: "  << rma->workingSol.value
+          << "\tCPU time: "     << tc.getCPUTime()
+          << "\tNum of Nodes: " << rma->subCount[2]  
+	  << "\n";
   }
 
 } // end namespace rma
