@@ -19,7 +19,35 @@ namespace rma {
     
     setData(argc, argv);   // set data
 
-    setupRMA(argc, argv);  // (setup) RMA
+    setupRMA(argc, argv);
+
+    // cout << "test" << testWeight();
+    
+    if (testWeight()!="") {
+      vector<double> vecNonUniformWt;
+      vector<int>    vecObsIdx;
+      vecNonUniformWt.resize(data->numTrainObs);
+      vecObsIdx.resize(data->numTrainObs);
+      for (int i=0; i<data->numTrainObs; ++i)
+	vecObsIdx[i] = i;
+      ifstream inFile(testWeight());
+      if (inFile.is_open()) {
+	string line;
+	string tmp;
+	while( getline(inFile,line) ) {
+	  stringstream ss(line);
+	  for (int i=0; i<data->numTrainObs; ++i) {
+	    getline(ss,tmp,',');
+	    // cout << "tmp " << tmp << "\n";
+	    vecNonUniformWt[i] = stod(tmp);
+	    // cout << "vec " <<vecNonUniformWt[i] << "\n";
+	  }
+        }
+      }
+      rma->setWeight(vecNonUniformWt, vecObsIdx);
+    }
+   
+    // setupRMA(argc, argv);  // (setup) RMA
 
   }
 

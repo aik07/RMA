@@ -4,6 +4,8 @@ obj/
 
 data/
 
+result*
+
 rma
 
 Makefile*

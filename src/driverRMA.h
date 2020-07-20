@@ -7,7 +7,10 @@
 #ifndef RMA_h
 #define RMA_h
 
+#include <fstream>
+#include <sstream>
 #include <iostream>
+#include <stdlib.h>
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
