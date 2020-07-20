@@ -22,7 +22,7 @@ ArgRMA::ArgRMA():
   _branchSelection(0),
   _countingSort(false),
 
-  _testWt(false),
+  _testWt(""),
 
   _checkObjVal(false),
   _bruteForceEC(false),
@@ -75,8 +75,8 @@ ArgRMA::ArgRMA():
       "false",	"brute force algorithm to to compute incumbent in each attribute ",
       "RMA");
 
-    create_categorized_parameter("testWt", _testWt, "<bool>", "false",
-      "testing with specified test weights data, testWt.data", "RMA");
+    create_categorized_parameter("testWt", _testWt, "<string>", "",
+      "testing with specified test weights data", "RMA");
 
     create_categorized_parameter("writeCutPts", _writeCutPts, "<bool>",
       "false", "Write cut points chosen in the solution file ", "RMA");

@@ -7,7 +7,10 @@
 #ifndef RMA_h
 #define RMA_h
 
+#include <fstream>
+#include <sstream>
 #include <iostream>
+#include <stdlib.h>
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
@@ -30,49 +33,49 @@ typedef void parRMA;
 
 
 namespace rma {
-  
+
   using namespace utilib;
   using namespace base;
   using namespace data;
   using namespace pebblRMA;
   //using namespace greedyRMA;
-  
-  
+
+
   class DriverRMA : public BaseRMA {
-    
+
   public:
-    
+
     DriverRMA(int& argc, char**& argv);
-    
+
     ~DriverRMA() {
 #ifdef ACRO_HAVE_MPI
       if (parallel) { CommonIO::end(); uMPI::done(); }
 #endif // ACRO_HAVE_MPI
     }
-    
+
     void setData(int& argc, char**& argv) {
       data = new DataRMA(argc, argv, (ArgRMA *) this);
     }
-    
+
     void setupRMA(int& argc, char**& argv);
     void solveRMA();
-    
+
   private:
-    
+
     bool          parallel;
-    
+
     DataRMA*      data;
     //GreedyRMA*    grma;
-    
+
     RMA*          rma ;
     parRMA*       prma;
-    
+
     Time          tc;
     double        wallTime;
     double        cpuTime;
-    
+
   };
-  
+
 } // end namespace rma
 
 #endif // RMA_h

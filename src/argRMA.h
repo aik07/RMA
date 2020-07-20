@@ -48,7 +48,7 @@ public:
   int    branchSelection()    const {return _branchSelection;}
   bool   countingSort()       const {return _countingSort;}
 
-  bool   testWeight()         const {return _testWt;}
+  string testWeight()         const {return _testWt;}
 
   bool   checkObjVal()        const {return _checkObjVal;}
   bool   bruteForceEC()       const {return _bruteForceEC;}
@@ -83,7 +83,7 @@ protected:
   bool   _bruteForceEC;        // brute force way to create equivalence classes
   bool   _bruteForceIncumb;    // brute force way to check incumbent in each atrribute
 
-  bool   _testWt;              // use test weight
+  string _testWt;              // use test weight
 
   // for saving information
   bool   _writeInstances;
