@@ -50,6 +50,8 @@ namespace rma {
     void setData(int& argc, char**& argv);
     void setupRMA(int& argc, char**& argv);
 
+    void updateWt();
+
     void resetExactRMA();
 
     void solveRMA();

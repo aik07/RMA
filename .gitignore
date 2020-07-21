@@ -8,4 +8,6 @@ result*
 
 rma
 
-Makefile*
+*.out
+
+debug
