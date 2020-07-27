@@ -1154,9 +1154,9 @@ namespace pebblRMA {
       } else v -= al[j];	// overlapping
 
       if (v<0) {
-	if (global()->args->debug>=10) cout << "below covered range \n"; continue;
+	if (global()->args->debug>=50) cout << "below covered range \n"; continue;
       } else if (v>=size) {
-	if (global()->args->debug>=10) cout << "above covered range \n"; continue;
+	if (global()->args->debug>=50) cout << "above covered range \n"; continue;
       }
 
       buckets[v].push_back(coveredObs[i]);

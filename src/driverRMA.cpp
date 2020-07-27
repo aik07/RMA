@@ -21,7 +21,7 @@ namespace rma {
 
     setupRMA(argc, argv);
 
-    cout << "test" << testWeight();
+    // cout << "test" << testWeight();
     if (testWeight()!="") updateWt();
    
   }
@@ -122,7 +122,7 @@ namespace rma {
   }
 #endif //  ACRO_H
 
-    DEBUGPR(1, ucout << "wt: ");
+    DEBUGPR(1, ucout << "rank: " << uMPI::rank << " wt: ");
     DEBUGPR(1,
 	    for (int i=0; i < data->numTrainObs; ++i) {
 	      ucout << data->intTrainData[i].w << ", ";
