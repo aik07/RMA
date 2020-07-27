@@ -10,12 +10,12 @@ namespace pebblRMA {
 
   //////////////////// MPI methods ////////////////////
   //#define MPI_UP1 OMPI_PREDEFINED_GLOBAL(MPI_Datatype,	MPI_TYPE_CREATE_RESIZED)
-  
+
 #ifdef ACRO_HAVE_MPI
-  
+
   void branchChoiceCombiner(void* invec, void* inoutvec,
                             int* len, MPI_Datatype* datatype) {
-    
+
 #ifdef ACRO_VALIDATING
     if (*datatype != branchChoice::mpiType) {
       cerr << "Datatype error in branchChoiceCombiner\n";
@@ -842,10 +842,12 @@ namespace pebblRMA {
   void RMASub::strongBranching() {
 
     int numCutPtsInAttrib;
-    if (global()->args->debug>=10)
+    
+    if (global()->args->debug>=10) {
       ucout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu ;
+      ucout << "sortedObs: " << coveredObs;
+    }
 
-    if (global()->args->debug>=10) ucout << "sortedObs: " << coveredObs;
     compIncumbent(numAttrib()-1);
 
     for (int j=0; j<numAttrib(); ++j ) {

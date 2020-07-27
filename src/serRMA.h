@@ -45,17 +45,17 @@ namespace pebblRMA {
     int j, v;
     bool operator<(const CutPt& rhs) const { return j < rhs.j; }
   };
-  
-  
+
+
   // auxiliary classes for choosing branching variables
   class branchItem {
-    
+
   public:
     double roundedBound, exactBound;
     int    whichChild;
-   
+
   branchItem() : roundedBound(1.0), exactBound(1.0), whichChild(-1) { }; // , arrayPosition(-1)
-   
+
   branchItem(branchItem& toCopy) : roundedBound(toCopy.roundedBound),
       exactBound(toCopy.exactBound), whichChild(toCopy.whichChild) { };
 
