@@ -11,18 +11,18 @@ namespace data {
 
   DataRMA::DataRMA(int& argc, char**& argv, ArgRMA *args_): args(args_) {
 
-    readData(argc, argv);
-    setDataDimensions();
+    readData(argc, argv);  // read the data and set origTrainData
+    setDataDimensions();   // set data dimensions
 
     //setStandData();
-    setIntTrainData();
+    setIntTrainData();     // set IntTrainData
     setNumMaxDistVal();
     setPosNegObs();
 
-  } // end constructor DataRMA( int, char**, ArgRMA)
+  } // end constructor DataRMA
 
 
-  //bool DataRMA::readData(int argc, char** argv) {
+  // read data file and set origTrainData
   bool DataRMA::readData(int& argc, char**& argv) {
 
     unsigned int i, j;
@@ -72,6 +72,7 @@ namespace data {
       s >> origTrainData[i].y ;
     } // end while
 
+    // if the original data has 0 as -1 class, change from 0 to -1
     for (i=0; i<numOrigObs; ++i)   // for each observation
       if (origTrainData[i].y==0)
         origTrainData[i].y=-1.0;
@@ -100,22 +101,65 @@ namespace data {
   // read shuffled observation from the data file
   bool DataRMA::readRandObs(int argc, char** argv) {
 
-  	ucout << "Use Shuffled Obs\n";
+    ucout << "Use Shuffled Obs\n";
+    ifstream s(argv[2]); // open the data file
 
-  	ifstream s(argv[2]); // open the data file
-
-  	// check whether or not the file is opened correctly
-  	if (!s) {	cerr << "Could not open file \"" << argv[2] << "\"\n"; return false; }
+    // check whether or not the file is opened correctly
+    if (!s) {	cerr << "Could not open file \"" << argv[2] << "\"\n"; return false; }
 
     vecRandObs.resize(numOrigObs);
 
-  	// read data
-  	for (int i=0; i < numOrigObs; ++i) s >> vecRandObs[i];
+    // read data
+    for (int i=0; i < numOrigObs; ++i) s >> vecRandObs[i];
 
-  	s.close();  // close the data file
+    s.close();  // close the data file
 
     if ( args->debug >=2 ) cout << "vecRandObs: " << vecRandObs;
-  	return true;
+    return true;
+
+  }
+
+
+  void DataRMA::readNonUniformWt() {
+
+    vector<double> vecNonUniformWt;
+    vecNonUniformWt.resize(numTrainObs);
+
+    /*
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+    */
+      ifstream inFile(args->nonUniformWt());
+      if (inFile.is_open()) {
+	string line, tmp;
+	while( getline(inFile,line) ) {
+	  stringstream ss(line);
+	  for (int i=0; i<numTrainObs; ++i) {
+	    getline(ss,tmp,',');
+	    // cout << "tmp " << tmp << "\n";
+	    vecNonUniformWt[i] = stod(tmp);
+	    // cout << "vec " <<vecNonUniformWt[i] << "\n";
+	  }
+	}
+      }
+      //rma->setWeight(vecNonUniformWt, vecObsIdx);
+
+      for (int i=0; i < numTrainObs; ++i) {
+	intTrainData[i].w = vecNonUniformWt[i];
+      }
+      /*
+#ifdef ACRO_HAVE_MPI
+    }
+#endif //  ACRO_HAVE_MPI
+      */
+
+    DEBUGPR(1, ucout << "rank: " << uMPI::rank << " wt: ");
+    DEBUGPR(1,
+	    for (int i=0; i < numTrainObs; ++i) {
+	      ucout << intTrainData[i].w << ", ";
+	    });
+    DEBUGPR(1, ucout << "\n");
 
   }
 
@@ -143,7 +187,10 @@ namespace data {
   }
 
 
+  // set X and weights for the intTrainData
   void DataRMA::setIntTrainData() {
+
+    // set X values
     if (args->delta() != -1)
        integerizeData(origTrainData, intTrainData);
     else {
@@ -153,12 +200,27 @@ namespace data {
           if ( distFeat[j] < intTrainData[i].X[j] )
             distFeat[j] = intTrainData[i].X[j];
         }
-        intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
+        // intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
       } // end for
+    }
+
+    setWeight();
+
+  }
+
+
+  // set weights of intTrainData
+  void DataRMA::setWeight() {
+    if (args->nonUniformWt()!="") {
+      readNonUniformWt();
+    } else {
+      for (int i=0; i<numTrainObs; ++i)  // for each observation
+        intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
     }
   }
 
 
+  // set the maximum distinct value of all attributes
   void DataRMA::setNumMaxDistVal() {
     numMaxDistVal  = 0;
     numTotalCutPts = 0;
@@ -168,6 +230,7 @@ namespace data {
            numMaxDistVal = distFeat[j]+1;
     }
   }
+
 
   void DataRMA::setPosNegObs() {
 

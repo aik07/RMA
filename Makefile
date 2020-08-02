@@ -2,8 +2,8 @@
 
 CXX=mpicxx
 
-RMA_DIR=/home/aik/RMA
-PEBBL_DIR=/home/aik/installpebbl
+RMA_DIR=/home/kagawa/Projects/thesis/code/rma/RMA
+PEBBL_DIR=/home/kagawa/Projects/thesis/code/pebbl
 #MPI_ROOT=/opt/openmpi/1.10.1
 
 ######################################### SYMBOLS ########################################
@@ -11,11 +11,11 @@ SYMBOLS=HAVE_CONFIG_H ANSI_HDRS ANSI_NAMESPACES
 DEFSYMBOLS=$(patsubst %, -D%, $(SYMBOLS))
 
 ######################################## INCLUDES ##########################################
-HEADERDIRS=$(RMA_DIR)/src $(PEBBL_DIR)/include $(PEBBL_DIR)/build/src #$(MPI_ROOT)/include
+HEADERDIRS=$(RMA_DIR)/include $(PEBBL_DIR)/src $(PEBBL_DIR)/build/src #$(MPI_ROOT)/include
 INCLUDES=$(patsubst %,-I%,$(HEADERDIRS))
 
 ######################################### LIB ############################################
-LIBDIRS=$(PEBBL_DIR)/lib #$(MPI_ROOT)/lib
+LIBDIRS=$(PEBBL_DIR)/build/src/pebbl #$(MPI_ROOT)/lib
 LIBLOCATIONS=$(patsubst %,-L%,$(LIBDIRS))
 LIBS=pebbl #mpi mpi_cxx open-rte open-pal
 LIBSPECS=$(patsubst %,-l%,$(LIBS))
@@ -31,7 +31,7 @@ LDFLAGS=$(DEBUGFLAGS) $(LIBLOCATIONS)
 
 #####################################################################################
 
-HDRDIR=./src
+HDRDIR=./include
 SRCDIR=./src
 OBJDIR=./obj
 _HEADERS=Time.h driverRMA.h argRMA.h dataRMA.h baseRMA.h serRMA.h parRMA.h greedyRMA.h

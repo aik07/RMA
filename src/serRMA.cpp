@@ -354,7 +354,7 @@ namespace pebblRMA {
       else if (0>v || v>data->distFeat[j])
         ucout << "ERROR! v is out of range for setCachedCutPts";
       else
-	mmapCachedCutPts.insert( make_pair(j, v) ) ;
+	     mmapCachedCutPts.insert( make_pair(j, v) ) ;
 
     /*
       CutPt tempCutPt;//  =  {j,v};
@@ -456,6 +456,11 @@ namespace pebblRMA {
   void RMASub::boundComputation(double* controlParam) {
     //globalPtr->getSolution();
 
+    //if (global()->debug>=1) {
+      ucout << "\nal: " << al << "au: " << au
+            << "bl: " << bl << "bu: " << bu ;
+    //}
+
     NumTiedSols=1;
     NumPosTiedSols=0;
     NumNegTiedSols=0;
@@ -479,6 +484,8 @@ namespace pebblRMA {
       strongBranching();
 
     if (global()->debug>=10) printCurrentBounds();
+
+    if (global()->args->debug>=1)  ucout << "Branch choice: " << _branchChoice << "\n";
 
     bound = _branchChoice.branch[0].roundedBound;	// look ahead bound
     setState(bounded);
@@ -543,6 +550,7 @@ namespace pebblRMA {
     listExcluded.push_back(_branchChoice.branchVar);
 #endif
     //////////////////////////////////// create listExclided list (end) ////////////////////////
+
   }
 
 
@@ -804,14 +812,12 @@ namespace pebblRMA {
         thisChoice.branch[i].roundedBound=-1;
       }
 
-    if (global()->args->debug>=15) cout << "Sorted version is " << thisChoice << "\n";
+    if (global()->args->debug>=2 ) cout << "Sorted version is " << thisChoice << "\n";
 
-    if (thisChoice < _branchChoice) {
-      //cout << "branchBound: " << thisChoice.branch[0].exactBound << " "
-      //     << _branchChoice.branch[0].exactBound;
+    if (thisChoice < _branchChoice) { // and thisChoice.branch[0].roundedBound!=-1
       _branchChoice = thisChoice;
       if (global()->args->debug>=50) ucout << "Improves best attribute: " << j << "\n";
-      if (global()->args->debug>=10) ucout << "Branch choice now: " << _branchChoice << "\n";
+      if (global()->args->debug>=2)  ucout << "Branch choice now: " << _branchChoice << "\n";
       NumTiedSols=1;
       //foundBound=true;
     } else if (thisChoice == _branchChoice) {
@@ -842,8 +848,8 @@ namespace pebblRMA {
   void RMASub::strongBranching() {
 
     int numCutPtsInAttrib;
-    
-    if (global()->args->debug>=10) {
+
+    if (global()->args->debug>=2) {
       ucout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu ;
       ucout << "sortedObs: " << coveredObs;
     }
@@ -874,6 +880,14 @@ namespace pebblRMA {
 
   // branching using cut-point caching methods
   void RMASub::cachedBranching() {
+
+    if (global()->args->debug>=2)
+      ucout << "cachedBranching\n";
+
+    if (global()->args->debug>=2) {
+      ucout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu ;
+      ucout << "sortedObs: " << coveredObs;
+    }
 
     int k=0;
 
@@ -1073,7 +1087,7 @@ namespace pebblRMA {
 
         //cout << "(j, cutValue) " << j << ", " << cutValue << "\n";
         if (global()->args->debug>=10) ucout << "coveredObs: " << coveredObs;
-	branchingProcess(j, cutValue);
+        	branchingProcess(j, cutValue);
 
         // compare objectives instead of bounds
         //if ( vecObjValue[0] > vecObjValue[1] ) L = cutValue;
@@ -1100,7 +1114,7 @@ namespace pebblRMA {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if ( numLiveCachedCutPts
-	 < global()->data->numTotalCutPts * global()->args->perCachedCutPts() )
+	       < global()->data->numTotalCutPts * global()->args->perCachedCutPts() )
       strongBranching();
 
     else { // if not, only check the storedCutPts
@@ -1333,9 +1347,8 @@ namespace pebblRMA {
       rand_num = (rand() % 10001 ) / 10000.0 ;
       workingSol()->a << al;
       workingSol()->b << bu;
-      if (maxVal>-minVal ||
-	  ( maxVal==minVal &&
-	    rand_num <= NumPosTiedSols/(double)(NumNegTiedSols+NumPosTiedSols) ) ) {
+      if (maxVal>-minVal || ( maxVal==minVal &&
+	       rand_num <= NumPosTiedSols/(double)(NumNegTiedSols+NumPosTiedSols) ) ) {
         workingSol()->value = maxVal;
         workingSol()->a[optMaxAttrib]=optMaxLower;
         workingSol()->b[optMaxAttrib]=optMaxUpper;
@@ -1350,7 +1363,7 @@ namespace pebblRMA {
       }
       foundSolution();
       if (globalPtr->args->debug>=1) cout << "new incumbent  " << workingSol()->value << '\n';
-      if (globalPtr->args->debug>=5) workingSol()->printSolution();
+      if (globalPtr->args->debug>=1) workingSol()->printSolution();
       //DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
       //        coveredObs,sortedECidx ));
     }
@@ -1367,10 +1380,10 @@ namespace pebblRMA {
     if (au[j]<bl[j] && au[j]<=optMinUpper && optMinUpper<=bl[j])
       optMinUpper = bl[j];
 
-    if (globalPtr->args->debug>=10)
+    if (globalPtr->args->debug>=2)
       cout << "optAttrib: (a,b): " << optMinAttrib
-	   << ": (" << optMinLower << ", " << optMinUpper
-	   << "), min: " << minVal << "\n" ;
+	         << ": (" << optMinLower << ", " << optMinUpper
+	         << "), min: " << minVal << "\n" ;
 
   }
 
@@ -1385,10 +1398,10 @@ namespace pebblRMA {
     if (au[j]<bl[j] && au[j]<=optMaxUpper && optMaxUpper<=bl[j])
       optMaxUpper = bl[j];
 
-    if (globalPtr->args->debug>=10)
+    if (globalPtr->args->debug>=2)
       cout << "optAttrib: (a,b): " << optMaxAttrib
-	   << ": (" << optMaxLower  << ", " << optMaxUpper
-	   << "), max: " << maxVal << "\n" ;
+           << ": (" << optMaxLower  << ", " << optMaxUpper
+           << "), max: " << maxVal << "\n" ;
 
   }
 
@@ -1400,6 +1413,7 @@ namespace pebblRMA {
     int s=al[j];
     aj=al[j];
     bj=al[j];
+    //bj=bu[j]; // al[j];
     maxEndHere = 0;
     maxSoFar   = -inf;
 
@@ -1443,6 +1457,8 @@ namespace pebblRMA {
     int s=al[j];
     aj=al[j];
     bj=al[j];
+    //bj=bu[j]; // al[j];
+    //ucout << "aj: " << aj << ", bj: " << bj <<"\n";
     minEndHere = 0;
     minSoFar   = inf;
 
@@ -1468,25 +1484,6 @@ namespace pebblRMA {
           s = bl[j];
       }
 
-      /*
-	if ( tmpObj < minEndHere+tmpObj ) {
-        minEndHere = tmpObj;
-        if (minEndHere < minSoFar) {
-	minSoFar=minEndHere;
-	aj=v;
-	bj=v;
-	if (au[j]<bl[j] && au[j]<v && v<=bl[j])
-	bj=bl[j];
-        }
-	} else {
-        minEndHere += tmpObj;
-        if (minEndHere < minSoFar) {
-	minSoFar=minEndHere;
-	bj=v;
-	if (au[j]<bl[j] && au[j]<v && v<=bl[j])
-	bj=bl[j];
-        }
-	}*/
     }
 
     if (globalPtr->args->debug>=10)
@@ -1895,13 +1892,13 @@ namespace pebblRMA {
 
     for (int i=0; i<global->data->numAttrib; ++i) {
       if (0<a[i])	// if lower bound changed
-	cout << a[i] << "<=";
+      	cout << a[i] << "<=";
       if ( 0<a[i] || b[i]<global->data->distFeat[i] )
-	cout << "x" << i ;
+      	cout << "x" << i ;
       if (b[i]<global->data->distFeat[i])
-	cout << "<=" << b[i];
+      	cout << "<=" << b[i];
       if ( 0<a[i] || b[i]<global->data->distFeat[i] )
-	cout << ", ";
+      	cout << ", ";
     }
     cout << "\n";
 
@@ -1925,7 +1922,7 @@ namespace pebblRMA {
 
 
   void const rmaSolution::printSolution() {
-    ucout << (isPosIncumb) ? "Positive" : "Negative"; ucout << "\n";
+    ucout << ((isPosIncumb) ? "Positive" : "Negative") << "\n";
     ucout << "printSolution: a: " << a << "printSolution: b: " << b << "\n";
   }
 
@@ -1954,6 +1951,7 @@ namespace pebblRMA {
 
   void rmaSolution::checkObjValue1(vector<int> &A, vector<int> &B,
 				   vector<int> &coveredObs, vector<int> &sortedECidx) {
+
     int obs;  	double wt=0.0;
 
     for (int i=0; i<coveredObs.size(); ++i) { // for each observation

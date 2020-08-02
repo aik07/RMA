@@ -392,7 +392,7 @@ namespace pebblRMA {
     // variables for incumbent computations
     int    NumPosTiedSols, NumNegTiedSols;
     double tmpMin, tmpMax, minVal, maxVal;
-    double optMinLower, optMinUpper, optMaxLower, optMaxUpper;
+    int    optMinLower, optMinUpper, optMaxLower, optMaxUpper;
     int    optMinAttrib, optMaxAttrib;
     double rand_num;
 

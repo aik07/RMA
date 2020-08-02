@@ -25,22 +25,22 @@ using namespace utilib;
 using namespace pebbl;
 
 namespace arg {
-  
+
   static double inf = numeric_limits<double>::infinity();
   //static int intInf = numeric_limits<int>::max();
-  
+
   /////////////////// Parameters for RMA class  ///////////////////
   class ArgRMA : virtual public ParameterSet, virtual public CommonIO {
-    
+
   public:
-    
+
     ArgRMA();
     virtual ~ArgRMA(){};
-  
+
     ////////////////////// parameters //////////////////////////////
 
     bool   exactRMA()           const {return _exactRMA;}
-  
+
     bool   binarySearchCutVal() const {return _binarySearchCutVal;}
     double perCachedCutPts()    const {return _perCachedCutPts;}
     double perLimitAttrib()     const {return _perLimitAttrib;}
@@ -50,7 +50,7 @@ namespace arg {
     int    branchSelection()    const {return _branchSelection;}
     bool   countingSort()       const {return _countingSort;}
 
-    string testWeight()         const {return _testWt;}
+    string nonUniformWt()         const {return _nonUniformWt;}
 
     bool   checkObjVal()        const {return _checkObjVal;}
     bool   bruteForceEC()       const {return _bruteForceEC;}
@@ -67,13 +67,13 @@ namespace arg {
     double maxInterval()        const {return _maxInterval;}
 
     bool   printBBdetails()     const {return _printBBdetails;}
-  
+
     int    fixedSizeBin()       const {return _fixedSizeBin;}
 
   private:
 
     bool   _exactRMA;            // solve exactRMA
-  
+
     // for non-strong branching ...
     bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint
     double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
@@ -89,7 +89,7 @@ namespace arg {
     bool   _bruteForceEC;        // brute force way to create equivalence classes
     bool   _bruteForceIncumb;    // brute force way to check incumbent in each atrribute
 
-    string  _testWt;              // use test weight
+    string  _nonUniformWt;       // use test weight
 
     // for saving information
     bool   _writeInstances;
@@ -106,7 +106,7 @@ namespace arg {
 
     // for printing more details
     bool   _printBBdetails;
-  
+
     double _rampUpSizeFact;      // TODO: what is this?
 
   };

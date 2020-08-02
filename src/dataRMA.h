@@ -74,10 +74,12 @@ public:
 
   bool readData(int& argc, char**& argv);
   bool readRandObs(int argc, char** argv);
+  void readNonUniformWt();
 
   void setDataDimensions();
   void setPosNegObs();
   void setIntTrainData();
+  void setWeight();
   void setNumMaxDistVal();
 
   void setXStat(vector<DataXy> &origData);

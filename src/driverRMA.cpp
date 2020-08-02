@@ -10,20 +10,17 @@
 namespace rma {
 
   DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
-    
+
 #ifdef ACRO_HAVE_MPI
     uMPI::init(&argc, &argv, MPI_COMM_WORLD);
 #endif // ACRO_HAVE_M
-    
+
     setup(argc, argv);     // setup all paramaters
-    
+
     setData(argc, argv);   // set data
 
     setupRMA(argc, argv);
 
-    // cout << "test" << testWeight();
-    if (testWeight()!="") updateWt();
-   
   }
 
 
@@ -69,69 +66,6 @@ namespace rma {
   }
 
 
-  void DriverRMA::updateWt() {
-    vector<double> vecNonUniformWt;
-    vector<int>    vecObsIdx;
-    vecNonUniformWt.resize(data->numTrainObs);
-    vecObsIdx.resize(data->numTrainObs);
-    // for (int i=0; i<data->numTrainObs; ++i)
-    //   vecObsIdx[i] = i;
-
-#ifdef ACRO_HAVE_MPI
-    if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-    ifstream inFile(testWeight());
-    if (inFile.is_open()) {
-      string line;
-      string tmp;
-      while( getline(inFile,line) ) {
-	stringstream ss(line);
-	for (int i=0; i<data->numTrainObs; ++i) {
-	  getline(ss,tmp,',');
-	  // cout << "tmp " << tmp << "\n";
-	  vecNonUniformWt[i] = stod(tmp);
-	  // cout << "vec " <<vecNonUniformWt[i] << "\n";
-	}
-      }
-    }
-    //rma->setWeight(vecNonUniformWt, vecObsIdx);
-
-    for (int i=0; i < data->numTrainObs; ++i) {
-      data->intTrainData[i].w = vecNonUniformWt[i];
-    }
-#ifdef ACRO_HAVE_MPI
-    }
-#endif //  ACRO_HAVE_MPI
-
-#ifdef ACRO_HAVE_MPI
-    int i, k;
-    for (i = 0; i < data->numTrainObs; ++i) {
-
-      if ((uMPI::rank==0)) {
-
-	// If we are the root process, send our data to everyone
-	for (k = 0; k < uMPI::size; ++k)
-	  if (k != 0)
-	    MPI_Send(&data->intTrainData[i].w, 1, MPI_DOUBLE, k, 0, MPI_COMM_WORLD);
-    } else {
-
-    	// If we are a receiver process, receive the data from the root
-    	MPI_Recv(&data->intTrainData[i].w, 1, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD,
-		           MPI_STATUS_IGNORE);
-    }
-  }
-#endif //  ACRO_H
-
-    DEBUGPR(1, ucout << "rank: " << uMPI::rank << " wt: ");
-    DEBUGPR(1,
-	    for (int i=0; i < data->numTrainObs; ++i) {
-	      ucout << data->intTrainData[i].w << ", ";
-	    });
-    DEBUGPR(1, ucout << "\n");
-
-  }
-
-  
   void DriverRMA::solveRMA() {
     if (exactRMA()) {
 
@@ -151,7 +85,7 @@ namespace rma {
 	}
 #endif //  ACRO_HAVE_MPI
 	  */
-	
+
       }
 
       solveExactRMA();
@@ -216,7 +150,7 @@ namespace rma {
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     int global_sum;
     MPI_Reduce(&rma->subCount[2], &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     if (uMPI::size>1 and uMPI::rank==0) ucout << "\tNum of Nodes: " << global_sum << "\n";
@@ -225,6 +159,7 @@ namespace rma {
     uMPI::done();
 
   } // end function solveExactRMA()
+
 
   void DriverRMA::printSolutionTime() {
     ucout << "ERMA Solution: "  << rma->workingSol.value
