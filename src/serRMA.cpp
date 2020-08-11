@@ -454,12 +454,13 @@ namespace pebblRMA {
 
 
   void RMASub::boundComputation(double* controlParam) {
+
     //globalPtr->getSolution();
 
-    //if (global()->debug>=1) {
+    if (global()->debug>=1) {
       ucout << "\nal: " << al << "au: " << au
             << "bl: " << bl << "bu: " << bu ;
-    //}
+    }
 
     NumTiedSols=1;
     NumPosTiedSols=0;

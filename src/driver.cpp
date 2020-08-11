@@ -12,8 +12,6 @@ using namespace rma;
 
 int main(int argc, char** argv) {
 
-  cout << "driver\n";
-
   DriverRMA *driver = new DriverRMA(argc, argv);
   driver->solveRMA();
   return 0;
