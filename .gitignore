@@ -11,3 +11,5 @@ rma
 *.out
 
 debug
+
+Makefile

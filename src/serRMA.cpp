@@ -764,7 +764,7 @@ namespace pebblRMA {
     } else if ( au[j]<=bl[j] && au[j]<=v && v<bl[j]  ) {
       return;
     } else if ( bl[j]<au[j] &&
-		min(au[j],bl[j])<=v && v<max(au[j],bl[j]) ) {
+		            min(au[j],bl[j])<=v && v<max(au[j],bl[j]) ) {
 
       // Down Child
       printSP(j, al[j], v, v, v);
@@ -776,13 +776,17 @@ namespace pebblRMA {
       mergeEquivClass(j, al[j], v, v+1,  bu[j]);
       vecBounds[2]=getBoundMerge();
 
-      vecBounds[1] = vecBounds[2] - vecBounds[0];
-      /*
       // Up Child
       printSP(j, v+1, v+1, v+1, bu[j]);
       dropEquivClass(j, v+1, bu[j]);
       vecBounds[1]=getBoundDrop();
-      */
+      //vecBounds[1] = vecBounds[2] - vecBounds[0];
+
+      // double tmp = vecBounds[2] - vecBounds[0];
+      // if (tmp != vecBounds[1]) {
+      //   cout << "BOUNDS: " << tmp << " " << vecBounds[1] << "\n";
+      //   cout << "BOUNDS: " << vecBounds[2] << " " << vecBounds[0] << "\n";
+      // }
 
     } else if ( max(au[j],bl[j])<=v && v<bu[j]) {
 

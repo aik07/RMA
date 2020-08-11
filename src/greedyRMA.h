@@ -22,15 +22,15 @@ using namespace data;
 namespace greedyRMA {
 
   class GreedyRMA {
-    
+
   public:
-    
+
     GreedyRMA(ArgRMA *args_, DataRMA *data_) : args(args_), data(data_) { }
-    
+
     void   runGreedyRangeSearch();
 
     void   chooseMinOrMaxRange();
-    
+
     void   getMinOptRange();
     void   getMaxOptRange();
 
@@ -49,8 +49,8 @@ namespace greedyRMA {
 
     void   printSolution();
 
-    void   setInit1DRules();
-    void   set1DOptRange(const int& j);
+    // void   setInit1DRules();
+    // void   set1DOptRange(const int& j);
 
     // private:
 

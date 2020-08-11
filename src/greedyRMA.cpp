@@ -9,9 +9,9 @@
 namespace greedyRMA {
 
   void GreedyRMA::runGreedyRangeSearch() {
-    
+
     ts.startTime();
-    
+
     getMinOptRange();		// get oprimal range for minimum objective value
 
     getMaxOptRange();		// get oprimal range for maximum objective value
@@ -29,8 +29,10 @@ namespace greedyRMA {
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
 
-      ucout << "GRMA Solution: " << maxObjValue << "\t";
-      ucout << "CPU Time: " << ts.getCPUTime() << "\n";
+      ucout << "GRMA Solution: ";
+      isPosIncumb ? ucout << "+" : ucout << "-";
+      ucout << maxObjValue << "\t"
+            << "CPU Time: " << ts.getCPUTime() << "\n";
       if (args->debug>=2) ucout << ts.getWallTime();
       //if (args->printBoost()) {
       if (args->debug>=2) ucout << "L: " << L << "U: " << U;
@@ -55,9 +57,10 @@ namespace greedyRMA {
     //DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
 
     if ( maxVal>-minVal ||
-	 ( maxVal==minVal && rand_num <= NumPosTiedSols/(double)(NumNegTiedSols+NumPosTiedSols) ) ) {
+        ( maxVal==minVal &&
+          rand_num <= NumPosTiedSols/(double)(NumNegTiedSols+NumPosTiedSols) ) ) {
 
-      maxObjValue=maxVal;
+      maxObjValue = maxVal;
       isPosIncumb = true;
 
       copy(Lmax.begin(), Lmax.end(), L.begin());
@@ -221,7 +224,7 @@ namespace greedyRMA {
 
 
   /********************* Optimal Range for 1D rules  *********************/
-
+  /*
   void GreedyRMA::setInit1DRules() {
 
     Lmin.clear();
@@ -256,7 +259,7 @@ namespace greedyRMA {
       isPosIncumb = true;
     }
   }
-
+  */
 
   void GreedyRMA::setOptMin(const int &j) {
 
