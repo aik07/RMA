@@ -154,12 +154,12 @@ namespace data {
 #endif //  ACRO_HAVE_MPI
       */
 
-    DEBUGPR(1, ucout << "rank: " << uMPI::rank << " wt: ");
-    DEBUGPR(1,
-	    for (int i=0; i < numTrainObs; ++i) {
-	      ucout << intTrainData[i].w << ", ";
-	    });
-    DEBUGPR(1, ucout << "\n");
+      if (args->debug>=10) {
+	ucout << "rank: " << uMPI::rank << " wt: ";
+	for (int i=0; i < numTrainObs; ++i) 
+	  ucout << intTrainData[i].w << ", ";
+	ucout << "\n";
+      }
 
   }
 
