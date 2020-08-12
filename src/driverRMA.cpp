@@ -141,13 +141,12 @@ namespace rma {
     if (printBBdetails()) rma->solve();  // print out B&B details
     else                  rma->search();
 
+    tc.getCPUTime();
+    tc.getWallTime();
+    printSolutionTime();
 
-      tc.getCPUTime();
-      tc.getWallTime();
-      printSolutionTime();
-
-      CommonIO::end();
-      uMPI::done();
+    CommonIO::end();
+    uMPI::done();
 
   } // end function solveExactRMA()
 
@@ -158,8 +157,11 @@ namespace rma {
     int    total_nodes     = rma->subCount[2];
 
     if (uMPI::size>1) {
-      MPI_Reduce(&rma->workingSol.value, &global_solution, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
-      MPI_Reduce(&rma->subCount[2], &total_nodes, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+      // ucout << "reduce " << uMPI::size << "\n";
+      MPI_Reduce(&rma->workingSol.value, &global_solution,
+                 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+      MPI_Reduce(&rma->subCount[2],      &total_nodes,
+                 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
 #ifdef ACRO_HAVE_MPI
