@@ -11,5 +11,6 @@ rma
 *.out
 
 debug
+cmd
 
 Makefile*
