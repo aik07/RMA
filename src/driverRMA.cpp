@@ -157,7 +157,7 @@ namespace rma {
     int    total_nodes     = rma->subCount[2];
 
     if (uMPI::size>1) {
-      // ucout << "reduce " << uMPI::size << "\n";
+      ucout << "reduce " << " " << total_nodes << "\n";
       MPI_Reduce(&rma->workingSol.value, &global_solution,
                  1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
       MPI_Reduce(&rma->subCount[2],      &total_nodes,

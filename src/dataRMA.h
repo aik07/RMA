@@ -80,6 +80,7 @@ public:
   void setPosNegObs();
   void setIntTrainData();
   void setWeight();
+  void removeZeroWtObs();
   void setNumMaxDistVal();
 
   void setXStat(vector<DataXy> &origData);
