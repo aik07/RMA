@@ -4,6 +4,10 @@ obj/
 
 data/
 
+build/
+
+external/
+
 result*
 
 rma
