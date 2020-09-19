@@ -1,6 +1,6 @@
 # RMA
 
-[![Build Status](https://travis-ci.com/aik7/RMA.svg?branch=travis-ci)](https://travis-ci.com/aik7/RMA)
+[![Build Status](https://travis-ci.com/aik7/RMA.svg?branch=devel)](https://travis-ci.com/aik7/RMA)
 
 RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
@@ -53,12 +53,12 @@ make
 
 ### Serial implementation
 ```
-./rma <data_filename>
+./build/rma <data_filename>
 ```
 
 ### Parallel implementation
 ```
-mpirun -np 4 ./rma <data_filename>
+mpirun -np 4 ./build/rma <data_filename>
 ```
 
 ### Example script
