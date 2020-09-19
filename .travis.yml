@@ -8,11 +8,6 @@ compiler: gcc
 addons:
   apt:
     packages:
-
-      # MPICH
-      # - mpich
-      # - libmpich-dev
-
       # OpenMPI
       - openmpi-bin
       - libopenmpi-dev
@@ -32,5 +27,5 @@ install:
   - make
 
 script:
-  ./rma ../data/cleveland.dat
-  mpirun -np 2 ./rma ../data/cleveland.dat
+  - ./rma ../data/cleveland.dat
+  - mpirun -np 2 ./rma ../data/cleveland.dat
