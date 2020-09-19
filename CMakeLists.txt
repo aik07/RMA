@@ -4,14 +4,14 @@ project(rma)
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
-set(PEBBL_DIR /home/kagawa/Projects/thesis/code/pebbl)
+set(PEBBL_ROOT ${CMAKE_SOURCE_DIR}/external/pebbl)
 
-include(ExternalProject)
-set( EXTERNAL_INSTALL_DIR ${CMAKE_BINARY_DIR}/external_install )
-add_subdirectory(external)
+#include(ExternalProject)
+#set( EXTERNAL_INSTALL_DIR ${CMAKE_BINARY_DIR}/external_install )
+#add_subdirectory(external)
 
-set(PEBBL_LIBRARIES ${PEBBL_DIR}/build/src/pebbl/libpebbl.a)
-set(PEBBL_INCLUDES  ${PEBBL_DIR}/src ${PEBBL_DIR}/build/src)
+set(PEBBL_LIBRARIES ${PEBBL_ROOT}/build/src/pebbl/libpebbl.a)
+set(PEBBL_INCLUDES  ${PEBBL_ROOT}/src ${PEBBL_ROOT}/build/src)
 
 set(CMAKE_CXX_COMPILER mpicxx)
 
@@ -26,7 +26,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -Wall -Werror=reorder")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g -DBOOST_LOG_DYN_LINK -DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 MESSAGE( STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}" )
 MESSAGE( STATUS "C++ compiler ID: ${CMAKE_CXX_COMPILER_ID}" )
@@ -46,7 +46,5 @@ include_directories(
 )
 
 file(GLOB SOURCES "src/*.cpp")
-
 add_executable(rma ${SOURCES})
-
 target_link_libraries(rma ${PEBBL_LIBRARIES})
