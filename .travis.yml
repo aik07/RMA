@@ -6,16 +6,20 @@ matrix:
     #   dist: trusty
     #   compiler: clang
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: gcc
     # - os: osx
     #   compiler: clang
     # - os: osx
     #   compiler: gcc
 
-before_install:
-  - eval "${MATRIX_EVAL}"
-  - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -y libopenmpi-dev; fi
+# Handle git submodules
+git:
+    submodules: true
+
+# before_install:
+#   - eval "${MATRIX_EVAL}"
+#   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -y libopenmpi-dev; fi
 
   # - if [ $TRAVIS_OS_NAME == osx ]; then brew update; fi
   # # see https://github.com/travis-ci/travis-ci/issues/10275
