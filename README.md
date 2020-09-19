@@ -1,5 +1,7 @@
 # RMA
 
+[![Build Status](https://travis-ci.com/aik7/RMA.svg?branch=travis-ci)](https://travis-ci.com/aik7/RMA)
+
 RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
 when each observation has a positive or negative weight.
