@@ -141,19 +141,9 @@ namespace rma {
     if (printBBdetails()) rma->solve();  // print out B&B details
     else                  rma->search();
 
-#ifdef ACRO_HAVE_MPI
-    if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-      tc.getCPUTime();
-      tc.getWallTime();
-      printSolutionTime();
-#ifdef ACRO_HAVE_MPI
-    }
-#endif //  ACRO_HAVE_MPI
-
-    int global_sum;
-    MPI_Reduce(&rma->subCount[2], &global_sum, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-    if (uMPI::size>1 and uMPI::rank==0) ucout << "\tNum of Nodes: " << global_sum << "\n";
+    tc.getCPUTime();
+    tc.getWallTime();
+    printSolutionTime();
 
     CommonIO::end();
     uMPI::done();
@@ -162,11 +152,28 @@ namespace rma {
 
 
   void DriverRMA::printSolutionTime() {
-    ucout << "ERMA Solution: "  << rma->workingSol.value
-          << "\tCPU time: "     << tc.getCPUTime();
 
-    if (uMPI::size==1)
-      ucout << "\tNum of Nodes: " << rma->subCount[2] << "\n";
+    double global_solution = rma->workingSol.value;
+    int    total_nodes     = rma->subCount[2];
+
+    if (uMPI::size>1) {
+      // ucout << "reduce " << " " << total_nodes << "\n";
+      MPI_Reduce(&rma->workingSol.value, &global_solution,
+                 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+      MPI_Reduce(&rma->subCount[2],      &total_nodes,
+                 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    }
+
+#ifdef ACRO_HAVE_MPI
+    if (uMPI::rank==0) {
+#endif //  ACRO_HAVE_MPI
+    ucout << "ERMA Solution: "  << global_solution
+          << "\tCPU time: "     << tc.getCPUTime()
+          << "\tNum of Nodes: " << total_nodes << "\n";
+#ifdef ACRO_HAVE_MPI
+    }
+#endif //  ACRO_HAVE_MPI
+
   }
 
 } // end namespace rma

@@ -1,5 +1,7 @@
 #!/bin/bash
 
-RMA_DIR=/home/kagawa/Projects/thesis/rma/RMA
+RMA_DIR=./
 
-mpirun -np 8 $(RMA_DIR)/rma $(RMA_DIR)/data/servo.data
+${RMA_DIR}/build/rma ${RMA_DIR}/data/cleveland.dat
+
+mpirun -np 4 ${RMA_DIR}/build/rma ${RMA_DIR}/data/cleveland.dat
