@@ -12,7 +12,7 @@ addons:
       # MPICH
       # - mpich
       # - libmpich-dev
-      
+
       # OpenMPI
       - openmpi-bin
       - libopenmpi-dev
@@ -20,15 +20,6 @@ addons:
 # Handle git submodules
 git:
     submodules: true
-
-# before_install:
-#   - eval "${MATRIX_EVAL}"
-#   - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -y libopenmpi-dev; fi
-
-  # - if [ $TRAVIS_OS_NAME == osx ]; then brew update; fi
-  # # see https://github.com/travis-ci/travis-ci/issues/10275
-  # - if [ $TRAVIS_OS_NAME == osx ]; then brew install gcc || brew link --overwrite gcc; fi
-  # - if [ $TRAVIS_OS_NAME == osx ]; then brew install make; fi
 
 install:
   - mkdir external/pebbl/build
@@ -40,7 +31,5 @@ install:
   - cmake ..
   - make
 
-# script:
-#   - cmake --version
-#   - cmake -H. -Bbuild
-#   - cmake --build build --target all
+script:
+  ./rma ../data/cleveland.dat
