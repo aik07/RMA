@@ -27,7 +27,7 @@ git:
   # - if [ $TRAVIS_OS_NAME == osx ]; then brew install make; fi
 
 install:
-  - mkdir /build
+  - mkdir build
   - mkdir external/pebbl/build
   - cd external/pebbl/build
   - cmake -Denable_mpi=ON -Denable_examples=OFF ..; make
