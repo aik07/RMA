@@ -1,11 +1,14 @@
 # RMA
 
+[![Build Status](https://travis-ci.com/aik7/RMA.svg?branch=travis-ci)](https://travis-ci.com/aik7/RMA)
+
 RMA is a solver to find an axis-parallel box containing the maximum net
 weight of positivly minus negativly covered observations or vice versa
 when each observation has a positive or negative weight.
 
 ## Software Requirement:
 * [PEBBL](https://github.com/PEBBL/pebbl)
+* CMake (VERSION 2.8.9)
 * C++ compiler
 * MPI
 
@@ -13,16 +16,28 @@ when each observation has a positive or negative weight.
 * [Presentation](https://github.com/aik7/RMA/blob/master/RMA_slides.pdf)
 * [User Guide](https://github.com/aik7/RMA/blob/master/RMA_user_guide.pdf)
 
-## How to download and build RMA
+## How to clone and build PEBBL and RMA
 
-* Clone or download this RMA repository
+* Recursive clone the RMA repository (PEBBL is a submodule in this repository)
 ```
-git clone https://github.com/aik7/RMA.git
+git clone --recursive https://github.com/aik7/RMA.git
 ```
 
-* Run the following command for compiling and building applications
+
+* Build PEBBL
 ```
-cd RMA
+mkdir RMA/external/pebbl/build
+cd RMA/external/pebbl/build
+cmake -Denable_mpi=ON -Denable_examples=OFF ..
+make
+```
+
+* Build RMA
+```
+cd ../../../  # go back to the RMA root directory
+mkdir build
+cd build
+cmake ..
 make
 ```
 
@@ -40,7 +55,7 @@ mpirun -np 4 ./rma <data_filename>
 
 ### Example script
 ```
-sh script/driver.sh
+sh script/driver.sh  # at the RMA root directory
 ```
 
 Please read the user guide about how to use parameters for the RMA solver.

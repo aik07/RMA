@@ -2,7 +2,9 @@
 
 obj/
 
-data/
+build/
+
+external/pebbl
 
 result*
 
@@ -11,5 +13,6 @@ rma
 *.out
 
 debug
+cmd
 
 Makefile*

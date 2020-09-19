@@ -1,0 +1,31 @@
+sudo: required
+language: cpp
+
+os: linux
+dist: bionic
+compiler: gcc
+
+addons:
+  apt:
+    packages:
+      # OpenMPI
+      - openmpi-bin
+      - libopenmpi-dev
+
+# Handle git submodules
+git:
+    submodules: true
+
+install:
+  - mkdir external/pebbl/build
+  - cd external/pebbl/build
+  - cmake -Denable_mpi=ON -Denable_examples=OFF ..
+  - make
+  - mkdir ${TRAVIS_BUILD_DIR}/build
+  - cd ${TRAVIS_BUILD_DIR}/build
+  - cmake ..
+  - make
+
+script:
+  - ./rma ../data/cleveland.dat
+  - mpirun -np 2 ./rma ../data/cleveland.dat
