@@ -1,17 +1,21 @@
 sudo: required
 language: cpp
-matrix:
-  include:
-    # - os: linux
-    #   dist: trusty
-    #   compiler: clang
-    - os: linux
-      dist: bionic
-      compiler: gcc
-    # - os: osx
-    #   compiler: clang
-    # - os: osx
-    #   compiler: gcc
+
+os: linux
+dist: bionic
+compiler: gcc
+
+addons:
+  apt:
+    packages:
+
+      # MPICH
+      # - mpich
+      # - libmpich-dev
+      
+      # OpenMPI
+      - openmpi-bin
+      - libopenmpi-dev
 
 # Handle git submodules
 git:
@@ -27,11 +31,14 @@ git:
   # - if [ $TRAVIS_OS_NAME == osx ]; then brew install make; fi
 
 install:
-  - mkdir build
   - mkdir external/pebbl/build
   - cd external/pebbl/build
-  - cmake -Denable_mpi=ON -Denable_examples=OFF ..; make
-  - cd ../../../build; cmake ..; make
+  - cmake -Denable_mpi=ON -Denable_examples=OFF ..
+  - make
+  - mkdir ${TRAVIS_BUILD_DIR}/build
+  - cd ${TRAVIS_BUILD_DIR}/build
+  - cmake ..
+  - make
 
 # script:
 #   - cmake --version
