@@ -23,7 +23,13 @@ when each observation has a positive or negative weight.
 git clone --recursive https://github.com/aik7/RMA.git
 ```
 
+* Run the build script to build PEBBL and RMA
+```
+cd RMA
+sh scripts/build.sh
+```
 
+<!--
 * Build PEBBL
 ```
 mkdir RMA/external/pebbl/build
@@ -40,6 +46,8 @@ cd build
 cmake ..
 make
 ```
+-->
+
 
 ## Example commands to run RMA:
 

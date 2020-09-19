@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.0)
 project(rma)
 
 find_package(MPI REQUIRED)
@@ -48,3 +48,7 @@ include_directories(
 file(GLOB SOURCES "src/*.cpp")
 add_executable(rma ${SOURCES})
 target_link_libraries(rma ${PEBBL_LIBRARIES})
+
+#file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+add_library(lrma STATIC ${SOURCES})
+target_link_libraries(lrma ${PEBBL_LIBRARIES})
