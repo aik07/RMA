@@ -1,8 +1,9 @@
-/**********************************************************
-* File name:   driver.cpp
-* Author:      Ai Kagawa
-* Description: serial or parallel driver
-***********************************************************/
+//**********************************************************
+// File name:   driver.cpp
+// Author:      Ai Kagawa
+// Description: serial or parallel driver
+// ***********************************************************
+
 #include "argRMA.h"
 #include "dataRMA.h"
 #include "driverRMA.h"

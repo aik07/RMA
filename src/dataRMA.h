@@ -1,8 +1,8 @@
-/**********************************************************
- *  File name:   dataRMA.h
- *  Author:      Ai Kagawa
- *  Description: a header file for RMA data class
-/**********************************************************/
+//**********************************************************
+//  File name:   dataRMA.h
+//  Author:      Ai Kagawa
+//  Description: a header file for RMA data class
+//*********************************************************
 
 #ifndef DATA_h
 #define DATA_h
@@ -29,13 +29,13 @@ class DataXw {
 public:
 
   DataXw() : w(0.0) {}
-  DataXw( const vector<int>& X_ ) : X(X_) {}
+  DataXw( const vector<unsigned int>& X_ ) : X(X_) {}
 
   int read(istream& is)        { is >> X >> w; return 0; }
   int write(ostream& os) const { os << X << w; return 0; }
 
 //private:
-  vector<int> X;  // integerized explanatory variables
+  vector<unsigned int> X;  // integerized explanatory variables
   double      w;	// weight of each observation
 
   friend class DataRMA;
@@ -99,19 +99,19 @@ public:
   vector<double> avgX, sdX;
   vector<double> minX, maxX;
 
-  int numOrigObs;                // # of observations in original data
-  int numTrainObs;               // # of distinct observation after discretization
+  unsigned int numOrigObs;       // # of observations in original data
+  unsigned int numTrainObs;      // # of distinct observation after discretization
 
-  int numAttrib;                 // # of attributes
-  int numPosTrainObs;
-  int numNegTrainObs;
-  int numTotalCutPts;            // # of cutpoints for RMA
-  int numMaxDistVal;             // maximum distinct value among attributes
+  unsigned int numAttrib;        // # of attributes
+  unsigned int numPosTrainObs;
+  unsigned int numNegTrainObs;
+  unsigned int numTotalCutPts;   // # of cutpoints for RMA
+  unsigned int numMaxDistVal;    // maximum distinct value among attributes
 
-  vector<int>     distFeat;	     // distinct features after discretization
-  vector<int>     vecRandObs;    // contains randomize all observations
-  vector<int>     vecTrainData;  // contains only training dataset observations
-  vector<int>     vecTestData;   // contains only training dataset observations
+  vector<unsigned int>  distFeat;	     // distinct features after discretization
+  vector<unsigned int>  vecRandObs;    // contains randomize all observations
+  vector<unsigned int>  vecTrainData;  // contains only training dataset observations
+  vector<unsigned int>  vecTestData;   // contains only training dataset observations
 
   vector<DataXy>  origTrainData;      // original datasets X and y
   vector<DataXw>  intTrainData;       // discretized data X abd w (weight)

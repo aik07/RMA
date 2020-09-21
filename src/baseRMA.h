@@ -29,24 +29,24 @@ using namespace arg;
 
 
 namespace base {
-  
+
   class BaseRMA : public ArgRMA,
     virtual public pebblParams,
     virtual public parallelPebblParams {
-      
+
   public:
-      
+
     BaseRMA() : parameters_registered(false), min_num_required_args(0) {
       cout << setprecision(6) << fixed;
     }
-      
+
     virtual ~BaseRMA() {};
-      
+
     /// Setup the solver parameters using command-line information.
     /// This returns false if there is a problem in the setup, and true
     /// if the setup appeared to work normally.
     bool   setup(int& argc, char**& argv);
-      
+
     // Parameter-related ethods
     void   write_usage_info(char const* progName, ostream& os) const;
     void   writeCommandUsage(char const* progName, ostream& os) const;
@@ -59,7 +59,7 @@ namespace base {
     /// Check parameters for setup problems and perform debugging I/O
     bool   checkParameters(char const* progName = "");
 
-    bool   setupProblem(int argc, char** argv) { true; }
+    bool   setupProblem(int argc, char** argv) {return true;}
 
     void   setName(const char* cname);
 

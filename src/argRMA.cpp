@@ -24,12 +24,12 @@ namespace arg {
     _branchSelection(0),
     _countingSort(false),
 
-    _nonUniformWt(""),
-
     _checkObjVal(false),
     _bruteForceEC(false),
     _bruteForceIncumb(false),
 
+    _nonUniformWt(""),
+    
     _writeInstances(false),
     _writeNodeTime(false),
     _writeCutPts(false),

@@ -56,24 +56,24 @@ namespace greedyRMA {
 
     bool   isPosIncumb;
     bool   foundBox;
-    int    NumNegTiedSols;
-    int    NumPosTiedSols;
+    unsigned int    NumNegTiedSols;
+    unsigned int    NumPosTiedSols;
 
     int    tmpL, tmpU;
     double tmpObj, tmpMin, tmpMax;
     double maxObjValue, minVal, maxVal;
 
-    int    optAttrib;
-    int    prevAttrib;
-    int    optLower, optUpper;
+    unsigned int    optAttrib;
+    unsigned int    prevAttrib;
+    unsigned int    optLower, optUpper;
 
     int    obs;
     bool   fondNewBox;
 
-    vector<int>    vecCoveredObs;
-    vector<int>    L, U;
-    vector<int>    Lmax, Umax;
-    vector<int>    Lmin, Umin;
+    vector<unsigned int>    vecCoveredObs;
+    vector<unsigned int>    L, U;
+    vector<unsigned int>    Lmax, Umax;
+    vector<unsigned int>    Lmin, Umin;
     vector<double> vecWeight;
 
     ArgRMA*   args;

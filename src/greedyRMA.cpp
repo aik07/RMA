@@ -112,7 +112,7 @@ void GreedyRMA::getMinOptRange() {
 
     fondNewBox = false;
 
-    for (int j = 0; j < data->numAttrib; ++j) { // for each feature
+    for (unsigned int j = 0; j < data->numAttrib; ++j) { // for each feature
 
       if (j != prevAttrib) { // if this attribute is not restricted
 
@@ -180,7 +180,7 @@ void GreedyRMA::getMaxOptRange() {
 
     fondNewBox = false;
 
-    for (int j = 0; j < data->numAttrib; ++j) { // for each feature
+    for (unsigned int j = 0; j < data->numAttrib; ++j) { // for each feature
 
       if (j != prevAttrib) { // if this attribute is not restricted
 
@@ -301,7 +301,7 @@ double GreedyRMA::runMinKadane(const int &j) {
   double minEndHere = 0;
   double minSoFar = inf;
 
-  for (int i = Lmin[j]; i <= Umin[j]; ++i) {
+  for (unsigned int i = Lmin[j]; i <= Umin[j]; ++i) {
     minEndHere += vecWeight[i]; // getObjCovered(j, i);
     if (minEndHere < minSoFar) {
       minSoFar = minEndHere;
@@ -330,7 +330,7 @@ double GreedyRMA::runMaxKadane(const int &j) {
   double maxEndHere = 0;
   double maxSoFar = -inf; // min so far
 
-  for (int i = Lmax[j]; i <= Umax[j]; ++i) {
+  for (unsigned int i = Lmax[j]; i <= Umax[j]; ++i) {
     maxEndHere += vecWeight[i]; // getObjCovered(j, i);
     if (maxEndHere > maxSoFar) {
       maxSoFar = maxEndHere;
@@ -356,7 +356,7 @@ void GreedyRMA::dropObsNotCovered(const int &j, const int &lower,
   if (args->debug >= 10)
     ucout << "Before drop: " << vecCoveredObs;
 
-  for (int i = 0; i < vecCoveredObs.size(); ++i) {
+  for (unsigned int i = 0; i < vecCoveredObs.size(); ++i) {
 
     obs = vecCoveredObs[i];
 
@@ -373,7 +373,7 @@ void GreedyRMA::dropObsNotCovered(const int &j, const int &lower,
 
 void GreedyRMA::setObjVec(const int &j) {
 
-  int i, v, obs;
+  unsigned int i, v, obs;
 
   vecWeight.resize(data->numMaxDistVal);
   for (i = 0; i < data->numMaxDistVal; ++i)
