@@ -21,11 +21,11 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Debug")
-  # set(CMAKE_BUILD_TYPE "Release")
+  # set(CMAKE_BUILD_TYPE "Debug")
+  set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -Wall -Werror=reorder")   
+set(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -Wall -Werror=reorder")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 MESSAGE( STATUS "C++ compiler: ${CMAKE_CXX_COMPILER}" )

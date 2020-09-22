@@ -8,7 +8,7 @@ when each observation has a positive or negative weight.
 
 ## Software Requirement:
 * [PEBBL](https://github.com/PEBBL/pebbl)
-* CMake (VERSION 2.8.9)
+* CMake (>= VERSION 3.0)
 * C++ compiler
 * MPI
 
