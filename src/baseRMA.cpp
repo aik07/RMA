@@ -2,53 +2,53 @@
 
 
 namespace base {
-  
+
   ////////////////////// Base class methods ////////////////////////
-  
+
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
   bool BaseRMA::setup(int& argc, char**& argv) {
-    
+
     if (!processParameters(argc,argv,min_num_required_args))
       return false;
-    
+
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
       if (plist.size() == 0) {
         ucout << "Using default values for all solver options" << std::endl;
       } else {
-	ucout << "User-specified solver options: " << std::endl;
-	plist.write_parameters(ucout);
-	ucout << std::endl;
+        ucout << "User-specified solver options: " << std::endl;
+	      plist.write_parameters(ucout);
+	      ucout << std::endl;
       }
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     set_parameters(plist,false);
-    
+
     if ((argc > 0) && !checkParameters(argv[0]))
       return false;
-    
+
     if (!setupProblem(argc,argv))
       return false;
-    
+
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
       if (plist.unused() > 0) {
-	ucout << "\nERROR: unused parameters: " << std::endl;
-	plist.write_unused_parameters(ucout);
-	ucout << utilib::Flush;
-	return false;
+      	ucout << "\nERROR: unused parameters: " << std::endl;
+      	plist.write_unused_parameters(ucout);
+      	ucout << utilib::Flush;
+      	return false;
       }
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     return true;
-    
+
   }
 
 
@@ -94,7 +94,7 @@ namespace base {
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     return true;
   }
 

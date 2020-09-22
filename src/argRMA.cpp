@@ -24,11 +24,11 @@ namespace arg {
     _branchSelection(0),
     _countingSort(false),
 
-    _nonUniformWt(""),
-
     _checkObjVal(false),
     _bruteForceEC(false),
     _bruteForceIncumb(false),
+
+    _nonUniformWt(""),
 
     _writeInstances(false),
     _writeNodeTime(false),
@@ -36,7 +36,7 @@ namespace arg {
 
     _delta(-1),
     _shrinkDelta(.95),
-    _maxInterval(inf),
+    _maxInterval(getInf()),
 
     _fixedSizeBin(-1),
 

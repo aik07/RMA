@@ -117,7 +117,7 @@ bool DataRMA::readRandObs(int argc, char **argv) {
   vecRandObs.resize(numOrigObs);
 
   // read data
-  for (int i = 0; i < numOrigObs; ++i)
+  for (unsigned int i = 0; i < numOrigObs; ++i)
     s >> vecRandObs[i];
 
   s.close(); // close the data file
@@ -131,7 +131,7 @@ bool DataRMA::readRandObs(int argc, char **argv) {
 void DataRMA::removeZeroWtObs() {
   int numNonZeroObs = 0;
 
-  for (int i = 0; i < numTrainObs; ++i) {
+  for (unsigned int i = 0; i < numTrainObs; ++i) {
     if (intTrainData[i].w != 0) {
       vecTrainData[numNonZeroObs] = i;
       ++numNonZeroObs;
@@ -158,7 +158,7 @@ void DataRMA::readNonUniformWt() {
     string line, tmp;
     while (getline(inFile, line)) {
       stringstream ss(line);
-      for (int i = 0; i < numTrainObs; ++i) {
+      for (unsigned int i = 0; i < numTrainObs; ++i) {
         getline(ss, tmp, ',');
         // cout << "tmp " << tmp << "\n";
         vecNonUniformWt[i] = stod(tmp);
@@ -170,7 +170,7 @@ void DataRMA::readNonUniformWt() {
   }
   // rma->setWeight(vecNonUniformWt, vecObsIdx);
 
-  for (int i = 0; i < numTrainObs; ++i) {
+  for (unsigned int i = 0; i < numTrainObs; ++i) {
     intTrainData[i].w = vecNonUniformWt[i];
   }
   /*
@@ -181,7 +181,7 @@ void DataRMA::readNonUniformWt() {
 
   if (args->debug >= 10) {
     ucout << "rank: " << uMPI::rank << " wt: ";
-    for (int i = 0; i < numTrainObs; ++i)
+    for (unsigned int i = 0; i < numTrainObs; ++i)
       ucout << intTrainData[i].w << ", ";
     ucout << "\n";
   }
@@ -197,7 +197,7 @@ void DataRMA::setDataDimensions() {
   intTrainData.resize(numTrainObs);
   standTrainData.resize(numTrainObs);
 
-  for (int i = 0; i < numTrainObs; ++i) {
+  for (unsigned int i = 0; i < numTrainObs; ++i) {
     intTrainData[i].X.resize(numAttrib);
     standTrainData[i].X.resize(numAttrib);
   }
@@ -206,7 +206,7 @@ void DataRMA::setDataDimensions() {
   vecFeature.resize(numAttrib);
 
   vecTrainData.resize(numTrainObs);
-  for (int i = 0; i < numTrainObs; ++i)
+  for (unsigned int i = 0; i < numTrainObs; ++i)
     vecTrainData[i] = i;
 }
 
@@ -217,8 +217,8 @@ void DataRMA::setIntTrainData() {
   if (args->delta() != -1)
     integerizeData(origTrainData, intTrainData);
   else {
-    for (int i = 0; i < numTrainObs; ++i) { // for each observation
-      for (int j = 0; j < numAttrib; j++) { // for each attribute
+    for (unsigned int i = 0; i < numTrainObs; ++i) { // for each observation
+      for (unsigned int j = 0; j < numAttrib; j++) { // for each attribute
         intTrainData[i].X[j] = origTrainData[i].X[j];
         if (distFeat[j] < intTrainData[i].X[j])
           distFeat[j] = intTrainData[i].X[j];
@@ -235,7 +235,7 @@ void DataRMA::setWeight() {
   if (args->nonUniformWt() != "") {
     readNonUniformWt();
   } else {
-    for (int i = 0; i < numTrainObs; ++i) // for each observation
+    for (unsigned int i = 0; i < numTrainObs; ++i) // for each observation
       intTrainData[i].w = origTrainData[i].y * 1.0 / (double)numTrainObs;
   }
 }
@@ -244,9 +244,9 @@ void DataRMA::setWeight() {
 void DataRMA::setNumMaxDistVal() {
   numMaxDistVal = 0;
   numTotalCutPts = 0;
-  for (int j = 0; j < numAttrib; ++j) {
+  for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
     numTotalCutPts += distFeat[j];
-    if (numMaxDistVal - 1 < distFeat[j])
+    if (numMaxDistVal < distFeat[j]+1)
       numMaxDistVal = distFeat[j] + 1;
   }
 }
@@ -255,7 +255,7 @@ void DataRMA::setPosNegObs() {
 
   numPosTrainObs = 0;
   numNegTrainObs = 0;
-  for (int i = 0; i < numTrainObs; ++i) {
+  for (unsigned int i = 0; i < numTrainObs; ++i) {
     if (origTrainData[vecTrainData[i]].y == 1)
       ++numPosTrainObs;
     else
@@ -274,7 +274,7 @@ void DataRMA::setPosNegObs() {
 // set avgX and sdX, average and standard devication vectors for X
 void DataRMA::setXStat(vector<DataXy> &origData) {
 
-  int i, j, obs;
+  unsigned int i, j;
   avgX.resize(numAttrib);
   sdX.resize(numAttrib);
 
@@ -303,7 +303,7 @@ void DataRMA::setXStat(vector<DataXy> &origData) {
 // set avgX and sdX, average and standard devication vectors for X
 void DataRMA::setYStat(vector<DataXy> &origData) {
 
-  int i;
+  unsigned int i;
   avgY = 0, sdY = 0;
 
   ////////////////////////////////////////////////////////////////////////////
@@ -322,7 +322,7 @@ void DataRMA::setYStat(vector<DataXy> &origData) {
 void DataRMA::setStandDataX(vector<DataXy> &origData,
                             vector<DataXy> &standData) {
 
-  int i, j;
+  unsigned int i, j;
 
   setXStat(origData);
 
@@ -336,14 +336,14 @@ void DataRMA::setStandDataX(vector<DataXy> &origData,
 
   ////////////////////////////////////////////////////////////////////////////
   if (args->debug >= 1)
-    for (int i = 0; i < numTrainObs; ++i)
+    for (i = 0; i < numTrainObs; ++i)
       cout << "obs: " << i << ": " << standData[i] << "\n";
 }
 
 void DataRMA::setStandDataY(vector<DataXy> &origData,
                             vector<DataXy> &standData) {
 
-  int i;
+  unsigned int i;
 
   setYStat(origData);
 
@@ -355,8 +355,8 @@ void DataRMA::setStandDataY(vector<DataXy> &origData,
 void DataRMA::integerizeData(vector<DataXy> &origData,
                              vector<DataXw> &intData) {
 
-  bool isSplit, flag;
-  int i, j, k, l, r, p, q, o, obs;
+  bool isSplit;
+  unsigned int i, j, k, l, r, p, q, o, obs;
   double tmpL, tmpU, tmpL1, tmpU1, tmp1U;
 
   double interval;  // confidence interval range
@@ -364,8 +364,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 
   vector<double> vecTemp(numOrigObs);
 
-  set<double>
-      setDistVal; // a set continas all distinct values for each attribute
+  set<double> setDistVal; // a set continas all distinct values for each attribute
   set<double>::iterator it, itp; // iterator for the set
 
   map<double, int> mapDblInt; // a container maps from an original value to an
@@ -381,8 +380,8 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
   minX.resize(numAttrib);
 
   for (j = 0; j < numAttrib; ++j) {
-    minX[j] = inf;
-    maxX[j] = -inf;
+    minX[j] = getInf();
+    maxX[j] = -getInf();
   }
 
   // if (isLPBoost()) setXStat();
@@ -464,7 +463,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
     // if there is interval limit
     // and the size of distince value is not same as the number of integers
     // assigned
-    if (args->maxInterval() != inf || k != setDistVal.size() - 1) {
+    if (args->maxInterval() != getInf() || k != setDistVal.size() - 1) {
 
       copyIntMinMax.resize(k + 1);
       for (i = 0; i <= k; ++i) {
@@ -538,7 +537,6 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
                 if ((tmp1U - tmpL1) > eps) {
                   ++l;
                   ++r;
-                  flag = true;
                   vecFeature[j].vecIntMinMax[i + p + l + q - 1].maxOrigVal =
                       tmpL1;
                   vecFeature[j].vecIntMinMax[i + p + l + q].minOrigVal = tmp1U;
@@ -647,7 +645,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 
   ////////////////////////////////////////////////////////////////////////////
   if (args->debug >= 1)
-    for (int i = 0; i < numTrainObs; ++i) {
+    for (i = 0; i < numTrainObs; ++i) {
       obs = vecTrainData[i];
       cout << "obs: " << obs << ": " << intData[obs] << "\n";
     }
@@ -665,8 +663,8 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
                                         vector<DataXw> &intData) {
 
-  int i, j, obs, glMaxL = -1;
-  int sizeBin = args->fixedSizeBin();
+  unsigned int i, j, obs, glMaxL = -1;
+  unsigned int sizeBin = args->fixedSizeBin();
   numMaxDistVal = 0;
 
   // fix X matrix
@@ -683,7 +681,7 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
   distFeat.resize(numAttrib);
   for (j = 0; j < numAttrib; ++j) {
     numMaxDistVal = -1;
-    for (int i = 0; i < numTrainObs; ++i) {
+    for (i = 0; i < numTrainObs; ++i) {
       obs = vecTrainData[i];
       intData[obs].X.resize(numAttrib);
       intData[obs].X[j] = floor((origData[obs].X[j] - minX[j]) /
@@ -697,7 +695,7 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
       glMaxL = numMaxDistVal;
 
     vecFeature[j].vecIntMinMax.resize(numMaxDistVal);
-    for (int i = 0; i < numMaxDistVal; ++i) {
+    for (i = 0; i < numMaxDistVal; ++i) {
       vecFeature[j].vecIntMinMax[0].minOrigVal =
           (double)i * ((maxX[j] - minX[j]) / (double)sizeBin) + minX[j];
       vecFeature[j].vecIntMinMax[0].maxOrigVal =
@@ -707,7 +705,7 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
 }
 
 template <class T> void DataRMA::writeObs(T vecData) {
-  int i, j, obs;
+  unsigned int i, j, obs;
   stringstream s;
   (typeid(T) == typeid(int)) ? s << "int" << '.' : s << "orig" << '.';
   ofstream os(s.str().c_str());
@@ -723,49 +721,6 @@ template <class T> void DataRMA::writeObs(T vecData) {
 
 } // namespace data
 
-ostream &operator<<(ostream &os, const deque<bool> &v) {
-  os << "(";
-  for (deque<bool>::const_iterator i = v.begin(); i != v.end(); ++i)
-    os << " " << *i;
-  os << " )\n";
-  return os;
-}
-
-ostream &operator<<(ostream &os, const vector<int> &v) {
-  os << "(";
-  for (vector<int>::const_iterator i = v.begin(); i != v.end(); ++i)
-    os << " " << *i;
-  os << " )\n";
-  return os;
-}
-
-ostream &operator<<(ostream &os, const vector<double> &v) {
-  os << "(";
-  for (vector<double>::const_iterator i = v.begin(); i != v.end(); ++i)
-    os << " " << *i;
-  os << " )\n";
-  return os;
-}
-
-ostream &operator<<(ostream &os, const vector<vector<int>> &v) {
-  for (int i = 0; i < v.size(); ++i) {
-    os << "(";
-    for (int j = 0; j < v[i].size(); ++j)
-      os << v[i][j] << " ";
-    os << " )\n";
-  }
-  return os;
-}
-
-ostream &operator<<(ostream &os, const vector<vector<double>> &v) {
-  for (int i = 0; i < v.size(); ++i) {
-    os << "(";
-    for (int j = 0; j < v[i].size(); ++j)
-      os << v[i][j] << " ";
-    os << " )\n";
-  }
-  return os;
-}
 
 // Operators to read and write RMA Objs to streams
 ostream &operator<<(ostream &os, data::DataXy &obj) {

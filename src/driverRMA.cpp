@@ -9,7 +9,7 @@
 
 namespace rma {
 
-  DriverRMA::DriverRMA(int& argc, char**& argv): rma(NULL), prma(NULL), parallel(false) {
+  DriverRMA::DriverRMA(int& argc, char**& argv): parallel(false), rma(NULL), prma(NULL) {
 
 #ifdef ACRO_HAVE_MPI
     uMPI::init(&argc, &argv, MPI_COMM_WORLD);
@@ -125,7 +125,7 @@ namespace rma {
 #endif //  ACRO_HAVE_MPI
 
     rma->mmapCachedCutPts.clear();
-    rma->workingSol.value = -inf;
+    rma->workingSol.value = getInf();
 
   }
 

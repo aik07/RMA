@@ -42,6 +42,7 @@
 #include <pebbl/pbb/parPebblBase.h>
 
 #include "serRMA.h"
+#include "utilRMA.h"
 
 using namespace std;
 using namespace pebbl;
@@ -53,11 +54,11 @@ namespace pebblRMA {
   class RMA;
   class RMASub;
   class CutPtThd;
-  
+
   //**************************************************************************
   //  The parallel branching class...
   class parRMA : virtual public parallelBranching, virtual public RMA {
-    
+
   public:
 
     parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
@@ -79,6 +80,7 @@ namespace pebblRMA {
       && parallelBranching::continueRampUp();
       }
     */
+
     /// Note: use VB flag?
     void reset(bool VBflag=true);
 
@@ -90,7 +92,7 @@ namespace pebblRMA {
 
     ostream* openVerifyLogFile();
 
-    void setCachedCutPts(const int& j, const int& v) ;
+    void setCachedCutPts(const unsigned int& j, const unsigned int& v) ;
 
     CutPtThd* cutPtCaster;		    // Thread to broadcast cut point data
     MessageID cutPtBroadcastTag;	// Message tag
@@ -127,9 +129,9 @@ namespace pebblRMA {
     void unpack(utilib::UnPackBuffer & inBuffer);
 
     void boundComputation(double* controlParam);
-    void parStrongBranching(const int& firstIdx, const int& lastIdx);
+    void parStrongBranching(const unsigned int& firstIdx, const unsigned int& lastIdx);
     void setLiveCachedCutPts();
-    void parCachedBranching(int firstIdx, int lastIdx);
+    void parCachedBranching(unsigned int firstIdx, unsigned int lastIdx);
 
     void setNumLiveCutPts();
 
@@ -154,14 +156,14 @@ namespace pebblRMA {
     void initialLoadBuffer(PackBuffer* buf) { relayLoadBuffer(buf); };
     void relayLoadBuffer(PackBuffer* buf);
 
-    void setCutPtThd(const int& f, const int& v);
+    void setCutPtThd(const unsigned int& f, const unsigned int& v);
     void preBroadcastMessage(const int& owningProc);
 
     int j, v;
     parRMA* ptrParRMA;
   }; // **********************************************************
 
-} // namespace lpboost
+} // namespace pebblRMA
 
 #endif // ACRO_HAVE_MPI
 
