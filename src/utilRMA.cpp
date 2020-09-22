@@ -31,7 +31,7 @@ ostream &operator<<(ostream &os, const vector<T> &v) {
 }
 
 template<class T>
-ostream &operator<<(ostream &os, const vector<vector<T>> &v) {
+ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
   for (unsigned int i = 0; i < v.size(); ++i) {
     os << "(";
     for (unsigned int j = 0; j < v[i].size(); ++j)
@@ -40,6 +40,11 @@ ostream &operator<<(ostream &os, const vector<vector<T>> &v) {
   }
   return os;
 }
+template ostream &operator<< <unsigned int>(ostream &os,
+                 const vector<vector<unsigned int> > &v);
+template ostream &operator<< <double>(ostream &os,
+                 const vector<vector<double> > &v);
+
 
 // ostream &operator<<(ostream &os, const deque<bool> &v) {
 //   os << "(";
