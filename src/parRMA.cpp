@@ -29,7 +29,7 @@ bool CutPtThd::unloadBuffer() {
 
   inBuf >> j >> v >> originator;
   if (ptrParRMA->args->debug >= 10)
-    ucout << "cutPtThd message received from " << status.MPI_SOURCE
+    cout << "cutPtThd message received from " << status.MPI_SOURCE
           << "(j, v)=(" << j << ", " << v << ")"
           << ", originator=" << originator << '\n';
 
@@ -41,16 +41,16 @@ bool CutPtThd::unloadBuffer() {
 
   // print range [itlow,itup):
   for (it = itlow; it != itup; ++it) {
-    if ((*it).first == j && (*it).second == v)
+    if ((*it).first == (unsigned int) j && (*it).second == (unsigned int) v)
       seenAlready = true;
     if (ptrParRMA->args->debug >= 10)
-      ucout << (*it).first << " => " << (*it).second << '\n';
+      cout << (*it).first << " => " << (*it).second << '\n';
   }
 
   if (ptrParRMA->args->debug >= 10)
-    ucout << "cut point (" << j << ", " << v << ") ";
+    cout << "cut point (" << j << ", " << v << ") ";
   if (ptrParRMA->args->debug >= 10)
-    ucout << (seenAlready ? "is already in cache\n" : "is new\n");
+    cout << (seenAlready ? "is already in cache\n" : "is new\n");
 
   if (originator < 0) {
     if (seenAlready)
@@ -65,7 +65,7 @@ bool CutPtThd::unloadBuffer() {
   return true;
 }
 
-void CutPtThd::setCutPtThd(const int &_j, const int &_v) {
+void CutPtThd::setCutPtThd(const unsigned int &_j, const unsigned int &_v) {
   j = _j;
   v = _v;
 }
@@ -74,14 +74,14 @@ void CutPtThd::setCutPtThd(const int &_j, const int &_v) {
 void CutPtThd::relayLoadBuffer(PackBuffer *buf) {
   *buf << j << v << originator;
   if (ptrParRMA->args->debug >= 20)
-    ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
+    cout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
           << "), originator=" << originator << "\n";
 }
 
 // Special method to send initial message to owning processor
 void CutPtThd::preBroadcastMessage(const int &owningProc) {
   if (ptrParRMA->args->debug >= 25)
-    ucout << "CutPtThd root send to " << owningProc << '\n';
+    cout << "CutPtThd root send to " << owningProc << '\n';
   // A negative value for 'originator' indicates special root message
   originator = -1;
   // Grab a buffer from the same pool used for broadcasts
@@ -156,7 +156,7 @@ parallelBranchSub *parRMA::blankParallelSub() {
 void parRMA::pack(PackBuffer &outBuf) {
 
   if (args->debug >= 20)
-    ucout << "parRMA::pack invoked..." << '\n';
+    cout << "parRMA::pack invoked..." << '\n';
 
   outBuf << data->numOrigObs << data->numAttrib;
 
@@ -176,7 +176,7 @@ void parRMA::pack(PackBuffer &outBuf) {
 void parRMA::unpack(UnPackBuffer &inBuf) {
 
   if (args->debug >= 20)
-    ucout << "parRMA::unpack invoked... " << '\n';
+    cout << "parRMA::unpack invoked... " << '\n';
 
   inBuf >> data->numOrigObs >> data->numAttrib;
 
@@ -194,17 +194,17 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
   inBuf >> data->distFeat >> data->numTotalCutPts;
 
   if (args->debug >= 20)
-    ucout << "parRMA::unpack done." << '\n';
+    cout << "parRMA::unpack done." << '\n';
 
   if (args->debug >= 20) {
 
-    ucout << " data->distFeat: ";
+    cout << " data->distFeat: ";
 
     for (unsigned int i = 0; i < data->numAttrib; i++)
-      ucout << data->distFeat[i] << ", ";
+      cout << data->distFeat[i] << ", ";
 
     for (unsigned int i = 0; i < data->numOrigObs; i++)
-      ucout << " wt: " << data->intTrainData[i].w << '\n';
+      cout << " wt: " << data->intTrainData[i].w << '\n';
   }
 
 } // end function parRMA::unpack
@@ -231,13 +231,13 @@ void parRMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
     if ((*it).first == j && (*it).second == v)
       isAlreadyInCache = true;
     if (args->debug >= 10)
-      ucout << (*it).first << " => " << (*it).second << '\n';
+      cout << (*it).first << " => " << (*it).second << '\n';
   }
 
   if (args->debug >= 10)
-    ucout << "cut point (" << j << ", " << v << ") ";
+    cout << "cut point (" << j << ", " << v << ") ";
   if (args->debug >= 10)
-    ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
+    cout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
 
   // if not in the hash table, insert the cut point into the hash table.
   if (!isAlreadyInCache)
@@ -245,18 +245,18 @@ void parRMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
 
   int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
   if (args->debug >= 20)
-    ucout << "owningProc: " << owningProc << '\n';
+    cout << "owningProc: " << owningProc << '\n';
 
   cutPtCaster->setCutPtThd(j, v);
 
   if (uMPI::rank == owningProc) {
     // This processor is the owning processor
     if (args->debug >= 20)
-      ucout << "I am the owner\n";
+      cout << "I am the owner\n";
     cutPtCaster->initiateBroadcast();
   } else {
     if (args->debug >= 20)
-      ucout << "Not owner\n";
+      cout << "Not owner\n";
     cutPtCaster->preBroadcastMessage(owningProc);
   }
 
@@ -329,14 +329,14 @@ parallelBranchSub *parRMASub::makeParallelChild(int whichChild) {
 
 #ifdef ACRO_VALIDATING
   if (whichChild < 0 || whichChild > 2) {
-    ucout << "parRMASub::makeParallelChild: invalid request "
+    cout << "parRMASub::makeParallelChild: invalid request "
           << "for child " << whichChild << '\n';
     return NULL;
   }
 
   if ((_branchChoice.branchVar < 0) ||
       (_branchChoice.branchVar >= numAttrib())) {
-    ucout << "parRMASub::makeParallelChild: invalid branching variable\n";
+    cout << "parRMASub::makeParallelChild: invalid branching variable\n";
     return NULL;
   }
 #endif
@@ -347,7 +347,7 @@ parallelBranchSub *parRMASub::makeParallelChild(int whichChild) {
 
   if (_branchChoice.branchVar > numAttrib()) {
     if (global()->args->debug >= 20)
-      ucout << "ERROR in parallel! "
+      cout << "ERROR in parallel! "
             << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
     cerr << " ERROR in parallel! "
          << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
@@ -358,18 +358,18 @@ parallelBranchSub *parRMASub::makeParallelChild(int whichChild) {
     cerr << "whichChild=" << whichChild << '\n';
 
   if (global()->args->debug >= 20)
-    ucout << "whichChild=" << whichChild << '\n';
+    cout << "whichChild=" << whichChild << '\n';
 
   parRMASub *temp = new parRMASub();
   temp->setGlobalInfo(globalPtr);
 
   if (global()->args->debug >= 20)
-    ucout << "_branchChoice.branch[whichChild].whichChild="
+    cout << "_branchChoice.branch[whichChild].whichChild="
           << _branchChoice.branch[whichChild].whichChild << '\n';
   temp->RMASubAsChildOf(this, whichChild);
 
   if (global()->args->debug >= 10)
-    ucout << "Parallel MakeChild produces " << temp << '\n';
+    cout << "Parallel MakeChild produces " << temp << '\n';
 
   if (global()->args->debug >= 10)
     cout << "Out of parRMASub::makeParallelChild, "
@@ -401,7 +401,7 @@ void parRMASub::parStrongBranching(const unsigned int &firstIdx,
     }
 
     if (global()->args->debug >= 10)
-      ucout << "original: ";
+      cout << "original: ";
     printSP(j, al[j], au[j], bl[j], bu[j]);
 
     for (unsigned int v = al[j]; v < bu[j];
@@ -706,7 +706,7 @@ void parRMASub::setNumLiveCutPts() {
   numLiveCutPts = 0;
   numRestAttrib = 0;
   if (global()->args->debug >= 10)
-    ucout << "deqRestAttrib: " << deqRestAttrib << "\n";
+    cout << "deqRestAttrib: " << deqRestAttrib << "\n";
   // compute the total cut points
   for (unsigned int j = 0; j < numAttrib(); ++j) {
     if (deqRestAttrib[j])

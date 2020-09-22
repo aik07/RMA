@@ -29,14 +29,14 @@ namespace arg {
     _bruteForceIncumb(false),
 
     _nonUniformWt(""),
-    
+
     _writeInstances(false),
     _writeNodeTime(false),
     _writeCutPts(false),
 
     _delta(-1),
     _shrinkDelta(.95),
-    _maxInterval(inf),
+    _maxInterval(getInf()),
 
     _fixedSizeBin(-1),
 

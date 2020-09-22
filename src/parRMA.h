@@ -155,14 +155,14 @@ namespace pebblRMA {
     void initialLoadBuffer(PackBuffer* buf) { relayLoadBuffer(buf); };
     void relayLoadBuffer(PackBuffer* buf);
 
-    void setCutPtThd(const int& f, const int& v);
+    void setCutPtThd(const unsigned int& f, const unsigned int& v);
     void preBroadcastMessage(const int& owningProc);
 
     int j, v;
     parRMA* ptrParRMA;
   }; // **********************************************************
 
-} // namespace lpboost
+} // namespace pebblRMA
 
 #endif // ACRO_HAVE_MPI
 

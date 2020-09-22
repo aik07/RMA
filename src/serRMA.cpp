@@ -1,8 +1,8 @@
-/**********************************************************
- * File name:   serRMA.cpp
- * Author:      Ai Kagawa
- * Description: a source file for serial RMA solver using PEBBL
- ***********************************************************/
+// **********************************************************
+// File name:   serRMA.cpp
+// Author:      Ai Kagawa
+// Description: a source file for serial RMA solver using PEBBL
+// **********************************************************
 
 #include "serRMA.h"
 
@@ -13,7 +13,7 @@ namespace pebblRMA {
 
 #ifdef ACRO_HAVE_MPI
 
-void branchChoiceCombiner(void *invec, void *inoutvec, unsigned int *len,
+void branchChoiceCombiner(void *invec, void *inoutvec, int *len,
                           MPI_Datatype *datatype) {
 
 #ifdef ACRO_VALIDATING
@@ -23,7 +23,7 @@ void branchChoiceCombiner(void *invec, void *inoutvec, unsigned int *len,
   }
 #endif
 
-  branchChoice *inPtr = (branchChoice *)invec;
+  branchChoice *inPtr    = (branchChoice *)invec;
   branchChoice *inOutPtr = (branchChoice *)inoutvec;
   unsigned int n = *len;
   for (unsigned int i = 0; i < n; i++)
@@ -31,7 +31,7 @@ void branchChoiceCombiner(void *invec, void *inoutvec, unsigned int *len,
       inOutPtr[i] = inPtr[i];
 }
 
-void branchChoiceRand(branchChoice *in, branchChoice *inout, unsigned int *len,
+void branchChoiceRand(branchChoice *in, branchChoice *inout, int *len,
                       MPI_Datatype *datatype) {
 
 #ifdef ACRO_VALIDATING
@@ -42,15 +42,16 @@ void branchChoiceRand(branchChoice *in, branchChoice *inout, unsigned int *len,
 #endif
 
   branchChoice c;
+  unsigned int n = *len;
 
-  for (unsigned int i = 0; i < *len; ++i) {
+  for (unsigned int i = 0; i < n; ++i) {
     if (in < inout)
       c = *in;
     else if (in > inout)
       c = *inout;
     else {
-      int n1 = in->numTiedSols;
-      int n2 = inout->numTiedSols;
+      unsigned int n1 = in->numTiedSols;
+      unsigned int n2 = inout->numTiedSols;
 
       srand((n1 + n2) * time(NULL) * 100); // : srand(1);
       double rand_num = (rand() % (n1 + n2 + 1)) / (double)(n1 + n2);
@@ -67,6 +68,7 @@ void branchChoiceRand(branchChoice *in, branchChoice *inout, unsigned int *len,
     in++;
     inout++;
   }
+
 }
 
 //////////////////// branchChoice class methods ////////////////////
@@ -83,7 +85,7 @@ void branchChoice::setupMPIDatum(void *address, MPI_Datatype thisType,
 
 void branchChoice::setupMPI() {
 
-  int arraySize = 3 * 3 + 3;
+  unsigned int arraySize = 3 * 3 + 3;
   int j = 0;
   MPI_Datatype type[arraySize];
   int blocklen[arraySize];
@@ -101,8 +103,8 @@ void branchChoice::setupMPI() {
                   blocklen, j++);
   }
 
-  setupMPIDatum(&(example.branchVar), MPI_INT, type, base, disp, blocklen, j++);
-  setupMPIDatum(&(example.cutVal), MPI_INT, type, base, disp, blocklen, j++);
+  setupMPIDatum(&(example.branchVar),   MPI_INT, type, base, disp, blocklen, j++);
+  setupMPIDatum(&(example.cutVal),      MPI_INT, type, base, disp, blocklen, j++);
   setupMPIDatum(&(example.numTiedSols), MPI_INT, type, base, disp, blocklen,
                 j++);
 
@@ -110,8 +112,8 @@ void branchChoice::setupMPI() {
   MPI_Type_commit(&mpiType);
 
   MPI_Op_create(branchChoiceCombiner, true, &mpiCombiner);
-  MPI_Op_create((MPI_User_function *)branchChoiceRand, true,
-                &mpiBranchSelection);
+  MPI_Op_create((MPI_User_function *)branchChoiceRand, true, &mpiBranchSelection);
+
 }
 
 void branchChoice::freeMPI() {
@@ -310,7 +312,7 @@ void RMA::writeWeightedData(ostream &os) {
 void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
 
   bool isAlreadyInCache = false;
-  multimap<int, int>::iterator it, itlow, itup;
+  multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
 
   itlow = mmapCachedCutPts.lower_bound(j); // itlow points to
   itup = mmapCachedCutPts.upper_bound(j);  // itup points to
@@ -329,13 +331,14 @@ void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
     cout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
 
   // if not in the hash table, insert the cut point into the hash table.
-  if (!isAlreadyInCache)
+  if (!isAlreadyInCache) {
     if (0 > j || j > data->numAttrib)
       cout << "ERROR! j is out of range for setCachedCutPts";
     else if (0 > v || v > data->distFeat[j])
       cout << "ERROR! v is out of range for setCachedCutPts";
     else
       mmapCachedCutPts.insert(make_pair(j, v));
+  }
 
   /*
     CutPt tempCutPt;//  =  {j,v};
@@ -411,14 +414,14 @@ double RMA::endTime() {
     clockTicksTaken = timeEnd - timeStart;
     timeInSeconds = clockTicksTaken / (double)CLOCKS_PER_SEC;
     cout << "Time: " << timeInSeconds << "\n";
-    return timeInSeconds;
 #ifdef ACRO_HAVE_MPI
   }
 #endif //  ACRO_HAVE_MPI
+  return timeInSeconds;
 }
 
-// ********************* RMASub methods (start)
-// *******************************************
+
+// ********************* RMASub methods (start) *******************************
 
 void RMASub::setRootComputation() {
   al.resize(numAttrib());
@@ -616,8 +619,8 @@ void RMASub::RMASubAsChildOf(RMASub *parent, int whichChild) {
   if (global()->args->debug >= 10)
     cout << "Bound: " << bound << "\n";
 
-  int j = parent->_branchChoice.branchVar;
-  int lowerBound, upperBound;
+  unsigned int j = parent->_branchChoice.branchVar;
+  unsigned int lowerBound, upperBound;
 
   if (j < 0) {
     if (global()->args->debug >= 20)
@@ -704,7 +707,7 @@ void RMASub::RMASubFromRMA(RMA *master) {
 bool RMASub::candidateSolution() {
   if (global()->args->debug >= 20)
     cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-  for (int j = 0; j < numAttrib(); ++j) {
+  for (unsigned int j = 0; j < numAttrib(); ++j) {
     if (al[j] != au[j])
       return false;
     if (bl[j] != bu[j])
@@ -877,7 +880,7 @@ void RMASub::strongBranching() {
     if (numCutPtsInAttrib == 0)
       continue;
 
-    for (int v = al[j]; v < bu[j]; ++v) {
+    for (unsigned int v = al[j]; v < bu[j]; ++v) {
       if (au[j] <= v && v < bl[j]) {
         v = bl[j] - 1;
         continue;
@@ -911,7 +914,7 @@ void RMASub::cachedBranching() {
   cachedCutPts = sortedCachedCutPts;
   compIncumbent(numAttrib() - 1);
 
-  for (int j = 0; j < numAttrib(); ++j) {
+  for (unsigned int j = 0; j < numAttrib(); ++j) {
     while (k < cachedCutPts.size()) {
       if (j == cachedCutPts[k].j) {
         branchingProcess(cachedCutPts[k].j, cachedCutPts[k].v);
@@ -1057,12 +1060,12 @@ void RMASub::hybridBranching() {
 void RMASub::binaryBranching() {
 
   bool firstFewCutPts;
-  int l, u, L, U, cutValue, numCutValues;
+  unsigned int l, u, L, U, cutValue, numCutValues;
   vector<bool> vecCheckedCutVal;
 
   compIncumbent(numAttrib() - 1);
 
-  for (int j = 0; j < numAttrib(); ++j) { // for each attribute
+  for (unsigned int j = 0; j < numAttrib(); ++j) { // for each attribute
 
     numCutValues = bu[j] - al[j];
     if (bl[j] > au[j])
@@ -1073,7 +1076,7 @@ void RMASub::binaryBranching() {
       continue; // then go to the next attribute.
     }
 
-    cutValue = -1;
+    cutValue = 0; // TODO: check this later, it was -1;
     l = 0;
     u = 0;
     L = al[j];
@@ -1171,7 +1174,8 @@ void RMASub::cutpointCaching() {
   else { // if not, only check the storedCutPts
     // count number of subproblems only discovering cut-points from the chache
     ++global()->numCC_SP;
-    int j, v, l = -1;
+    unsigned int j, v;
+    int l = -1;
     multimap<unsigned int, unsigned int>::iterator curr = global()->mmapCachedCutPts.begin();
     multimap<unsigned int, unsigned int>::iterator end = global()->mmapCachedCutPts.end();
     cachedCutPts.resize(numLiveCachedCutPts);
@@ -1205,7 +1209,8 @@ void RMASub::cutpointCaching() {
 }
 
 void RMASub::bucketSortObs(const unsigned int &j) {
-  int v, l = -1;
+  unsigned int v;
+  int l = -1;
   unsigned int size;
   size = bu[j] - al[j];
   if (bl[j] > au[j])
@@ -1213,7 +1218,7 @@ void RMASub::bucketSortObs(const unsigned int &j) {
   vector<vector<int>> buckets;
   buckets.resize(size);
 
-  for (unsigned int i = 0; i < coveredObs.size(); i++) {
+  for (unsigned int i = 0; i < coveredObs.size(); ++i) {
     v = global()->data->intTrainData[coveredObs[i]].X[j];
     if (au[j] < bl[j]) { // no overlapping
       if (v < au[j])
@@ -1247,7 +1252,8 @@ void RMASub::bucketSortObs(const unsigned int &j) {
 }
 
 void RMASub::bucketSortEC(const unsigned int &j) {
-  int v, obs, l = -1;
+  unsigned int v, obs;
+  int l = -1;
   unsigned int size = bu[j] - al[j] + 1;
   if (bl[j] > au[j])
     size -= bl[j] - au[j];
@@ -1380,12 +1386,12 @@ void RMASub::countingSortEC(const unsigned int &j) {
 
 void RMASub::compIncumbent(const unsigned int &j) {
 
-  tmpMin = inf;
-  tmpMax = -inf;
+  tmpMin = getInf();
+  tmpMax = -getInf();
   // minVal = globalPtr->args->initGuess() ?   workingSol()->value : inf;
   // maxVal = globalPtr->args->initGuess() ?  -workingSol()->value : -inf;
-  minVal = inf;
-  maxVal = -inf;
+  minVal = getInf();
+  maxVal = -getInf();
   optMinAttrib = -1;
   optMaxAttrib = -1;
 
@@ -1490,15 +1496,15 @@ void RMASub::setOptMax(const unsigned int &j) {
 // get Maximum range for the feature
 double RMASub::runMaxKadane(const unsigned int &j) {
 
-  double maxEndHere, maxSoFar, tmpObj;
-  int s = al[j];
+  double maxEndHere, maxSoFar; //, tmpObj;
+  unsigned int s = al[j];
   aj = al[j];
   bj = al[j];
   // bj=bu[j]; // al[j];
   maxEndHere = 0;
-  maxSoFar = -inf;
+  maxSoFar = -getInf();
 
-  for (int v = al[j]; v <= bu[j]; ++v) {
+  for (unsigned int v = al[j]; v <= bu[j]; ++v) {
 
     if (au[j] < bl[j] && au[j] < v && v <= bl[j]) {
       v = bl[j];
@@ -1532,16 +1538,16 @@ double RMASub::runMaxKadane(const unsigned int &j) {
 // get Miniumum range for the feature
 double RMASub::runMinKadane(const unsigned int &j) {
 
-  double minEndHere, minSoFar, tmpObj;
-  int s = al[j];
+  double minEndHere, minSoFar; //, tmpObj;
+  unsigned int s = al[j];
   aj = al[j];
   bj = al[j];
   // bj=bu[j]; // al[j];
   // cout << "aj: " << aj << ", bj: " << bj <<"\n";
   minEndHere = 0;
-  minSoFar = inf;
+  minSoFar = getInf();
 
-  for (int v = al[j]; v <= bu[j]; ++v) {
+  for (unsigned int v = al[j]; v <= bu[j]; ++v) {
 
     if (au[j] < bl[j] && au[j] < v && v <= bl[j]) {
       v = bl[j];
@@ -1621,7 +1627,7 @@ double RMASub::getObjValue(const unsigned int &j, const unsigned int &v) {
 
 double RMASub::getBoundMerge() const {
 
-  unsigned int obs, idxEC; // observation number
+  // unsigned int obs, idxEC; // observation number
   double pBound = 0.0,
          nBound = 0.0; // weight for positive and negative observation
 
@@ -1638,9 +1644,10 @@ double RMASub::getBoundMerge() const {
 
 double RMASub::getBoundDrop() const {
 
-  unsigned int obs, idxEC; // observation number
+  //unsigned int obs, idxEC; // observation number
+  unsigned int idxEC; // observation number
   double pBound = 0.0, nBound = 0.0;
-  ; // weight for positive and negative observation
+  // weight for positive and negative observation
 
   for (unsigned int i = 0; i < sortedECidx1.size();
        i++) { // for each equivalence class
@@ -2053,9 +2060,9 @@ void rmaSolution::checkObjValue() {
 
 } // end function rmaSolution::checkObjValue
 
-void rmaSolution::checkObjValue1(vector<int> &A, vector<int> &B,
-                                 vector<int> &coveredObs,
-                                 vector<int> &sortedECidx) {
+void rmaSolution::checkObjValue1(vector<unsigned int> &A, vector<unsigned int> &B,
+                                 vector<unsigned int> &coveredObs,
+                                 vector<unsigned int> &sortedECidx) {
 
   unsigned int obs;
   double wt = 0.0;

@@ -13,6 +13,7 @@
 #include "Time.h"
 #include "argRMA.h"
 #include "dataRMA.h"
+#include "utility.h"
 
 using namespace std;
 using namespace arg;
@@ -34,18 +35,19 @@ namespace greedyRMA {
     void   getMinOptRange();
     void   getMaxOptRange();
 
-    void   setOptMin(const int &j);
-    void   setOptMax(const int &j);
+    void   setOptMin(const unsigned int &j);
+    void   setOptMax(const unsigned int &j);
 
     //TODO: combine min max range search together
-    double runMinKadane(const int& j) ;
-    double runMaxKadane(const int& j) ;
+    double runMinKadane(const unsigned int& j) ;
+    double runMaxKadane(const unsigned int& j) ;
 
-    void   setObjVec(const int &j);
+    void   setObjVec(const unsigned int &j);
 
-    void   dropObsNotCovered(const int &j, const int& lower, const int& upper);
+    void   dropObsNotCovered(const unsigned  int &j, const unsigned int& lower,
+                             const unsigned int& upper);
 
-    double getObjCovered(const int& j, const int& v);
+    double getObjCovered(const unsigned int& j, const unsigned int& v);
 
     void   printSolution();
 
@@ -59,7 +61,7 @@ namespace greedyRMA {
     unsigned int    NumNegTiedSols;
     unsigned int    NumPosTiedSols;
 
-    int    tmpL, tmpU;
+    unsigned int    tmpL, tmpU;
     double tmpObj, tmpMin, tmpMax;
     double maxObjValue, minVal, maxVal;
 
@@ -67,7 +69,7 @@ namespace greedyRMA {
     unsigned int    prevAttrib;
     unsigned int    optLower, optUpper;
 
-    int    obs;
+    unsigned int    obs;
     bool   fondNewBox;
 
     vector<unsigned int>    vecCoveredObs;

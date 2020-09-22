@@ -244,9 +244,9 @@ void DataRMA::setWeight() {
 void DataRMA::setNumMaxDistVal() {
   numMaxDistVal = 0;
   numTotalCutPts = 0;
-  for (unsigned int j = 0; j < numAttrib; ++j) {
+  for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
     numTotalCutPts += distFeat[j];
-    if (numMaxDistVal - 1 < distFeat[j])
+    if (numMaxDistVal < distFeat[j]+1)
       numMaxDistVal = distFeat[j] + 1;
   }
 }
@@ -355,7 +355,7 @@ void DataRMA::setStandDataY(vector<DataXy> &origData,
 void DataRMA::integerizeData(vector<DataXy> &origData,
                              vector<DataXw> &intData) {
 
-  bool isSplit, flag;
+  bool isSplit;
   unsigned int i, j, k, l, r, p, q, o, obs;
   double tmpL, tmpU, tmpL1, tmpU1, tmp1U;
 
@@ -380,8 +380,8 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
   minX.resize(numAttrib);
 
   for (j = 0; j < numAttrib; ++j) {
-    minX[j] = inf;
-    maxX[j] = -inf;
+    minX[j] = getInf();
+    maxX[j] = -getInf();
   }
 
   // if (isLPBoost()) setXStat();
@@ -463,7 +463,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
     // if there is interval limit
     // and the size of distince value is not same as the number of integers
     // assigned
-    if (args->maxInterval() != inf || k != setDistVal.size() - 1) {
+    if (args->maxInterval() != getInf() || k != setDistVal.size() - 1) {
 
       copyIntMinMax.resize(k + 1);
       for (i = 0; i <= k; ++i) {
@@ -537,7 +537,6 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
                 if ((tmp1U - tmpL1) > eps) {
                   ++l;
                   ++r;
-                  flag = true;
                   vecFeature[j].vecIntMinMax[i + p + l + q - 1].maxOrigVal =
                       tmpL1;
                   vecFeature[j].vecIntMinMax[i + p + l + q].minOrigVal = tmp1U;

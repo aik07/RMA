@@ -125,7 +125,7 @@ namespace rma {
 #endif //  ACRO_HAVE_MPI
 
     rma->mmapCachedCutPts.clear();
-    rma->workingSol.value = -inf;
+    rma->workingSol.value = getInf();
 
   }
 

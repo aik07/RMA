@@ -31,6 +31,7 @@
 #include "Time.h"
 #include "argRMA.h"
 #include "dataRMA.h"
+#include "utility.h"
 
 using namespace std;
 using namespace pebbl;
@@ -96,22 +97,22 @@ protected:
 #ifdef ACRO_HAVE_MPI
 void branchChoiceCombiner(void *invec, void *inoutvec, int *len,
                           MPI_Datatype *datatype);
-void branchChoiceRand(branchChoice *inBranch, branchChoice *outBranch, int *len,
-                      MPI_Datatype *datatype);
+void branchChoiceRand(branchChoice *inBranch, branchChoice *outBranch,
+                      int *len, MPI_Datatype *datatype);
 #endif
 
 // to plot cut point in order
 class CutPtOrder {
 public:
   CutPtOrder(){};
-  CutPtOrder(int _order, int _j, int _v) : order(_order), j(_j), v(_v){};
+  CutPtOrder(unsigned int _order, unsigned int _j, unsigned int _v) : order(_order), j(_j), v(_v){};
   ~CutPtOrder(){};
   void setCutPt(CutPtOrder cp) {
     order = cp.order;
     j = cp.j;
     v = cp.v;
   }
-  int order, j, v;
+  unsigned int order, j, v;
 };
 
 //********************************************************************************
@@ -167,8 +168,8 @@ public:
   virtual void printContents(ostream &s);
   void const printSolution();
   void checkObjValue();
-  void checkObjValue1(vector<int> &A, vector<int> &B, vector<int> &coveredObs,
-                      vector<int> &sortedECidx);
+  void checkObjValue1(vector<unsigned int> &A, vector<unsigned int> &B, vector<unsigned int> &coveredObs,
+                      vector<unsigned int> &sortedECidx);
 
 #ifdef ACRO_HAVE_MPI
   void packContents(PackBuffer &outBuf);

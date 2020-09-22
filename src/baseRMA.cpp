@@ -2,16 +2,16 @@
 
 
 namespace base {
-  
+
   ////////////////////// Base class methods ////////////////////////
-  
+
   // Standard serial read-in code.  Returns true if we can continue, false if
   // we have to bail out.
   bool BaseRMA::setup(int& argc, char**& argv) {
-    
+
     if (!processParameters(argc,argv,min_num_required_args))
       return false;
-    
+
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
@@ -25,15 +25,15 @@ namespace base {
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     set_parameters(plist,false);
-    
+
     if ((argc > 0) && !checkParameters(argv[0]))
       return false;
-    
+
     if (!setupProblem(argc,argv))
       return false;
-    
+
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
@@ -46,9 +46,9 @@ namespace base {
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     return true;
-    
+
   }
 
 
@@ -94,7 +94,7 @@ namespace base {
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
-    
+
     return true;
   }
 
