@@ -20,7 +20,7 @@
 #include <pebbl/bb/pebblParams.h>
 #include <pebbl/pbb/parPebblParams.h>
 
-#include "utility.h"
+#include "utilRMA.h"
 
 using namespace std;
 using namespace utilib;
@@ -52,7 +52,7 @@ namespace arg {
     int    branchSelection()    const {return _branchSelection;}
     bool   countingSort()       const {return _countingSort;}
 
-    string nonUniformWt()         const {return _nonUniformWt;}
+    string nonUniformWt()       const {return _nonUniformWt;}
 
     bool   checkObjVal()        const {return _checkObjVal;}
     bool   bruteForceEC()       const {return _bruteForceEC;}
@@ -75,6 +75,7 @@ namespace arg {
   private:
 
     bool   _exactRMA;            // solve exactRMA
+    bool   _greedyRMA;            // solve exactRMA
 
     // for non-strong branching ...
     bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint

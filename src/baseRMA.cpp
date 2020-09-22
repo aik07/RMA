@@ -18,9 +18,9 @@ namespace base {
       if (plist.size() == 0) {
         ucout << "Using default values for all solver options" << std::endl;
       } else {
-	ucout << "User-specified solver options: " << std::endl;
-	plist.write_parameters(ucout);
-	ucout << std::endl;
+        ucout << "User-specified solver options: " << std::endl;
+	      plist.write_parameters(ucout);
+	      ucout << std::endl;
       }
 #ifdef ACRO_HAVE_MPI
     }
@@ -38,10 +38,10 @@ namespace base {
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
       if (plist.unused() > 0) {
-	ucout << "\nERROR: unused parameters: " << std::endl;
-	plist.write_unused_parameters(ucout);
-	ucout << utilib::Flush;
-	return false;
+      	ucout << "\nERROR: unused parameters: " << std::endl;
+      	plist.write_unused_parameters(ucout);
+      	ucout << utilib::Flush;
+      	return false;
       }
 #ifdef ACRO_HAVE_MPI
     }

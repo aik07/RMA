@@ -11,7 +11,6 @@
 #include <sstream>
 #include <iostream>
 #include <stdlib.h>
-#include <limits>
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
@@ -22,7 +21,7 @@
 #include "serRMA.h"
 #include "greedyRMA.h"
 #include "Time.h"
-#include "utility.h"
+#include "utilRMA.h"
 
 #ifdef ACRO_HAVE_MPI
 #include <pebbl/pbb/parBranching.h>

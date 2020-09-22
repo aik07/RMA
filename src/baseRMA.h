@@ -11,7 +11,7 @@
 #include <string>
 
 #include "argRMA.h"
-#include "utility.h"
+#include "utilRMA.h"
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/ParameterSet.h>

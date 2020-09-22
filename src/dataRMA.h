@@ -15,7 +15,7 @@
 
 #include "Time.h"
 #include "argRMA.h"
-#include "utility.h"
+#include "utilRMA.h"
 
 using namespace std;
 using namespace arg;
@@ -131,13 +131,6 @@ public:
 };
 
 } // end namespace data
-
-
-ostream& operator<<(ostream& os, const deque<bool>& v);
-ostream& operator<<(ostream& os, const vector<int>& v);
-ostream& operator<<(ostream& os, const vector<double>& v);
-ostream& operator<<(ostream& os, const vector<vector<int> >& v);
-ostream& operator<<(ostream& os, const vector<vector<double> >& v);
 
 ostream& operator<<(ostream& os, data::DataXw& obj);
 istream& operator>>(istream& is, data::DataXw& obj);

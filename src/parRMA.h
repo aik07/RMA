@@ -42,6 +42,7 @@
 #include <pebbl/pbb/parPebblBase.h>
 
 #include "serRMA.h"
+#include "utilRMA.h"
 
 using namespace std;
 using namespace pebbl;

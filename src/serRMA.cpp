@@ -450,7 +450,7 @@ void RMASub::boundComputation(double *controlParam) {
   copy(global()->sortedObsIdx.begin(), global()->sortedObsIdx.end(),
        coveredObs.begin());
 
-  for (unsigned int j = 0; j < numAttrib(); j++)
+  for (unsigned int j = 0; j < numAttrib(); ++j)
     bucketSortObs(j);
   setInitialEquivClass(); // set initial equivalence class, vecEquivClass
 
@@ -1212,10 +1212,10 @@ void RMASub::bucketSortObs(const unsigned int &j) {
   unsigned int v;
   int l = -1;
   unsigned int size;
-  size = bu[j] - al[j];
+  size = bu[j] - al[j] + 1;
   if (bl[j] > au[j])
     size -= (bl[j] + au[j]);
-  vector<vector<int>> buckets;
+  vector<vector<unsigned int>> buckets;
   buckets.resize(size);
 
   for (unsigned int i = 0; i < coveredObs.size(); ++i) {
