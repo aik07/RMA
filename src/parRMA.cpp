@@ -679,14 +679,14 @@ void parRMASub::boundComputation(double *controlParam) {
   // If objValue >= bound, then we found a solution.
   if (workingSol()->value >= _branchChoice.branch[0].roundedBound) {
     // workingSol()->printSolution();
-    foundSolution();
+    foundRMASolution(notSynchronous);
     setState(dead);
   }
 
   // If roundedBound=-1, then we found a solution.
   if (_branchChoice.branch[0].roundedBound == -1) {
     // workingSol()->printSolution();
-    foundSolution();
+    foundRMASolution(notSynchronous);
     setState(dead);
   }
 

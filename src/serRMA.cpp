@@ -186,8 +186,8 @@ bool branchChoice::operator==(const branchChoice &other) const {
 }
 
 void branchChoice::possibleSwap(size_type i1, size_type i2) {
-  register double roundedBound1 = branch[i1].roundedBound;
-  register double roundedBound2 = branch[i2].roundedBound;
+  double roundedBound1 = branch[i1].roundedBound;
+  double roundedBound2 = branch[i2].roundedBound;
   if (roundedBound1 < roundedBound2) {
     branchItem tempItem(branch[i1]);
     branch[i1] = branch[i2];
@@ -498,7 +498,7 @@ void RMASub::boundComputation(double *controlParam) {
       workingSol()->printSolution();
     if (global()->debug >= 10)
       cout << "Bound: " << _branchChoice.branch[0].exactBound << "\n";
-    foundSolution();
+    foundRMASolution(synchronous);
     setState(dead);
     return;
   }
@@ -1452,7 +1452,7 @@ void RMASub::chooseMinOrMaxRange() {
       if (globalPtr->args->debug >= 5)
         cout << "negative ";
     }
-    foundSolution();
+    foundRMASolution(synchronous);
     if (globalPtr->args->debug >= 1)
       cout << "new incumbent  " << workingSol()->value << '\n';
     if (globalPtr->args->debug >= 1)
@@ -2092,7 +2092,7 @@ void rmaSolution::checkObjValue1(vector<unsigned int> &A, vector<unsigned int> &
 
 #ifdef ACRO_HAVE_MPI
 
-void rmaSolution::packContents(PackBuffer &outBuf) {
+void rmaSolution::packContents(PackBuffer &outBuf) const {
   outBuf << a << b << isPosIncumb;
 }
 

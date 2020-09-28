@@ -161,7 +161,7 @@ public:
 
   solution *blankClone() { return new rmaSolution(this); }
 
-  void foundSolution(syncType sync = notSynchronous);
+  void foundRMASolution(syncType sync = notSynchronous);
   void fileCutPts(RMA *global_);
   void copy(rmaSolution *toCopy);
 
@@ -172,7 +172,7 @@ public:
                       vector<unsigned int> &sortedECidx);
 
 #ifdef ACRO_HAVE_MPI
-  void packContents(PackBuffer &outBuf);
+  void packContents(PackBuffer &outBuf) const;
   void unpackContents(UnPackBuffer &inBuf);
   int maxContentsBufSize();
 #endif
@@ -262,7 +262,7 @@ public:
 }; // end class RMA
    // ************************************************************************
 
-inline void rmaSolution::foundSolution(syncType sync) {
+inline void rmaSolution::foundRMASolution(syncType sync) {
   global->foundSolution(new rmaSolution(this), sync);
   // fileCutPts(global);
 };
@@ -305,8 +305,8 @@ public:
   solution *extractSolution() { return new rmaSolution(workingSol()); }
 
   // void incumbentHeuristic();
-  void foundSolution(syncType sync = notSynchronous) {
-    workingSol()->foundSolution(sync);
+  void foundRMASolution(syncType sync = notSynchronous) {
+    workingSol()->foundRMASolution(sync);
   }
 
   //************************* helper functions (start)
