@@ -26,7 +26,7 @@ void branchChoiceCombiner(void *invec, void *inoutvec, int *len,
   branchChoice *inPtr    = (branchChoice *)invec;
   branchChoice *inOutPtr = (branchChoice *)inoutvec;
   unsigned int n = *len;
-  for (unsigned int i = 0; i < n; i++)
+  for (unsigned int i = 0; i < n; ++i)
     if (inPtr[i] < inOutPtr[i])
       inOutPtr[i] = inPtr[i];
 }
@@ -94,7 +94,7 @@ void branchChoice::setupMPI() {
   branchChoice example;
   MPI_Get_address(&example, &base);
 
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < 3; ++i) {
     setupMPIDatum(&(example.branch[i].roundedBound), MPI_DOUBLE, type, base,
                   disp, blocklen, j++);
     setupMPIDatum(&(example.branch[i].exactBound), MPI_DOUBLE, type, base, disp,
@@ -129,7 +129,7 @@ MPI_Op branchChoice::mpiBranchSelection = MPI_OP_NULL;
 #endif
 
 branchChoice::branchChoice() : branchVar(MAXINT), cutVal(-1) {
-  for (unsigned int i = 0; i < 3; i++)
+  for (unsigned int i = 0; i < 3; ++i)
     branch[i].set(MAXDOUBLE, 1e-5);
 }
 
@@ -166,7 +166,7 @@ void branchChoice::sortBounds() {
 }
 
 bool branchChoice::operator<(const branchChoice &other) const {
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < 3; ++i) {
     if (branch[i].roundedBound < other.branch[i].roundedBound)
       return true;
     else if (branch[i].roundedBound > other.branch[i].roundedBound)
@@ -176,7 +176,7 @@ bool branchChoice::operator<(const branchChoice &other) const {
 }
 
 bool branchChoice::operator==(const branchChoice &other) const {
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < 3; ++i) {
     if (branch[i].roundedBound == other.branch[i].roundedBound)
       continue;
     else
@@ -300,7 +300,7 @@ void RMA::writeWeightedData(ostream &os) {
   std::ios_base::fmtflags oldFlags = os.setf(ios::scientific);
 
   // Write data
-  for (size_type i = 0; i < data->numOrigObs; i++) {
+  for (size_type i = 0; i < data->numOrigObs; ++i) {
     os << data->intTrainData[i].w << ';';
 
     // Restore stream state
@@ -573,7 +573,7 @@ int RMASub::getNumLiveCachedCutPts() {
 // return how many children to make from current subproblem
 int RMASub::splitComputation() {
   int numChildren = 0;
-  for (unsigned int i = 0; i < 3; i++)
+  for (unsigned int i = 0; i < 3; ++i)
     if (_branchChoice.branch[i].roundedBound >= 0)
       numChildren++;
   setState(separated);
@@ -811,7 +811,7 @@ void RMASub::branchingProcess(const unsigned int &j, const unsigned int &v) {
   // bounds given in lexicographically decreasing order
   thisChoice.sortBounds();
 
-  for (unsigned int i = 0; i < vecBounds.size(); i++)
+  for (unsigned int i = 0; i < vecBounds.size(); ++i)
     if (thisChoice.branch[i].exactBound <= workingSol()->value) {
       thisChoice.branch[i].exactBound = -1;
       thisChoice.branch[i].roundedBound = -1;
@@ -1262,7 +1262,7 @@ void RMASub::bucketSortEC(const unsigned int &j) {
     return; // do not have to sort since all values are inseperable
   vector<vector<int>> buckets(size);
 
-  for (unsigned int i = 0; i < sortedECidx.size(); i++) {
+  for (unsigned int i = 0; i < sortedECidx.size(); ++i) {
     obs = vecEquivClass[sortedECidx[i]].getObs();
     v = global()->data->intTrainData[obs].X[j];
     if (au[j] < bl[j]) { // no overlapping
@@ -1632,7 +1632,7 @@ double RMASub::getBoundMerge() const {
          nBound = 0.0; // weight for positive and negative observation
 
   for (unsigned int i = 0; i < vecEquivClass1.size();
-       i++) {                          // for each equivalence class
+       ++i) {                          // for each equivalence class
     if (vecEquivClass1[i].getWt() > 0) // for positive observation
       pBound += vecEquivClass1[i].getWt();
     else if (vecEquivClass1[i].getWt() < 0) // for negative observation
@@ -1650,7 +1650,7 @@ double RMASub::getBoundDrop() const {
   // weight for positive and negative observation
 
   for (unsigned int i = 0; i < sortedECidx1.size();
-       i++) { // for each equivalence class
+       ++i) { // for each equivalence class
     idxEC = sortedECidx1[i];
     if (vecEquivClass[idxEC].getWt() > 0) // for positive observation
       pBound += vecEquivClass[idxEC].getWt();
@@ -1831,7 +1831,7 @@ void RMASub::dropEquivClass(const unsigned int &j, const unsigned int &al_,
   sortedECidx1.resize(sortedECidx.size());
 
   for (unsigned int i = 0; i < sortedECidx.size();
-       i++) { // for each equivalence class
+       ++i) { // for each equivalence class
     idxEC = sortedECidx[i];
     obs = vecEquivClass[idxEC].getObs();
     // if covered, put the equiv class index to sortedECidx1

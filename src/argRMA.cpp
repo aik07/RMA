@@ -40,7 +40,7 @@ namespace arg {
 
     _fixedSizeBin(-1),
 
-    _printBBdetails(false),
+    _printBBdetails(true),
 
     _rampUpSizeFact(1.0)
 
@@ -107,7 +107,7 @@ namespace arg {
 
 
     create_categorized_parameter("printBBdetails", _printBBdetails, "<bool>",
-      "false", "print the complete output of the PEBBL branch-and bound", "RMA");
+      "true", "print the complete output of the PEBBL branch-and bound", "RMA");
 
     create_categorized_parameter("rampUpSizeFact", _rampUpSizeFact, "<double>",
       "1.00", "if (#storedCutPts) <= rampUpSizeFact * (#processors),"

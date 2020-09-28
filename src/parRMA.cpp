@@ -200,10 +200,10 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
 
     cout << " data->distFeat: ";
 
-    for (unsigned int i = 0; i < data->numAttrib; i++)
+    for (unsigned int i = 0; i < data->numAttrib; ++i)
       cout << data->distFeat[i] << ", ";
 
-    for (unsigned int i = 0; i < data->numOrigObs; i++)
+    for (unsigned int i = 0; i < data->numOrigObs; ++i)
       cout << " wt: " << data->intTrainData[i].w << '\n';
   }
 
