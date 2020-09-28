@@ -1998,8 +1998,8 @@ void rmaSolution::printContents(ostream &outStream) {
   if (global->enumCount > 1)
     return;
 
-  outStream << "rectangle: a: " << a << "rectangle: b: " << b << "\n";
-  cout << "rectangle: a: " << a << "rectangle: b: " << b << "\n";
+  outStream << "rectangle: a: " << a << "\nrectangle: b: " << b << "\n";
+  // cout << "rectangle: a: " << a << "\nrectangle: b: " << b << "\n";
 
   for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
     if (0 < a[i]) // if lower bound changed
