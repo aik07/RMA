@@ -2,7 +2,8 @@ sudo: required
 language: cpp
 
 os: linux
-dist: bionic
+# dist: bionic
+dist: focal
 compiler: gcc
 
 addons:
