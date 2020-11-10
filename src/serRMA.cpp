@@ -122,8 +122,8 @@ void branchChoice::freeMPI() {
   MPI_Type_free(&mpiType);
 };
 
-MPI_Datatype branchChoice::mpiType = MPI_UB;
-MPI_Op branchChoice::mpiCombiner = MPI_OP_NULL;
+MPI_Datatype branchChoice::mpiType      ; //= MPI_UB;
+MPI_Op branchChoice::mpiCombiner        = MPI_OP_NULL;
 MPI_Op branchChoice::mpiBranchSelection = MPI_OP_NULL;
 
 #endif
