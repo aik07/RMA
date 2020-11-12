@@ -7,10 +7,18 @@ weight of positivly minus negativly covered observations or vice versa
 when each observation has a positive or negative weight.
 
 ## Software Requirement:
+
+### You need to install
+* CMake (version >= 3.0)
+* C++ compiler (g++)
+* OpenMPI 2.1.1 (openmpi-bin, libopenmpi-dev)
+
+### The following packages are installed by running scripts/build.sh as described below
 * [PEBBL](https://github.com/PEBBL/pebbl)
-* CMake (>= VERSION 3.0)
-* C++ compiler
-* MPI
+
+### Note
+* The build was tested on Ubuntu 18.04 (Bionic) as shown in [our TravisCI file](https://github.com/aik7/RMA/blob/devel/.travis.yml)
+
 
 ## The description and user guide of RMA
 * [Presentation](https://github.com/aik7/RMA/blob/master/RMA_slides.pdf)
@@ -63,7 +71,7 @@ mpirun -np 4 ./build/rma <data_filename>
 
 ### Example script
 ```
-sh script/driver.sh  # at the RMA root directory
+sh scripts/driver.sh  # at the RMA root directory
 ```
 
 Please read the user guide about how to use parameters for the RMA solver.

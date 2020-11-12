@@ -2,8 +2,8 @@ sudo: required
 language: cpp
 
 os: linux
-# dist: bionic
-dist: focal
+dist: bionic   # Ubuntu 18.04
+# dist: focal  # Ubuntu 20.04
 compiler: gcc
 
 addons:
@@ -29,4 +29,4 @@ install:
 
 script:
   - ./rma ../data/cleveland.dat
-#  - mpirun -np 2 ./rma ../data/cleveland.dat
+  - mpirun -np 2 ./rma ../data/cleveland.dat
