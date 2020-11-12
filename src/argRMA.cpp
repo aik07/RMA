@@ -40,7 +40,7 @@ namespace arg {
 
     _fixedSizeBin(-1),
 
-    _printBBdetails(true),
+    _printBBdetails(false),
 
     _rampUpSizeFact(1.0)
 
