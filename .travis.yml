@@ -2,8 +2,14 @@ sudo: required
 language: cpp
 
 os: linux
-dist: bionic   # Ubuntu 18.04
-# dist: focal  # Ubuntu 20.04
+
+matrix:
+    include:
+        # - dist: trusty
+        # - dist: xenial
+        - dist: bionic   # Ubuntu 18.04
+	- dist: focal    # Ubuntu 20.04
+
 compiler: gcc
 
 addons:
