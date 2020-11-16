@@ -28,15 +28,17 @@ void GreedyRMA::printSolution() {
   if (uMPI::rank == 0) {
 #endif //  ACRO_HAVE_MPI
 
-    ucout << "GRMA Solution: ";
+    std::cout << "GRMA Solution: ";
     isPosIncumb ? ucout << "+" : ucout << "-";
-    ucout << maxObjValue << "\t"
-          << "CPU Time: " << ts.getCPUTime() << "\n";
+    std::cout << std::fixed << std::setprecision(4)
+              << maxObjValue << "\t";
+    std::cout << std::fixed << std::setprecision(2)
+              << "CPU Time: " << ts.getCPUTime() << "\n";
     if (args->debug >= 2)
-      ucout << ts.getWallTime();
+      std::cout << ts.getWallTime();
     // if (args->printBoost()) {
     if (args->debug >= 2)
-      ucout << "L: " << L << "U: " << U;
+      std::cout << "L: " << L << "U: " << U;
       //}
 
 #ifdef ACRO_HAVE_MPI

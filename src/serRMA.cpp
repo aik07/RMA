@@ -256,10 +256,14 @@ solution *RMA::initialGuess() {
   // guess = new rmaSolution(this);
   // setInitialGuess();
 
+  return guess;
+
+/*
   if (uMPI::rank == 0)
     return guess;
   else
     return NULL;
+*/
 }
 
 void RMA::setInitialGuess(bool isPosIncumb, double maxObjValue,
@@ -859,7 +863,7 @@ void RMASub::branchingProcess(const unsigned int &j, const unsigned int &v) {
 // strong branching
 void RMASub::strongBranching() {
 
-  int numCutPtsInAttrib;
+  int numCutPtsInAttrib=0;
 
   if (global()->args->debug >= 2) {
     cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;

@@ -223,7 +223,7 @@ void parRMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
   bool isAlreadyInCache = false;
   multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
 
-  itlow = mmapCachedCutPts.lower_bound(j); // itlow points to
+  itlow = mmapCachedCutPts.lower_bound(j);  // itlow points to
   itup  = mmapCachedCutPts.upper_bound(j);  // itup points to
 
   // print range [itlow,itup):

@@ -7,10 +7,11 @@
 #ifndef RMA_h
 #define RMA_h
 
+#include <stdlib.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <stdlib.h>
+#include <iomanip>
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/CommonIO.h>
@@ -24,14 +25,14 @@
 #include "utilRMA.h"
 
 #ifdef ACRO_HAVE_MPI
-#include <pebbl/pbb/parBranching.h>
-#include "parRMA.h"
-#define outstream ucout
-#define IO(action) if (uMPI::iDoIO) { CommonIO: end_tagging(); action; }
+  #include <pebbl/pbb/parBranching.h>
+  #include "parRMA.h"
+  #define outstream ucout
+  #define IO(action) if (uMPI::iDoIO) { CommonIO: end_tagging(); action; }
 #else
-typedef void parRMA;
-#define outstream cout;
-#define IO(action) action;
+  typedef void parRMA;
+  #define outstream cout;
+  #define IO(action) action;
 #endif
 
 
@@ -45,7 +46,7 @@ namespace rma {
 
     ~DriverRMA() {
 #ifdef ACRO_HAVE_MPI
-      if (parallel) { CommonIO::end(); uMPI::done(); }
+      if (isParallel) { CommonIO::end(); uMPI::done(); }
 #endif // ACRO_HAVE_MPI
     }
 
@@ -64,7 +65,7 @@ namespace rma {
 
   private:
 
-    bool                  parallel;
+    bool                  isParallel;
 
     data::DataRMA*        data;
     greedyRMA::GreedyRMA* grma;

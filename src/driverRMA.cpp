@@ -9,17 +9,18 @@
 
 namespace rma {
 
-  DriverRMA::DriverRMA(int& argc, char**& argv): parallel(false), rma(NULL), prma(NULL) {
+  DriverRMA::DriverRMA(int& argc, char**& argv):
+             isParallel(false), rma(NULL), prma(NULL) {
 
 #ifdef ACRO_HAVE_MPI
     uMPI::init(&argc, &argv, MPI_COMM_WORLD);
-#endif // ACRO_HAVE_M
+#endif // ACRO_HAVE_MPI
 
     setup(argc, argv);     // setup all paramaters
 
-    setData(argc, argv);   // set data
+    setData(argc, argv);   // set DataRMA class
 
-    setupRMA(argc, argv);
+    setupRMA(argc, argv);  // set RMA class
 
   }
 
@@ -38,9 +39,9 @@ namespace rma {
       /// Manage parallel I/O explicitly with the utilib::CommonIO tools
       CommonIO::begin();
       CommonIO::setIOFlush(1);
-      parallel = true;
-      prma     = new pebblRMA::parRMA(MPI_COMM_WORLD);
-      rma      = prma;
+      isParallel = true;
+      prma       = new pebblRMA::parRMA(MPI_COMM_WORLD);
+      rma        = prma;
     } else {
 #endif // ACRO_HAVE_MPI
       rma = new pebblRMA::RMA;
@@ -59,9 +60,9 @@ namespace rma {
     }
 #endif //  ACRO_HAVE_MPI
 
-    //exception_mngr::set_stack_trace(false);
+    // exception_mngr::set_stack_trace(false);
     rma->setup(argc,argv);
-    //exception_mngr::set_stack_trace(true);
+    // exception_mngr::set_stack_trace(true);
 
   }
 
@@ -76,15 +77,15 @@ namespace rma {
 #ifdef ACRO_HAVE_MPI
 	if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-	*/
-	  solveGreedyRMA();
-	  rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
-			       grma->L, grma->U);
+	/*/
+    	  solveGreedyRMA();
+    	  rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
+    			       grma->L, grma->U);
 	  /*
 #ifdef ACRO_HAVE_MPI
 	}
 #endif //  ACRO_HAVE_MPI
-	  */
+	  /*/
 
       }
 
@@ -113,7 +114,7 @@ namespace rma {
   void DriverRMA::resetExactRMA() {
 
 #ifdef ACRO_HAVE_MPI
-    if (parallel) {
+    if (isParallel) {
       prma->reset();
       if (printBBdetails()) prma->printConfiguration();
       CommonIO::begin_tagging();
@@ -161,15 +162,17 @@ namespace rma {
       MPI_Reduce(&rma->workingSol.value, &global_solution,
                  1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
       MPI_Reduce(&rma->subCount[2],      &total_nodes,
-                 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+                 1, MPI_INT,    MPI_SUM, 0, MPI_COMM_WORLD);
     }
 
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-    ucout << "ERMA Solution: "  << global_solution
-          << "\tCPU time: "     << tc.getCPUTime()
-          << "\tNum of Nodes: " << total_nodes << "\n";
+    std::cout << std::fixed << std::setprecision(4)
+              << "ERMA Solution: "  << global_solution;
+    std::cout << std::fixed << std::setprecision(2)
+              << " \tCPU time: "     << tc.getCPUTime()
+              << " \tNum of Nodes: " << total_nodes << "\n";
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
