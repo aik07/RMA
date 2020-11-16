@@ -7,8 +7,10 @@ matrix:
     include:
         # - dist: trusty
         # - dist: xenial
-        - dist: bionic   # Ubuntu 18.04
-	- dist: focal    # Ubuntu 20.04
+        - dist: bionic
+	- dist: focal
+	# Ubuntu 18.04
+	# Ubuntu 20.04
 
 compiler: gcc
 
