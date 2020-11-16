@@ -218,8 +218,6 @@ RMA::RMA() : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
   workingSol.serial = 0;
   workingSol.sense = maximization;
 
-  // workingSol.isPosIncumb=false;
-
 }; //  Constructor for RMA class
 
 RMA::~RMA() {
@@ -248,39 +246,54 @@ RMA::~RMA() {
   // workingSol.decrementRefs();
 }
 
+
+void rmaSolution::reset(const unsigned int numAttrib,
+                        vector<unsigned int> &distFeat) {
+  vector<unsigned int> tmp(numAttrib, 0);
+  this->setData(true, 0, tmp, distFeat);
+  // this->isPosIncumb = true;
+  // this->value = 0;
+  // this->a = tmp;
+  // this->b = distFeat;
+}
+
+void rmaSolution::setData(const bool isPosIncumb, const double objVal,
+                          vector<unsigned int> &a, vector<unsigned int> &b) {
+  this->isPosIncumb = true;
+  this->value = objVal;
+  this->a = a;
+  this->b = b;
+}
+
+
 solution *RMA::initialGuess() {
+
+  workingSol.reset(data->numAttrib, data->distFeat);
 
   if (!args->initGuess())
     return NULL;
-
-  // guess = new rmaSolution(this);
-  // setInitialGuess();
-
-  return guess;
-
-/*
-  if (uMPI::rank == 0)
-    return guess;
   else
-    return NULL;
-*/
+    return guess;
+
 }
+
 
 void RMA::setInitialGuess(bool isPosIncumb, double maxObjValue,
                           vector<unsigned int> L, vector<unsigned int> U) {
   guess = new rmaSolution(this);
-  // grma = new GreedyRMA(data);
-  // grma->runGreedyRangeSearch();
-  guess->isPosIncumb = isPosIncumb;
-  guess->value = maxObjValue;
-  guess->a = L;
-  guess->b = U;
+  // guess->isPosIncumb = isPosIncumb;
+  // guess->value = maxObjValue;
+  // guess->a = L;
+  // guess->b = U;
+
+  guess->setData(isPosIncumb, maxObjValue, L, U);
+  workingSol.setData(isPosIncumb, maxObjValue, L, U);
 
   // TODO: fix this code!
-  workingSol.isPosIncumb = isPosIncumb;
-  workingSol.value = maxObjValue;
-  workingSol.a = L;
-  workingSol.b = U;
+  // workingSol.isPosIncumb = isPosIncumb;
+  // workingSol.value = maxObjValue;
+  // workingSol.a = L;
+  // workingSol.b = U;
 }
 
 // writes data with weights to a file whose name we concoct

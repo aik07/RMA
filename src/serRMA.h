@@ -159,6 +159,10 @@ public:
   rmaSolution(rmaSolution *toCopy);
   virtual ~rmaSolution() {}
 
+  void reset(const unsigned int numAttrib, vector<unsigned int> &distFeat);
+  void setData(const bool isPosIncumb, const double objVal,
+               vector<unsigned int> &a, vector<unsigned int> &b);
+
   solution *blankClone() { return new rmaSolution(this); }
 
   void foundRMASolution(syncType sync = notSynchronous);
