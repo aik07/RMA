@@ -209,13 +209,20 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
 
 } // end function parRMA::unpack
 
+
+// 4 + 2 *numOrigObs
 int parRMA::spPackSize() {
-  return 5 * (data->numAttrib + 2) *
-             sizeof(int) //  al << au << bl << bu << subState
-         + 2 * sizeof(int) +
-         3 * (sizeof(double) + sizeof(int))      // size of branchChoice
-         + (data->numAttrib + 2) * sizeof(bool); // vecCheckedFeat
+  int sizePack =  4 * (data->numAttrib) * sizeof(unsigned int) //  al << au << bl << bu
+          + 2 * sizeof(unsigned int) // branchVar, cutVal
+          + 3 * sizeof(unsigned int) // which Child for 3 subproblems
+          + 3 * sizeof(double)       // roundedBound for 3 subproblems
+          + (data->numAttrib) * sizeof(double); // deqRestAttrib
+  cout << "spPackSize: " << sizePack << "\n";
+
+  return sizePack;
+
 } // end function parRMA::spPackSize
+
 
 // using virtual function
 void parRMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {

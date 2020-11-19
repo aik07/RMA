@@ -72,8 +72,40 @@ class DataRMA {
 public:
 
   DataRMA() {}
+
+  DataRMA(const DataRMA *other, ArgRMA *args_) : args(args_) {
+
+    avgY = other->avgY;
+    sdY  = other->sdY;
+    avgX = other->avgX;
+    sdX  = other->sdX;
+    minX = other->minX;
+    maxX = other->maxX;
+    numOrigObs = other->numOrigObs;
+    numTrainObs  = other->numTrainObs;
+    numAttrib = other->numAttrib;
+    numPosTrainObs  = other->numPosTrainObs;
+    numNegTrainObs = other->numNegTrainObs;
+    numTotalCutPts = other->numTotalCutPts;
+    numMaxDistVal = other->numMaxDistVal;
+
+    distFeat  = other->distFeat;
+    vecRandObs = other->vecRandObs;
+    vecTrainData  = other->vecTrainData;
+    vecTestData = other->vecTestData;
+
+    origTrainData = other->origTrainData;
+    intTrainData = other->intTrainData;
+    standTrainData = other->standTrainData;
+    vecFeature = other->vecFeature;
+
+    // args = other.args;
+  }
+
   DataRMA(ArgRMA *args_): args(args_) {}
   DataRMA(int& argc, char**& argv, ArgRMA *args_);
+
+  // DataRMA& operator=( const DataRMA& other );
 
   bool readData(int& argc, char**& argv);
   bool readRandObs(int argc, char** argv);

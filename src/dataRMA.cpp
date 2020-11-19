@@ -20,6 +20,38 @@ DataRMA::DataRMA(int &argc, char **&argv, ArgRMA *args_) : args(args_) {
 
 } // end constructor DataRMA
 
+
+// DataRMA& DataRMA::operator=( const DataRMA& other ) {
+//     avgY = other.avgY;
+//     sdY  = other.sdY;
+//     avgX = other.avgX;
+//     sdX  = other.sdX;
+//     minX = other.minX;
+//     maxX = other.maxX;
+//     numOrigObs = other.numOrigObs;
+//     numTrainObs  = other.numTrainObs;
+//     numAttrib = other.numAttrib;
+//     numPosTrainObs  = other.numPosTrainObs;
+//     numNegTrainObs = other.numNegTrainObs;
+//     numTotalCutPts = other.numTotalCutPts;
+//     numMaxDistVal = other.numMaxDistVal;
+//
+//     distFeat  = other.distFeat;
+//     vecRandObs = other.vecRandObs;
+//     vecTrainData  = other.vecTrainData;
+//     vecTestData = other.vecTestData;
+//
+//     origTrainData = other.origTrainData;
+//     intTrainData = other.intTrainData;
+//     standTrainData = other.standTrainData;
+//     vecFeature = other.vecFeature;
+//
+//     args = other.args;
+//
+//     return *this;
+// }
+
+
 // read data file and set origTrainData
 bool DataRMA::readData(int &argc, char **&argv) {
 

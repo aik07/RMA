@@ -12,10 +12,6 @@ namespace rma {
 
   void DriverRMA::setupDriverRMA(int& argc, char**& argv) {
 
-#ifdef ACRO_HAVE_MPI
-    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
-#endif // ACRO_HAVE_MPI
-
     setup(argc, argv);           // setup all paramaters
 
     setData(argc, argv);         // set DataRMA class
@@ -27,6 +23,10 @@ namespace rma {
 
   void DriverRMA::setupPebblRMA(int& argc, char**& argv) {
 
+    #ifdef ACRO_HAVE_MPI
+        uMPI::init(&argc, &argv, MPI_COMM_WORLD);
+    #endif // ACRO_HAVE_MPI
+    
 #ifdef ACRO_HAVE_MPI
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
