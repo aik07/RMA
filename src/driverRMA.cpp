@@ -9,28 +9,23 @@
 
 namespace rma {
 
-  DriverRMA::DriverRMA(int& argc, char**& argv):
-             isParallel(false), rma(NULL), prma(NULL) {
+
+  void DriverRMA::setupDriverRMA(int& argc, char**& argv) {
 
 #ifdef ACRO_HAVE_MPI
     uMPI::init(&argc, &argv, MPI_COMM_WORLD);
 #endif // ACRO_HAVE_MPI
 
-    setup(argc, argv);     // setup all paramaters
+    setup(argc, argv);           // setup all paramaters
 
-    setData(argc, argv);   // set DataRMA class
+    setData(argc, argv);         // set DataRMA class
 
-    setupRMA(argc, argv);  // set RMA class
+    setupPebblRMA(argc, argv);   // set RMA class
 
   }
 
 
-  void DriverRMA::setData(int& argc, char**& argv) {
-    data = new data::DataRMA(argc, argv, (ArgRMA *) this);
-  }
-
-
-  void DriverRMA::setupRMA(int& argc, char**& argv) {
+  void DriverRMA::setupPebblRMA(int& argc, char**& argv) {
 
 #ifdef ACRO_HAVE_MPI
     int nprocessors = uMPI::size;
@@ -126,7 +121,7 @@ namespace rma {
 #endif //  ACRO_HAVE_MPI
 
     rma->mmapCachedCutPts.clear();
-    rma->workingSol.value = getInf();
+    rma->workingSol.value = -getInf();
 
   }
 
@@ -144,7 +139,7 @@ namespace rma {
 
     tc.getCPUTime();
     tc.getWallTime();
-    printSolutionTime();
+    printRMASolutionTime();
 
     CommonIO::end();
     uMPI::done();
@@ -152,7 +147,7 @@ namespace rma {
   } // end function solveExactRMA()
 
 
-  void DriverRMA::printSolutionTime() {
+  void DriverRMA::printRMASolutionTime() {
 
     double global_solution = rma->workingSol.value;
     int    total_nodes     = rma->subCount[2];

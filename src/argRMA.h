@@ -28,8 +28,6 @@ using namespace pebbl;
 
 namespace arg {
 
-  // static double inf = numeric_limits<double>::infinity();
-  // static int intInf = numeric_limits<int>::max();
 
   /////////////////// Parameters for RMA class  ///////////////////
   class ArgRMA : virtual public ParameterSet, virtual public CommonIO {

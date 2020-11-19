@@ -42,7 +42,7 @@ namespace rma {
 
   public:
 
-    DriverRMA(int& argc, char**& argv);
+    DriverRMA(): isParallel(false), rma(NULL), prma(NULL) {}
 
     ~DriverRMA() {
 #ifdef ACRO_HAVE_MPI
@@ -50,8 +50,13 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
     }
 
-    void setData(int& argc, char**& argv);
-    void setupRMA(int& argc, char**& argv);
+    void setupDriverRMA(int& argc, char**& argv);
+
+    virtual void setData(int& argc, char**& argv) {
+      data = new data::DataRMA(argc, argv, (ArgRMA *) this);
+    }
+
+    void setupPebblRMA(int& argc, char**& argv);
 
     void updateWt();
 
@@ -61,9 +66,9 @@ namespace rma {
     void solveGreedyRMA();
     void solveExactRMA();
 
-    void printSolutionTime();
+    void printRMASolutionTime();
 
-  private:
+  protected:
 
     bool                  isParallel;
 

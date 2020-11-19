@@ -13,7 +13,8 @@ using namespace rma;
 
 int main(int argc, char** argv) {
 
-  DriverRMA *driver = new DriverRMA(argc, argv);
+  DriverRMA *driver = new DriverRMA();
+  driver->setupDriverRMA(argc, argv);
   driver->solveRMA();
   return 0;
 
