@@ -210,7 +210,6 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
 } // end function parRMA::unpack
 
 
-// 4 + 2 *numOrigObs
 int parRMA::spPackSize() {
   int sizePack =  4 * (data->numAttrib) * sizeof(unsigned int) //  al << au << bl << bu
           + 2 * sizeof(unsigned int) // branchVar, cutVal

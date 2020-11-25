@@ -26,7 +26,7 @@ namespace rma {
     #ifdef ACRO_HAVE_MPI
         uMPI::init(&argc, &argv, MPI_COMM_WORLD);
     #endif // ACRO_HAVE_MPI
-    
+
 #ifdef ACRO_HAVE_MPI
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
@@ -140,9 +140,6 @@ namespace rma {
     tc.getCPUTime();
     tc.getWallTime();
     printRMASolutionTime();
-
-    CommonIO::end();
-    uMPI::done();
 
   } // end function solveExactRMA()
 

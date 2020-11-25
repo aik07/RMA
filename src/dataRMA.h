@@ -72,37 +72,6 @@ class DataRMA {
 public:
 
   DataRMA() {}
-
-  DataRMA(const DataRMA *other, ArgRMA *args_) : args(args_) {
-
-    avgY = other->avgY;
-    sdY  = other->sdY;
-    avgX = other->avgX;
-    sdX  = other->sdX;
-    minX = other->minX;
-    maxX = other->maxX;
-    numOrigObs = other->numOrigObs;
-    numTrainObs  = other->numTrainObs;
-    numAttrib = other->numAttrib;
-    numPosTrainObs  = other->numPosTrainObs;
-    numNegTrainObs = other->numNegTrainObs;
-    numTotalCutPts = other->numTotalCutPts;
-    numMaxDistVal = other->numMaxDistVal;
-
-    distFeat  = other->distFeat;
-    vecRandObs = other->vecRandObs;
-    vecTrainData  = other->vecTrainData;
-    vecTestData = other->vecTestData;
-
-    origTrainData = other->origTrainData;
-    intTrainData = other->intTrainData;
-    standTrainData = other->standTrainData;
-    vecFeature = other->vecFeature;
-
-    // args = other.args;
-  }
-
-  DataRMA(ArgRMA *args_): args(args_) {}
   DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
   // DataRMA& operator=( const DataRMA& other );
@@ -136,6 +105,7 @@ public:
 
   unsigned int numOrigObs;       // # of observations in original data
   unsigned int numTrainObs;      // # of distinct observation after discretization
+  unsigned int numTestObs;       // # of testing observations
 
   unsigned int numAttrib;        // # of attributes
   unsigned int numPosTrainObs;
@@ -151,6 +121,10 @@ public:
   vector<DataXy>  origTrainData;      // original datasets X and y
   vector<DataXw>  intTrainData;       // discretized data X abd w (weight)
   vector<DataXy>  standTrainData;
+
+  vector<DataXy>  origTestData;      // original datasets X and y
+  vector<DataXw>  intTestData;       // discretized data X abd w (weight)
+  vector<DataXy>  standTestData;
 
   vector<Feature> vecFeature;    // contains features original and integeried values
 
@@ -170,3 +144,29 @@ ostream& operator<<(ostream& os, data::DataXy& obj);
 istream& operator>>(istream& is, data::DataXy& obj);
 
 #endif
+
+
+
+    // avgY = other.avgY;
+    // sdY  = other.sdY;
+    // avgX = other.avgX;
+    // sdX  = other.sdX;
+    // minX = other.minX;
+    // maxX = other.maxX;
+    // numOrigObs = other.numOrigObs;
+    // numTrainObs  = other.numTrainObs;
+    // numAttrib = other.numAttrib;
+    // numPosTrainObs  = other.numPosTrainObs;
+    // numNegTrainObs = other.numNegTrainObs;
+    // numTotalCutPts = other.numTotalCutPts;
+    // numMaxDistVal = other.numMaxDistVal;
+    //
+    // distFeat  = other.distFeat;
+    // vecRandObs = other.vecRandObs;
+    // vecTrainData  = other.vecTrainData;
+    // vecTestData = other.vecTestData;
+    //
+    // origTrainData = other.origTrainData;
+    // intTrainData = other.intTrainData;
+    // standTrainData = other.standTrainData;
+    // vecFeature = other.vecFeature;
