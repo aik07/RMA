@@ -39,7 +39,7 @@ namespace rma {
       rma        = prma;
     } else {
 #endif // ACRO_HAVE_MPI
-      rma = new pebblRMA::RMA;
+      rma = new pebblRMA::RMA(this);
 #ifdef ACRO_HAVE_MPI
     }
 #endif // ACRO_HAVE_MPI

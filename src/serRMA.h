@@ -200,9 +200,11 @@ class RMA : virtual public branching, public ArgRMA {
 
 public:
   RMA();          // constructor
+  RMA(pebblParams *param) ;
   virtual ~RMA(); // {workingSol.decrementRefs(); }		// Destructor
 
   void setParameters(arg::ArgRMA *args_) { args = args_; }
+
   void setData(data::DataRMA *data_) { data = data_; }
 
   bool setupProblem(int &argc, char **&argv) { return true; }

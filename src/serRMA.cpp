@@ -220,6 +220,61 @@ RMA::RMA() : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
 
 }; //  Constructor for RMA class
 
+
+// RMA constructor
+RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
+
+  this->debug = param->debug;
+  this->maxCPUMinutes = param->maxCPUMinutes;
+  
+  // version_info += ", RMA example 1.1";
+  min_num_required_args = 1;
+  branchingInit(maximization, relTolerance, absTolerance);
+
+  workingSol.serial = 0;
+  workingSol.sense = maximization;
+
+  // int statusPrintCount;
+  // double statusPrintSeconds;
+  // bool depthFirst;
+  // bool breadthFirst;
+  // bool initialDive;
+  // bool integralityDive;
+  // bool lazyBounding;
+  // bool eagerBounding;
+  // double relTolerance;
+  // double absTolerance;
+  // double earlyOutputMinutes;
+  // double startIncumbent;
+  // bool validateLog;
+  // bool heurLog;
+  // double loadLogSeconds;
+  // double loadLogWriteSeconds;
+  // int maxSPBounds;
+  // double maxCPUMinutes;
+  // double maxWallMinutes;
+  // bool haltOnIncumbent;
+  // bool printAbortMessage;
+  // bool printIntMeasure;
+  // bool printDepth;
+  // int debugPrecision;
+  // bool suppressWarnings;
+  // int loadMeasureDegree;
+  // double enumRelTol;
+  // double enumAbsTol;
+  // double enumCutoff;
+  // int enumCount;
+  // int enumHashSize;
+  // bool debug_solver_params;
+  // bool use_abort;
+  // bool version_flag;
+  // bool printFullSolution;
+  // std::string solFileName;
+  // int printSpTimes;
+
+}; //  Constructor for RMA class
+
+
 RMA::~RMA() {
   if (args->perCachedCutPts() < 1) {
     int rank, sendbuf, recvbuf;
