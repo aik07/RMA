@@ -44,7 +44,7 @@ namespace rma {
 
     DriverRMA(): isParallel(false), rma(NULL), prma(NULL) {}
 
-    ~DriverRMA() {
+    virtual ~DriverRMA() {
 #ifdef ACRO_HAVE_MPI
       if (isParallel) { CommonIO::end(); uMPI::done(); }
 #endif // ACRO_HAVE_MPI

@@ -23,11 +23,8 @@ namespace rma {
 
   void DriverRMA::setupPebblRMA(int& argc, char**& argv) {
 
-    #ifdef ACRO_HAVE_MPI
-        uMPI::init(&argc, &argv, MPI_COMM_WORLD);
-    #endif // ACRO_HAVE_MPI
-
 #ifdef ACRO_HAVE_MPI
+    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
     if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {

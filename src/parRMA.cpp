@@ -216,7 +216,8 @@ int parRMA::spPackSize() {
           + 3 * sizeof(unsigned int) // which Child for 3 subproblems
           + 3 * sizeof(double)       // roundedBound for 3 subproblems
           + (data->numAttrib) * sizeof(double); // deqRestAttrib
-  cout << "spPackSize: " << sizePack << "\n";
+  if (args->debug >= 20)
+    cout << "spPackSize: " << sizePack << "\n";
 
   return sizePack;
 

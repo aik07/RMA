@@ -11,6 +11,7 @@
 #include <ctime>        // std::time
 #include <sys/time.h>
 #include <iostream>
+#include <string>
 #include <pebbl/utilib/CommonIO.h>
 
 
