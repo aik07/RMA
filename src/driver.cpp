@@ -6,7 +6,7 @@
 
 #include "argRMA.h"
 #include "dataRMA.h"
-#include "driverRMA.h"
+#include "solveRMA.h"
 using namespace arg;
 using namespace data;
 using namespace rma;
@@ -14,14 +14,9 @@ using namespace rma;
 
 int main(int argc, char** argv) {
 
-  DriverRMA driverRMA;
-  driverRMA.setupDriverRMA(argc, argv);
-  driverRMA.solveRMA();
-
-  // Using the following code, I get an error
-  // DriverRMA* driverRMA = new DriverRMA();
-  // driverRMA->setupDriverRMA(argc, argv);
-  // driverRMA->solveRMA();
+  SolveRMA solveRMA;
+  solveRMA.setupSolveRMA(argc, argv);
+  solveRMA.solveRMA();
 
   return 0;
 

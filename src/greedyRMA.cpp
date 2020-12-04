@@ -386,7 +386,8 @@ void GreedyRMA::setObjVec(const unsigned int &j) {
     obs = vecCoveredObs[i];
     v = data->intTrainData[obs].X[j];
     vecWeight[v] += data->intTrainData[obs].w;
-  }
+  }//#include <acro_config.h>
+
 
   if (args->debug >= 10)
     ucout << "vecWeight: " << vecWeight;

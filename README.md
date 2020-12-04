@@ -83,24 +83,29 @@ Please read the user guide about how to use parameters for the RMA solver.
 
 <img src="https://github.com/aik7/RMA/blob/devel/figures/RMA_class_org.png" width="300">
 
+* A solid arrow indicates an inheritance relationship
+* A dashed arrow indicates a composition relationship
+
 ## Source files at src directory
 ```
 ├── argRMA.cpp       : a file contains RMA argument class
 ├── argRMA.h
-├── baseRMA.cpp      : a file contains a base class for a RMA driver class
+├── baseRMA.cpp      : a file contains a base class for a SolveRMA class
 ├── baseRMA.h
 ├── dataRMA.cpp      : a file contains RMA data classes
 ├── dataRMA.h        
 ├── driver.cpp       : a driver file
-├── driverRMA.cpp    : a file contains RMA driver class
-├── driverRMA.h      
 ├── greedyRMA.cpp    : a file contains greedy RMA class
 ├── greedyRMA.h      
 ├── parRMA.cpp       : a file contains parallel RMA class
 ├── parRMA.h   
 ├── serRMA.cpp       : a file contains serial RMA class
 ├── serRMA.h
-└── Time.h           : a header file for time
+├── Time.h           : a header file for time
+├── solveRMA.cpp     : a file contains SolveRMA class
+├── solveRMA.h      
+├── utilRMA.cpp      : a file contains RMA utility functions
+└── utilRMA.h        
 ```
 
 ## Reference
