@@ -52,7 +52,7 @@ void GreedyRMA::chooseMinOrMaxRange() {
   L.resize(data->numAttrib);
   U.resize(data->numAttrib);
 
-  (args->randSeed())
+  (args->isRandSeed())
       ? srand((NumNegTiedSols + NumPosTiedSols) * time(NULL) * 100)
       : srand(1);
   double rand_num = (rand() % 10001) / 10000.0;
@@ -124,7 +124,7 @@ void GreedyRMA::getMinOptRange() {
         if (tmpMin == minVal) {
 
           NumNegTiedSols++;
-          (args->randSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
+          (args->isRandSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
                              : srand(1);
           double rand_num = (rand() % 10001) / 10000.0;
           // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
@@ -192,7 +192,7 @@ void GreedyRMA::getMaxOptRange() {
         if (tmpMax == maxVal) {
 
           NumPosTiedSols++;
-          (args->randSeed()) ? srand(NumPosTiedSols * time(NULL) * 100)
+          (args->isRandSeed()) ? srand(NumPosTiedSols * time(NULL) * 100)
                              : srand(1);
           double rand_num = (rand() % 10001) / 10000.0;
           // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");

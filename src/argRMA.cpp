@@ -13,26 +13,30 @@ namespace arg {
 
   ArgRMA::ArgRMA():
 
-    _exactRMA(true),
+    _isPebblRMA(true),     // using PEBBL RMA or not
 
-    _binarySearchCutVal(false),
-    _perCachedCutPts(0.000001),
-    _perLimitAttrib(1.0),
+    _isBinarySearchCutVal(false),  // using the binary search cut point value or not
+    _perCachedCutPts(0.000001),    // % of the cached cut point threshold
+    _perLimitAttrib(1.0),          // % of attribute to select
 
-    _randSeed(true),
-    _initGuess(true),
-    _branchSelection(0),
-    _countingSort(false),
+    _isRandSeed(true),       // using the random seed or not
+    _isInitGuess(true),      // using the initial guess or not
+    _branchSelection(0),     // the branching selection
+    _isCountingSort(false),  // is using the counting sort
 
-    _checkObjVal(false),
-    _bruteForceEC(false),
-    _bruteForceIncumb(false),
+    _isCheckObjVal(false),       // wheather or not to run the check objective run proecude
+    _isBruteForceEC(false),      // whether or not to use a brute force equivalence class construction method
+    _isBruteForceIncumb(false),  // weather or not to use a brute force incumbent computation method
 
-    _nonUniformWt(""),
+    _nonUniformWt(""),           // specify the non-uniform weight
 
-    _writeInstances(false),
-    _writeNodeTime(false),
-    _writeCutPts(false),
+    _isSaveInstances(false),
+    _isSaveNodeTime(false),
+    _isSaveCutPts(false),
+
+    // _isWriteInstances(false),
+    // _isWriteNodeTime(false),
+    // _isWriteCutPts(false),
 
     _delta(-1),
     _shrinkDelta(.95),
@@ -40,16 +44,18 @@ namespace arg {
 
     _fixedSizeBin(-1),
 
-    _printBBdetails(false),
+    _isPrintBBdetails(false),
 
     _rampUpSizeFact(1.0)
 
   {
 
-    create_categorized_parameter("exactRMA", _exactRMA,
-      "<bool>", "true", "solve RMA exactly", "RMA");
+    create_categorized_parameter("isPebblRMA", _isPebblRMA,
+      "<bool>", "true", "solve RMA using PEBBL", "RMA");
 
-    create_categorized_parameter("binarySearchCutVal", _binarySearchCutVal,
+    // PEBBL options
+
+    create_categorized_parameter("isBinarySearchCutVal", _isBinarySearchCutVal,
       "<bool>", "false", "binary search cut values in each feature", "RMA");
 
     create_categorized_parameter("perCachedCutPts", _perCachedCutPts,
@@ -60,39 +66,39 @@ namespace arg {
     create_categorized_parameter("perLimitAttrib", _perLimitAttrib, "<double>",
         "1.00", "limit number of attributes to check ", "RMA");
 
-    create_categorized_parameter("randSeed", _randSeed, "<bool>",
+    create_categorized_parameter("isRandSeed", _isRandSeed, "<bool>",
         "true", "random seed for tied solutions", "RMA");
 
-    create_categorized_parameter("initGuess", _initGuess, "<bool>",
+    create_categorized_parameter("isInitGuess", _isInitGuess, "<bool>",
         "true", "enable the initial guess computation", "RMA");
 
     create_categorized_parameter("branchSelection", _branchSelection, "<int>",
       "0", "Among tied cutpoints, 0: randomize cutpoint to select, "
       "1: always select the first one, 2: always slect the last one", "RMA");
 
-    create_categorized_parameter("countingSort", _countingSort, "<bool>",
+    create_categorized_parameter("isCountingSort", _isCountingSort, "<bool>",
       "false", "Use counting sort instead of bucket sort", "RMA");
 
-    create_categorized_parameter("checkObjVal", _checkObjVal, "<bool>",
+    create_categorized_parameter("isCheckObjVal", _isCheckObjVal, "<bool>",
       "false",	"check the optimal solution in the end ", "RMA");
 
-    create_categorized_parameter("bruteForceEC", _bruteForceEC, "<bool>",
+    create_categorized_parameter("isBruteForceEC", _isBruteForceEC, "<bool>",
       "false",	"brute force algorithm to create equivalence classes ", "RMA");
 
-    create_categorized_parameter("bruteForceIncumb", _bruteForceIncumb, "<bool>",
+    create_categorized_parameter("isBruteForceIncumb", _isBruteForceIncumb, "<bool>",
       "false",	"brute force algorithm to to compute incumbent in each attribute ",
       "RMA");
 
     create_categorized_parameter("nonUniformWt", _nonUniformWt, "<string>", "",
       "read non-uniform weights from a file", "RMA");
 
-    create_categorized_parameter("writeCutPts", _writeCutPts, "<bool>",
+    create_categorized_parameter("isSaveCutPts", _isSaveCutPts, "<bool>",
       "false", "Write cut points chosen in the solution file ", "RMA");
 
-    create_categorized_parameter("writeInstances", _writeInstances, "<bool>",
+    create_categorized_parameter("isSaveInstances", _isSaveInstances, "<bool>",
       "false", "Write an input file for each weighted problem solved", "RMA");
 
-    create_categorized_parameter("writeNodeTime", _writeNodeTime, "<bool>",
+    create_categorized_parameter("isSaveNodeTime", _isSaveNodeTime, "<bool>",
       "false", "Write an input file for the number of B&B node and "
       "CPU time for each iteration", "RMA");
 
@@ -106,7 +112,7 @@ namespace arg {
       "inf", "set the maximum interval length for recursive integerization", "RMA");
 
 
-    create_categorized_parameter("printBBdetails", _printBBdetails, "<bool>",
+    create_categorized_parameter("isPrintBBdetails", _isPrintBBdetails, "<bool>",
       "true", "print the complete output of the PEBBL branch-and bound", "RMA");
 
     create_categorized_parameter("rampUpSizeFact", _rampUpSizeFact, "<double>",

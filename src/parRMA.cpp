@@ -401,7 +401,7 @@ void parRMASub::parStrongBranching(const unsigned int &firstIdx,
 
     if (countCutPts + numCutPtsInAttrib <= firstIdx) {
       countCutPts += numCutPtsInAttrib;
-      (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+      (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
       // if ( firstAttrib<=j && j<=lastAttrib )
       //	compIncumbent(j);
       continue;
@@ -436,7 +436,7 @@ void parRMASub::parStrongBranching(const unsigned int &firstIdx,
 
     } // end for each cut-value in attribute j
 
-    (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+    (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
 
     if (isCheckIncumb)
       compIncumbent(j);

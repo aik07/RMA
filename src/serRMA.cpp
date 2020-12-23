@@ -226,7 +226,7 @@ RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPt
 
   this->debug = param->debug;
   this->maxCPUMinutes = param->maxCPUMinutes;
-  
+
   // version_info += ", RMA example 1.1";
   min_num_required_args = 1;
   branchingInit(maximization, relTolerance, absTolerance);
@@ -325,7 +325,7 @@ solution *RMA::initialGuess() {
 
   workingSol.reset(data->numAttrib, data->distFeat);
 
-  if (!args->initGuess())
+  if (!args->isInitGuess())
     return NULL;
   else
     return guess;
@@ -528,9 +528,9 @@ void RMASub::boundComputation(double *controlParam) {
 
   // if there are enough discoverd cut points (storedCutPts) check only the list
   if (global()->args->perCachedCutPts() < 1.0 &&
-      global()->args->binarySearchCutVal())
+      global()->args->isBinarySearchCutVal())
     hybridBranching();
-  else if (global()->args->binarySearchCutVal())
+  else if (global()->args->isBinarySearchCutVal())
     binaryBranching();
   else if (global()->args->perCachedCutPts() < 1.0)
     cutpointCaching();
@@ -905,7 +905,7 @@ void RMASub::branchingProcess(const unsigned int &j, const unsigned int &v) {
     //     << _branchChoice.branch[0].exactBound;
     if (global()->args->branchSelection() == 0) {
       NumTiedSols++;
-      (globalPtr->args->randSeed()) ? srand(NumTiedSols * time(NULL) * 100)
+      (globalPtr->args->isRandSeed()) ? srand(NumTiedSols * time(NULL) * 100)
                                     : srand(1);
       double rand_num = (rand() % 10001) / 10000.0;
       // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
@@ -963,7 +963,7 @@ void RMASub::strongBranching() {
     }
     if (j == numAttrib() - 1)
       break;
-    global()->args->countingSort() ? countingSortEC(j) : bucketSortEC(j);
+    global()->args->isCountingSort() ? countingSortEC(j) : bucketSortEC(j);
     compIncumbent(j);
   } // end for each feature
 
@@ -997,7 +997,7 @@ void RMASub::cachedBranching() {
 
     if (j == numAttrib() - 1)
       break;
-    (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+    (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
     compIncumbent(j);
   }
 
@@ -1027,7 +1027,7 @@ void RMASub::hybridBranching() {
       }
       if (j == numAttrib() - 1)
         break;
-      (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+      (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
       compIncumbent(j);
 
     } else { // binary search
@@ -1037,7 +1037,7 @@ void RMASub::hybridBranching() {
         numCutValues -= bl[j] - au[j];
 
       if (numCutValues == 0) { // if no cutValue in this feature,
-        (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+        (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
         continue; // then go to the next attribute.
       }
 
@@ -1120,7 +1120,7 @@ void RMASub::hybridBranching() {
       if (j == numAttrib() - 1)
         break;
 
-      (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+      (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
       compIncumbent(j);
 
     } // end binary search
@@ -1144,7 +1144,7 @@ void RMASub::binaryBranching() {
       numCutValues -= bl[j] - au[j];
 
     if (numCutValues == 0) { // if no cutValue in this feature,
-      (global()->args->countingSort()) ? countingSortEC(j) : bucketSortEC(j);
+      (global()->args->isCountingSort()) ? countingSortEC(j) : bucketSortEC(j);
       continue; // then go to the next attribute.
     }
 
@@ -1460,8 +1460,8 @@ void RMASub::compIncumbent(const unsigned int &j) {
 
   tmpMin = getInf();
   tmpMax = -getInf();
-  // minVal = globalPtr->args->initGuess() ?   workingSol()->value : inf;
-  // maxVal = globalPtr->args->initGuess() ?  -workingSol()->value : -inf;
+  // minVal = globalPtr->args->isInitGuess() ?   workingSol()->value : inf;
+  // maxVal = globalPtr->args->isInitGuess() ?  -workingSol()->value : -inf;
   minVal = getInf();
   maxVal = -getInf();
   optMinAttrib = -1;
@@ -1471,7 +1471,7 @@ void RMASub::compIncumbent(const unsigned int &j) {
   tmpMin = runMinKadane(j);
   if (tmpMin == minVal) {
     NumNegTiedSols++;
-    (globalPtr->args->randSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
+    (globalPtr->args->isRandSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
                                   : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
     if (rand_num <= 1.0 / NumNegTiedSols)
@@ -1485,7 +1485,7 @@ void RMASub::compIncumbent(const unsigned int &j) {
   tmpMax = runMaxKadane(j);
   if (tmpMax == maxVal) {
     NumPosTiedSols++;
-    (globalPtr->args->randSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
+    (globalPtr->args->isRandSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
                                   : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
     if (rand_num <= 1.0 / NumPosTiedSols)
@@ -1500,7 +1500,7 @@ void RMASub::compIncumbent(const unsigned int &j) {
 
 void RMASub::chooseMinOrMaxRange() {
   if (max(maxVal, -minVal) > workingSol()->value + .000001) {
-    (globalPtr->args->randSeed())
+    (globalPtr->args->isRandSeed())
         ? srand((NumNegTiedSols + NumPosTiedSols) * time(NULL) * 100)
         : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
@@ -2085,10 +2085,10 @@ void rmaSolution::printContents(ostream &outStream) {
   }
   cout << "\n";
 
-  if (global->args->checkObjVal())
+  if (global->args->isCheckObjVal())
     checkObjValue();
 
-  if (global->args->writingCutPts()) {
+  if (global->args->isSaveCutPts()) {
     outStream << "CutPts:\n";
     for (unsigned int i = 0; i < global->CutPtOrders.size(); ++i) {
       unsigned int sizeBranch = global->CutPtOrders[i].size();

@@ -39,26 +39,26 @@ namespace arg {
 
     ////////////////////// parameters //////////////////////////////
 
-    bool   exactRMA()           const {return _exactRMA;}
+    bool   isPebblRMA()           const {return _isPebblRMA;}
 
-    bool   binarySearchCutVal() const {return _binarySearchCutVal;}
-    double perCachedCutPts()    const {return _perCachedCutPts;}
-    double perLimitAttrib()     const {return _perLimitAttrib;}
+    bool   isBinarySearchCutVal() const {return _isBinarySearchCutVal;}
+    double perCachedCutPts()      const {return _perCachedCutPts;}
+    double perLimitAttrib()       const {return _perLimitAttrib;}
 
-    bool   randSeed()           const {return _randSeed;}
-    bool   initGuess()          const {return _initGuess;}
-    int    branchSelection()    const {return _branchSelection;}
-    bool   countingSort()       const {return _countingSort;}
+    bool   isRandSeed()           const {return _isRandSeed;}
+    bool   isInitGuess()          const {return _isInitGuess;}
+    int    branchSelection()      const {return _branchSelection;}
+    bool   isCountingSort()       const {return _isCountingSort;}
 
-    string nonUniformWt()       const {return _nonUniformWt;}
+    string nonUniformWt()         const {return _nonUniformWt;}
 
-    bool   checkObjVal()        const {return _checkObjVal;}
-    bool   bruteForceEC()       const {return _bruteForceEC;}
-    bool   bruteForceIncumb()   const {return _bruteForceIncumb;}
+    bool   isCheckObjVal()        const {return _isCheckObjVal;}
+    bool   isBruteForceEC()       const {return _isBruteForceEC;}
+    bool   isBruteForceIncumb()   const {return _isBruteForceIncumb;}
 
-    bool   writingInstances()   const {return _writeInstances;}
-    bool   writingNodeTime()    const {return _writeNodeTime;}
-    bool   writingCutPts()      const {return _writeCutPts;}
+    bool   isSaveInstances()   const {return _isSaveInstances;}
+    bool   isSaveNodeTime()    const {return _isSaveNodeTime;}
+    bool   isSaveCutPts()      const {return _isSaveCutPts;}
 
     double rampUpSizeFact()     const {return _rampUpSizeFact;}
 
@@ -66,7 +66,7 @@ namespace arg {
     double shrinkDelta()        const {return _shrinkDelta;}
     double maxInterval()        const {return _maxInterval;}
 
-    bool   printBBdetails()     const {return _printBBdetails;}
+    bool   isPrintBBdetails()     const {return _isPrintBBdetails;}
 
     int    fixedSizeBin()       const {return _fixedSizeBin;}
 
@@ -74,30 +74,30 @@ namespace arg {
 
   private:
 
-    bool   _exactRMA;            // solve exactRMA
-    bool   _greedyRMA;            // solve exactRMA
+    bool   _isPebblRMA;            // solve RMA using PEBBL
+    //bool   _isGreedyRMA;           // solve the greedy RMA
 
     // for non-strong branching ...
-    bool   _binarySearchCutVal;  // an option for binary-sarching cutpoint
+    bool   _isBinarySearchCutVal;  // an option for binary-sarching cutpoint
     double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
     double _perLimitAttrib;      // percentages of features to check
 
-    bool   _randSeed;            // random seed for tied solution or bound
-    bool   _initGuess;	         // compute an initial incumbent
+    bool   _isRandSeed;            // random seed for tied solution or bound
+    bool   _isInitGuess;	         // compute an initial incumbent
     int    _branchSelection;     // random, first, or last one for tied branch
-    bool   _countingSort;        // use counting sourt (default is bucket sort)
+    bool   _isCountingSort;        // use counting sourt (default is bucket sort)
 
     // for validation
-    bool   _checkObjVal;	 // check the solution is right or not
-    bool   _bruteForceEC;        // brute force way to create equivalence classes
-    bool   _bruteForceIncumb;    // brute force way to check incumbent in each atrribute
+    bool   _isCheckObjVal;	 // check the solution is right or not
+    bool   _isBruteForceEC;        // brute force way to create equivalence classes
+    bool   _isBruteForceIncumb;    // brute force way to check incumbent in each atrribute
 
     string  _nonUniformWt;       // use test weight
 
     // for saving information
-    bool   _writeInstances;
-    bool   _writeNodeTime;       // make an output file containing BoundedSP and run time
-    bool   _writeCutPts;
+    bool   _isSaveInstances;
+    bool   _isSaveNodeTime;       // make an output file containing BoundedSP and run time
+    bool   _isSaveCutPts;
 
     // for recursive integerization
     double _delta;               // if the continuous value is less than delta, aggregate to the same integer
@@ -108,7 +108,7 @@ namespace arg {
     int    _fixedSizeBin;
 
     // for printing more details
-    bool   _printBBdetails;
+    bool   _isPrintBBdetails;
 
     double _rampUpSizeFact;      // TODO: what is this?
 

@@ -60,11 +60,11 @@ namespace rma {
 
 
   void SolveRMA::solveRMA() {
-    if (exactRMA()) {
+    if (isPebblRMA()) {
 
       resetExactRMA();
 
-      if (initGuess()) {
+      if (isInitGuess()) {
 	/*
 #ifdef ACRO_HAVE_MPI
 	if (uMPI::rank==0) {
@@ -108,7 +108,7 @@ namespace rma {
 #ifdef ACRO_HAVE_MPI
     if (isParallel) {
       prma->reset();
-      if (printBBdetails()) prma->printConfiguration();
+      if (isPrintBBdetails()) prma->printConfiguration();
       CommonIO::begin_tagging();
     } else {
 #endif //  ACRO_HAVE_MPI
@@ -131,7 +131,7 @@ namespace rma {
 
     tc.startTime();
 
-    if (printBBdetails()) rma->solve();  // print out B&B details
+    if (isPrintBBdetails()) rma->solve();  // print out B&B details
     else                  rma->search();
 
     tc.getCPUTime();
