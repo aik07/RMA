@@ -13,6 +13,7 @@ int getIntInf() {
 }
 
 
+// for 1D deque ooutput
 template<class T>
 ostream &operator<<(ostream &os, const deque<T> &v) {
   os << "(";
@@ -24,15 +25,18 @@ ostream &operator<<(ostream &os, const deque<T> &v) {
 template ostream &operator<< <bool>(ostream &os, const deque<bool> &v);
 
 
+// for 1D set output
 template<class T>
-ostream &operator<<(ostream &os, const vector<T> &v) {
+ostream &operator<<(ostream &os, const set<T> &v) {
   os << "(";
-  for (typename vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
+  for (typename set<T>::const_iterator i = v.begin(); i != v.end(); ++i)
     os << " " << *i;
   os << " )\n";
   return os;
 }
 
+
+// for 2D vector output
 template<class T>
 ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
   for (unsigned int i = 0; i < v.size(); ++i) {

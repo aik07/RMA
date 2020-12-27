@@ -132,14 +132,7 @@ public:
   unsigned int numTotalCutPts;   // # of cutpoints for RMA
   unsigned int maxNumDistFeats;  // maximum distinct value among all attributes
 
-  // average and standard deviation of Y
-  double         avgY, sdY;
 
-  // average and standard deviation vectors of X for each attribute
-  vector<double> vecAvgX, vecSdX;
-
-  // minimum and maximum deviation vectors of X for each attribute
-  vector<double> vecMinX, vecMaxX;
 
   // a vector contains # of distinct featrues for each attribute after discretization
   vector<unsigned int>  vecNumDistFeats;
@@ -158,15 +151,26 @@ public:
   // vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
   // vector<DataXy>  dataStandTest;
 
-  vector<Feature> vecFeature;    // contains features original and integeried values
-
-
-
-
-
-
   Time     tc;     // Time class object
   ArgRMA   *args;  // ArgRMA class object
+
+
+  // integerize and standardize data
+
+  vector<Feature> vecFeature;    // contains features original and integeried values
+
+  // average and standard deviation of Y
+  double         avgY, sdY;
+
+  // average and standard deviation vectors of X for each attribute
+  vector<double> vecAvgX, vecSdX;
+
+  // minimum and maximum deviation vectors of X for each attribute
+  vector<double> vecMinDevX, vecMaxDevX;
+
+  void setInitVecMinMaxDevX();
+  set<double> setDistVal;        // a set continas all distinct values for each attribute
+
 
 };
 

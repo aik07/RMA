@@ -431,6 +431,7 @@ void DataRMA::setStandDataY(vector<DataXy> &origData,
 }
 
 
+
 void DataRMA::integerizeData(vector<DataXy> &origData,
                              vector<DataXw> &intData) {
 
@@ -443,7 +444,6 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 
   vector<double> vecTemp(numOrigObs);
 
-  set<double> setDistVal;        // a set continas all distinct values for each attribute
   set<double>::iterator it, itp; // iterator for the set
 
   map<double, int> mapDblInt; // a container maps from an original value to an
@@ -454,39 +454,26 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 
   tc.startTime();
 
-  vecMaxX.resize(numAttrib);
-  vecMinX.resize(numAttrib);
-
-  // reset the minimum and maximum values of X for each attribute
-  for (j = 0; j < numAttrib; ++j) {
-    vecMinX[j] = getInf();
-    vecMaxX[j] = -getInf();
-  }
-
-  // if (isLPBoost()) setXStat();
-
   for (j = 0; j < numAttrib; ++j) { // for each attribute
 
-    if (args->debug >= 2)
-      cout << "feat: " << j << "\n";
+    if (args->debug >= 2) cout << "feat: " << j << "\n";
     setDistVal.clear();
-    cout << "test: ";
+
     for (i = 0; i < numTrainObs; ++i) { // for each training observation
       obs = vecTrainObsIdx[i];  // get the observation index
-      if (args->debug >= 10)
-        cout << "test: " << origData[obs].X[j] << "\n";
-      setDistVal.insert(origData[obs].X[j]);
+      if (args->debug >= 10) cout << "origData: " << origData[obs].X[j] << "\n";
+      setDistVal.insert(origData[obs].X[j]); // TODO: This is not efficient
     }
 
     if (args->debug >= 10)
-      cout << "size setDistVal: " << setDistVal.size() << "\n";
+      cout << "size setDistVal: " << setDivectorstVal.size() << "\n";
 
-    if (args->debug >= 2) {
-      cout << "setDistVal: ";
-      for (it = setDistVal.begin(); it != setDistVal.end(); ++it)
-        cout << *it << " ";
-      cout << '\n';
-    }
+    if (args->debug >= 10) cout << "setDistVal: " << setDistVal;
+       // print out setDistVal
+      // for (it = setDistVal.begin(); it != setDistVal.end(); ++it)
+      //   cout << *it << " ";
+      // cout << '\n';
+    //}
 
     // get 95% confidence interval range
     interval = min(4.0 * vecSdX[j], *setDistVal.rbegin() - *setDistVal.begin());
@@ -739,6 +726,21 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 } // end integerizeData
 
 
+// set vecMinDevX and vecMaxDevX
+void setInitVecMinMaxDevX() {
+
+  vecMaxDevX.resize(numAttrib);
+  vecMinDevX.resize(numAttrib);
+
+  // reset the minimum and maximum values of X for each attribute
+  for (j = 0; j < numAttrib; ++j) {
+    vecMinDevX[j] = getInf();
+    vecMaxDevX[j] = -getInf();
+  }
+
+}
+
+
 //  integerize into fixed bin
 void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
                                         vector<DataXw> &intData) {
@@ -747,14 +749,17 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
   unsigned int sizeBin = args->fixedSizeBin();
   maxNumDistFeats = 0;
 
+
+  setInitVecMinMaxDevX();
+
   // fix X matrix
   for (i = 0; i < numTrainObs; ++i) {
     obs = vecTrainObsIdx[i];
     for (j = 0; j < numAttrib; ++j) {
-      if (dataStandTrain[obs].X[j] < vecMinX[j])
-        vecMinX[j] = dataStandTrain[obs].X[j]; // get vecMinX[j]
-      if (dataStandTrain[obs].X[j] > vecMaxX[j])
-        vecMaxX[j] = dataStandTrain[obs].X[j]; // get vecMaxX[j]
+      if (dataStandTrain[obs].X[j] < vecMinDevX[j])
+        vecMinDevX[j] = dataStandTrain[obs].X[j]; // get vecMinDevX[j]
+      if (dataStandTrain[obs].X[j] > vecMaxDevX[j])
+        vecMaxDevX[j] = dataStandTrain[obs].X[j]; // get vecMaxDevX[j]
     }
   }
 
@@ -764,8 +769,8 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
     for (i = 0; i < numTrainObs; ++i) {
       obs = vecTrainObsIdx[i];
       intData[obs].X.resize(numAttrib);
-      intData[obs].X[j] = floor((origData[obs].X[j] - vecMinX[j]) /
-                                ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin));
+      intData[obs].X[j] = floor((origData[obs].X[j] - vecMinDevX[j]) /
+                                ((vecMaxDevX[j] - vecMinDevX[j]) / (double)sizeBin));
       if (maxNumDistFeats < intData[obs].X[j])
         maxNumDistFeats = intData[obs].X[j];
     }
@@ -777,9 +782,9 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
     vecFeature[j].vecIntMinMax.resize(maxNumDistFeats);
     for (i = 0; i < maxNumDistFeats; ++i) {
       vecFeature[j].vecIntMinMax[0].minOrigVal =
-          (double)i * ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin) + vecMinX[j];
+          (double)i * ((vecMaxDevX[j] - vecMinDevX[j]) / (double)sizeBin) + vecMinDevX[j];
       vecFeature[j].vecIntMinMax[0].maxOrigVal =
-          (double)(i + 1) * ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin) + vecMinX[j];
+          (double)(i + 1) * ((vecMaxDevX[j] - vecMinDevX[j]) / (double)sizeBin) + vecMinDevX[j];
     }
   }
 }
