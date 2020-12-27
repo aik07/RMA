@@ -29,15 +29,17 @@
   #include "parRMA.h"
   #define outstream ucout
   #define IO(action) if (uMPI::iDoIO) { CommonIO: end_tagging(); action; }
-#else
+#else // ACRO_HAVE_MPI
   typedef void parRMA;
   #define outstream cout;
   #define IO(action) action;
-#endif
+#endif // ACRO_HAVE_MPI
 
 
 namespace rma {
 
+  // SolveRMA class calls selected methods (Greedy RMA and/or PEBBL RMA)
+  // to solve the RMA problem
   class SolveRMA : virtual public base::BaseRMA {
 
   public:
@@ -46,39 +48,40 @@ namespace rma {
 
     virtual ~SolveRMA() {
 #ifdef ACRO_HAVE_MPI
-      if (isParallel) { CommonIO::end(); uMPI::done(); }
+      if (isParallel) { CommonIO::end(); uMPI::done(); } // MPI_Finalize
 #endif // ACRO_HAVE_MPI
     }
 
-    void setupSolveRMA(int& argc, char**& argv);
+    void setupSolveRMA(int& argc, char**& argv);  // setup to sovle RMA
 
-    virtual void setData(int& argc, char**& argv) {
+    virtual void setData(int& argc, char**& argv) { // set Data RMA class object
       data = new data::DataRMA(argc, argv, (ArgRMA *) this);
     }
 
-    void setupPebblRMA(int& argc, char**& argv);
+    void updateWt();         // update the weights
 
-    void updateWt();
+    void setupPebblRMA(int& argc, char**& argv);  // setup PebblRMA
 
-    void resetExactRMA();
+    void resetPebblRMA();    // reset PEBBL RMA variables
 
-    void solveRMA();
-    void solveGreedyRMA();
-    void solveExactRMA();
+    void solveRMA();         // solve RMA using the selected methods
+    void solveGreedyRMA();   // solve RMA using the greedy algorithm
+    void solvePebblRMA();    // solve RMA using PEBBL
 
-    void printRMASolutionTime();
+    void printPebblRMASolutionTime();  // print RMA solution and time
 
   protected:
 
-    bool                  isParallel;
+    bool                  isParallel;  // whether or not this program will run in parallel
 
-    data::DataRMA*        data;
-    greedyRMA::GreedyRMA* grma;
+    data::DataRMA*        data;        // RMA data object
 
-    pebblRMA::RMA*        rma ;
-    pebblRMA::parRMA*     prma;
+    greedyRMA::GreedyRMA* grma;        // Greedy RMA object
 
-    Time          tc;
+    pebblRMA::RMA*        rma ;        // Serial   PEBBL RMA object
+    pebblRMA::parRMA*     prma;        // Parallel PEBBL RMA object
+
+    Time                  tc;          // Time object
 
   };
 

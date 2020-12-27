@@ -21,12 +21,14 @@ using namespace std;
 using namespace arg;
 using namespace utilib;
 
+
 namespace data {
 
   struct IntMinMax { double minOrigVal, maxOrigVal; };
   struct Feature   { vector<IntMinMax> vecIntMinMax; };
 
-//////////////////// a clsss for integerized dataset ////////////////////
+
+//////////////////// a clsss for integerized dataset (X and w) ////////////////////
 class DataXw {
 
 public:
@@ -38,15 +40,15 @@ public:
   int write(ostream& os) const { os << X << w; return 0; }
 
 //private:
-  vector<unsigned int> X;  // integerized explanatory variables
-  double      w;	// weight of each observation
+  vector<unsigned int> X; // integerized explanatory variables
+  double               w;	// weight of each observation
 
   friend class DataRMA;
 
 };
 
 
-//////////////////// a clsss for original dataset ////////////////////
+//////////////////// a clsss for original dataset (X and y)////////////////////
 class DataXy {
 
 public:
@@ -76,63 +78,89 @@ public:
 
   // DataRMA& operator=( const DataRMA& other );
 
+  // read data from the data file, and set dataOrigTrain
   bool readData(int& argc, char**& argv);
-  bool readRandObs(int argc, char** argv);
+
+  // bool readRandObs(int argc, char** argv);
+
+  // read nonuniform weights from a specified file
   void readNonUniformWt();
 
   void setDataDimensions();
-  void setPosNegObs();
-  void setIntTrainData();
-  void setWeight();
+
+  void setNumPosNegObs();
+  void setDataIntTrainX();
+  void setDataIntTrainWeight();
+
   void removeZeroWtObs();
-  void setNumMaxDistVal();
 
-  void setXStat(vector<DataXy> &origData);
-  void setYStat(vector<DataXy> &origData);
+  void setVecNumDistFeats();
+  void setMaxNumDistFeats();
+  void setNumTotalCutPts();
 
+  void setVecAvgX(vector<DataXy> &origData);  // set vecAvgX
+  void setVecSdX(vector<DataXy> &origData);   // set vecSdX
+
+  void setAvgY(vector<DataXy> &origData);     // set avgY
+  void setSdY(vector<DataXy>  &origData);      // set sdY
+
+  // set the standerdized data of X and Y
   void setStandDataX (vector<DataXy>& origData, vector<DataXy> &standData);
   void setStandDataY (vector<DataXy>& origData, vector<DataXy> &standData);
+
+  // integerize data by using episolon
   void integerizeData(vector<DataXy>& origData, vector<DataXw> &intData);
+
+  // integerize data by using fixed interval length
   void integerizeFixedLengthData(vector<DataXy> &origData, vector<DataXw> &stdandData);
 
-  template <class T> void writeObs(T vecData);
+  template <class T> void saveXObs(T vecData);
 
 //protected:
 
-  double         avgY, sdY;
-  vector<double> avgX, sdX;
-  vector<double> minX, maxX;
+  // # of observations in original data
+  unsigned int numOrigObs;
 
-  unsigned int numOrigObs;       // # of observations in original data
-  unsigned int numTrainObs;      // # of distinct observation after discretization
-  unsigned int numTestObs;       // # of testing observations
+  // # of distinct observation after discretization
+  unsigned int numTrainObs;
+  // unsigned int numTestObs;       // # of testing observations
 
   unsigned int numAttrib;        // # of attributes
-  unsigned int numPosTrainObs;
-  unsigned int numNegTrainObs;
+  unsigned int numPosTrainObs;   // # of positive training observations
+  unsigned int numNegTrainObs;   // # of negative training observations
   unsigned int numTotalCutPts;   // # of cutpoints for RMA
-  unsigned int numMaxDistVal;    // maximum distinct value among attributes
+  unsigned int maxNumDistFeats;       // maximum distinct value among all attributes
 
-  vector<unsigned int>  distFeat;	     // distinct features after discretization
-  vector<unsigned int>  vecRandObs;    // contains randomize all observations
-  vector<unsigned int>  vecTrainData;  // contains only training dataset observations
-  vector<unsigned int>  vecTestData;   // contains only training dataset observations
+  // average and standard deviation of Y
+  double         avgY, sdY;
 
-  vector<DataXy>  origTrainData;      // original datasets X and y
-  vector<DataXw>  intTrainData;       // discretized data X abd w (weight)
-  vector<DataXy>  standTrainData;
+  // average and standard deviation vectors of X for each attribute
+  vector<double> vecAvgX, vecSdX;
 
-  vector<DataXy>  origTestData;      // original datasets X and y
-  vector<DataXw>  intTestData;       // discretized data X abd w (weight)
-  vector<DataXy>  standTestData;
+  // minimum and maximum deviation vectors of X for each attribute
+  vector<double> vecMinX, vecMaxX;
+
+  // a vector contains # of distinct featrues for each attribute after discretization
+  vector<unsigned int>  vecNumDistFeats;
+
+  // a vector contains only training observation indices
+  vector<unsigned int>  vecTrainObsIdx;
+
+  // vector<unsigned int>  vecRandObs;    // contains randomize all observations
+  // vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
+
+  vector<DataXy>  dataOrigTrain;      // original datasets X and y
+  vector<DataXy>  dataStandTrain;     // starndardized datasets of X and y
+  vector<DataXw>  dataIntTrain;       // discretized data X abd w (weight)
+
+  // vector<DataXy>  dataOrigTest;      // original datasets X and y
+  // vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
+  // vector<DataXy>  dataStandTest;
 
   vector<Feature> vecFeature;    // contains features original and integeried values
 
-  Time     tc;
-  double   wallTime;
-  double   cpuTime;
-
-  ArgRMA   *args;
+  Time     tc;     // Time class object
+  ArgRMA   *args;  // ArgRMA class object
 
 };
 
@@ -144,29 +172,3 @@ ostream& operator<<(ostream& os, data::DataXy& obj);
 istream& operator>>(istream& is, data::DataXy& obj);
 
 #endif
-
-
-
-    // avgY = other.avgY;
-    // sdY  = other.sdY;
-    // avgX = other.avgX;
-    // sdX  = other.sdX;
-    // minX = other.minX;
-    // maxX = other.maxX;
-    // numOrigObs = other.numOrigObs;
-    // numTrainObs  = other.numTrainObs;
-    // numAttrib = other.numAttrib;
-    // numPosTrainObs  = other.numPosTrainObs;
-    // numNegTrainObs = other.numNegTrainObs;
-    // numTotalCutPts = other.numTotalCutPts;
-    // numMaxDistVal = other.numMaxDistVal;
-    //
-    // distFeat  = other.distFeat;
-    // vecRandObs = other.vecRandObs;
-    // vecTrainData  = other.vecTrainData;
-    // vecTestData = other.vecTestData;
-    //
-    // origTrainData = other.origTrainData;
-    // intTrainData = other.intTrainData;
-    // standTrainData = other.standTrainData;
-    // vecFeature = other.vecFeature;

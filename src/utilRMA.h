@@ -10,8 +10,8 @@
 
 using namespace std;
 
-double getInf();
-int    getIntInf();
+double getInf();    // get the double infinity value
+int    getIntInf(); // get the integer inifinitiy value
 
 template<class T>
 ostream& operator<<(ostream& os, const deque<T>& v);

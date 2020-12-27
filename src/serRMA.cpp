@@ -21,11 +21,12 @@ void branchChoiceCombiner(void *invec, void *inoutvec, int *len,
     cerr << "Datatype error in branchChoiceCombiner\n";
     exit(1);
   }
-#endif
+#endif // ACRO_VALIDATING
 
   branchChoice *inPtr    = (branchChoice *)invec;
   branchChoice *inOutPtr = (branchChoice *)inoutvec;
-  unsigned int n = *len;
+  unsigned int n         = *len;
+
   for (unsigned int i = 0; i < n; ++i)
     if (inPtr[i] < inOutPtr[i])
       inOutPtr[i] = inPtr[i];
@@ -78,19 +79,19 @@ void branchChoice::setupMPIDatum(void *address, MPI_Datatype thisType,
                                  MPI_Aint *disp, int *blocklen,
                                  unsigned int j) {
   MPI_Get_address(address, &disp[j]);
-  disp[j] -= base;
-  type[j] = thisType;
+  disp[j]     -= base;
+  type[j]     = thisType;
   blocklen[j] = 1;
 }
 
 void branchChoice::setupMPI() {
 
   unsigned int arraySize = 3 * 3 + 3;
-  int j = 0;
+  int          j = 0;
   MPI_Datatype type[arraySize];
-  int blocklen[arraySize];
-  MPI_Aint disp[arraySize];
-  MPI_Aint base;
+  int          blocklen[arraySize];
+  MPI_Aint     disp[arraySize];
+  MPI_Aint     base;
   branchChoice example;
   MPI_Get_address(&example, &base);
 
@@ -211,12 +212,11 @@ void branchItem::set(double bound, double roundQuantum) {
 // RMA constructor
 RMA::RMA() : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
 
-  // version_info += ", RMA example 1.1";
   min_num_required_args = 1;
   branchingInit(maximization, relTolerance, absTolerance);
 
   workingSol.serial = 0;
-  workingSol.sense = maximization;
+  workingSol.sense  = maximization;
 
 }; //  Constructor for RMA class
 
@@ -224,7 +224,7 @@ RMA::RMA() : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
 // RMA constructor
 RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
 
-  this->debug = param->debug;
+  this->debug         = param->debug;
   this->maxCPUMinutes = param->maxCPUMinutes;
 
   // version_info += ", RMA example 1.1";
@@ -232,7 +232,9 @@ RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPt
   branchingInit(maximization, relTolerance, absTolerance);
 
   workingSol.serial = 0;
-  workingSol.sense = maximization;
+  workingSol.sense  = maximization;
+
+  // TODO: need to copy the RMA parameters to the PEBBL parameters
 
   // int statusPrintCount;
   // double statusPrintSeconds;
@@ -276,10 +278,11 @@ RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPt
 
 
 RMA::~RMA() {
+
   if (args->perCachedCutPts() < 1) {
     int rank, sendbuf, recvbuf;
     // MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    rank = uMPI::rank;
+    rank    = uMPI::rank;
     sendbuf = numCC_SP;
     DEBUGPRX(0, this, "Local non-stron branching SP is: " << numCC_SP << "\n");
 
@@ -303,13 +306,13 @@ RMA::~RMA() {
 
 
 void rmaSolution::reset(const unsigned int numAttrib,
-                        vector<unsigned int> &distFeat) {
+                        vector<unsigned int> &vecNumDistFeats) {
   vector<unsigned int> tmp(numAttrib, 0);
-  this->setData(true, 0, tmp, distFeat);
+  this->setData(true, 0, tmp, vecNumDistFeats);
   // this->isPosIncumb = true;
   // this->value = 0;
   // this->a = tmp;
-  // this->b = distFeat;
+  // this->b = vecNumDistFeats;
 }
 
 void rmaSolution::setData(const bool isPosIncumb, const double objVal,
@@ -323,18 +326,19 @@ void rmaSolution::setData(const bool isPosIncumb, const double objVal,
 
 solution *RMA::initialGuess() {
 
-  workingSol.reset(data->numAttrib, data->distFeat);
+  workingSol.reset(data->numAttrib, data->vecNumDistFeats);
 
-  if (!args->isInitGuess())
-    return NULL;
-  else
+  if (args->isInitGuess())
     return guess;
+  else
+    return NULL;
 
 }
 
 
 void RMA::setInitialGuess(bool isPosIncumb, double maxObjValue,
                           vector<unsigned int> L, vector<unsigned int> U) {
+
   guess = new rmaSolution(this);
   // guess->isPosIncumb = isPosIncumb;
   // guess->value = maxObjValue;
@@ -373,7 +377,7 @@ void RMA::writeWeightedData(ostream &os) {
 
   // Write data
   for (size_type i = 0; i < data->numOrigObs; ++i) {
-    os << data->intTrainData[i].w << ';';
+    os << data->dataIntTrain[i].w << ';';
 
     // Restore stream state
     os.precision(oldPrecision);
@@ -406,7 +410,7 @@ void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
   if (!isAlreadyInCache) {
     if (0 > j || j > data->numAttrib)
       cout << "ERROR! j is out of range for setCachedCutPts";
-    else if (0 > v || v > data->distFeat[j])
+    else if (0 > v || v > data->vecNumDistFeats[j]-2)
       cout << "ERROR! v is out of range for setCachedCutPts";
     else
       mmapCachedCutPts.insert(make_pair(j, v));
@@ -443,7 +447,7 @@ void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
 
 void RMA::setWeight(vector<double> wt, vector<unsigned int> train) {
   for (unsigned int i = 0; i < wt.size(); ++i)
-    data->intTrainData[train[i]].w = wt[i];
+    data->dataIntTrain[train[i]].w = wt[i];
 }
 
 // Routine added by AK to write out the number of B&B node and CPU time.
@@ -466,6 +470,7 @@ void RMA::writeStatDataToFile(const int &iterNum) {
   }
 }
 
+
 void RMA::startTime() {
 
 #ifdef ACRO_HAVE_MPI
@@ -475,7 +480,9 @@ void RMA::startTime() {
 #ifdef ACRO_HAVE_MPI
   }
 #endif //  ACRO_HAVE_MPI
+
 }
+
 
 double RMA::endTime() {
 
@@ -489,7 +496,9 @@ double RMA::endTime() {
 #ifdef ACRO_HAVE_MPI
   }
 #endif //  ACRO_HAVE_MPI
+
   return timeInSeconds;
+
 }
 
 
@@ -497,8 +506,11 @@ double RMA::endTime() {
 
 void RMASub::setRootComputation() {
   al.resize(numAttrib());
+  au.resize(numAttrib());
+  fill(al.begin(), al.end(), 0);
+  for (unsigned int j=0; j<numAttrib(); ++j)
+    au[j] = vecNumDistFeats()[j]-1;
   bl << al;
-  au << distFeat();
   bu << au;
   deqRestAttrib.resize(numAttrib(), false);
   // workingSol() = globalPtr->guess;
@@ -512,7 +524,7 @@ void RMASub::boundComputation(double *controlParam) {
     cout << "\nal: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
   }
 
-  NumTiedSols = 1;
+  NumTiedSols    = 1;
   NumPosTiedSols = 0;
   NumNegTiedSols = 0;
 
@@ -524,17 +536,18 @@ void RMASub::boundComputation(double *controlParam) {
 
   for (unsigned int j = 0; j < numAttrib(); ++j)
     bucketSortObs(j);
+
   setInitialEquivClass(); // set initial equivalence class, vecEquivClass
 
   // if there are enough discoverd cut points (storedCutPts) check only the list
   if (global()->args->perCachedCutPts() < 1.0 &&
       global()->args->isBinarySearchCutVal())
-    hybridBranching();
+    hybridBranching(); // hybrid branching
   else if (global()->args->isBinarySearchCutVal())
-    binaryBranching();
+    binaryBranching(); // binary search cut point caching
   else if (global()->args->perCachedCutPts() < 1.0)
-    cutpointCaching();
-  else // check all cut points
+    cutpointCaching(); // cut point caching
+  else // check all cut points (strong branching)
     strongBranching();
 
   if (global()->debug >= 10)
@@ -575,8 +588,7 @@ void RMASub::boundComputation(double *controlParam) {
     return;
   }
 
-  //////////////////////////////////// create listExcluded list (start)
-  ///////////////////////////
+  ///////////////////// create listExcluded list (start) ////////////////
 #ifndef ACRO_HAVE_MPI
   sort(listExcluded.begin(), listExcluded.end());
   listExcluded.erase(unique(listExcluded.begin(), listExcluded.end()),
@@ -606,13 +618,11 @@ void RMASub::boundComputation(double *controlParam) {
            << "]! (cutValue=" << _branchChoice.cutVal << ")\n";
     exit(EXIT_FAILURE);
   }
-  /////////////////////////////////// check errors (end)
-  ////////////////////////////////////////
+  //////////////// check errors (end) ////////////////////////
 #ifndef ACRO_HAVE_MPI
   listExcluded.push_back(_branchChoice.branchVar);
 #endif
-  //////////////////////////////////// create listExclided list (end)
-  ///////////////////////////
+  ///////////////// create listExclided list (end) ////////////////////
 }
 
 int RMASub::getNumLiveCachedCutPts() {
@@ -801,8 +811,8 @@ bool RMASub::candidateSolution() {
   /*
     for (int i=0; i<numDistObs(); ++i)
     for (int j=0; j<numAttrib(); ++j)
-    if ( workingSol()->a[j] <= global()->intTrainData[i].X[j] &&
-    global()->intTrainData[i].X[j] <= workingSol()->b[j] ) {
+    if ( workingSol()->a[j] <= global()->dataIntTrain[i].X[j] &&
+    global()->dataIntTrain[i].X[j] <= workingSol()->b[j] ) {
     if ( j==numAttrib()-1)
     workingSol()->isCovered[i]= true;
     } else {
@@ -1017,7 +1027,7 @@ void RMASub::hybridBranching() {
 
   for (unsigned int j = 0; j < numAttrib(); ++j) { // for each attribute
 
-    if (distFeat()[j] < 30) {
+    if (vecNumDistFeats()[j] < 30) {
       while (k < cachedCutPts.size()) {
         if (j == cachedCutPts[k].j) {
           branchingProcess(cachedCutPts[k].j, cachedCutPts[k].v);
@@ -1048,7 +1058,7 @@ void RMASub::hybridBranching() {
       U = bu[j];
       firstFewCutPts = true;
       vecCheckedCutVal.clear();
-      vecCheckedCutVal.resize(distFeat()[j] + 1);
+      vecCheckedCutVal.resize(vecNumDistFeats()[j]);
 
       while (true) {
         if (numCutValues > 3) {
@@ -1155,7 +1165,7 @@ void RMASub::binaryBranching() {
     U = bu[j];
     firstFewCutPts = true;
     vecCheckedCutVal.clear();
-    vecCheckedCutVal.resize(distFeat()[j] + 1);
+    vecCheckedCutVal.resize(vecNumDistFeats()[j] + 1);
 
     while (true) {
       if (numCutValues > 3) {
@@ -1274,7 +1284,7 @@ void RMASub::cutpointCaching() {
       _branchChoice.branchVar > globalPtr->data->numAttrib)
     return; // cout << "ERROR! j is out of range for setCachedCutPts";
   else if (_branchChoice.cutVal < 0 ||
-           _branchChoice.cutVal > globalPtr->data->distFeat[j])
+           _branchChoice.cutVal > globalPtr->data->vecNumDistFeats[j]-2)
     return; // cout << "ERROR! v is out of range for setCachedCutPts";
   else
     globalPtr->setCachedCutPts(_branchChoice.branchVar, _branchChoice.cutVal);
@@ -1291,7 +1301,7 @@ void RMASub::bucketSortObs(const unsigned int &j) {
   buckets.resize(size);
 
   for (unsigned int i = 0; i < coveredObs.size(); ++i) {
-    v = global()->data->intTrainData[coveredObs[i]].X[j];
+    v = global()->data->dataIntTrain[coveredObs[i]].X[j];
     if (au[j] < bl[j]) { // no overlapping
       if (v < au[j])
         v -= al[j];
@@ -1336,7 +1346,7 @@ void RMASub::bucketSortEC(const unsigned int &j) {
 
   for (unsigned int i = 0; i < sortedECidx.size(); ++i) {
     obs = vecEquivClass[sortedECidx[i]].getObs();
-    v = global()->data->intTrainData[obs].X[j];
+    v = global()->data->dataIntTrain[obs].X[j];
     if (au[j] < bl[j]) { // no overlapping
       if (v < au[j])
         v -= al[j];
@@ -1421,7 +1431,7 @@ void RMASub::countingSortEC(const unsigned int &j) {
 
   for (i = 0; i < numEC; ++i) {
     obs = vecEquivClass[sortedECidx[i]].getObs();
-    v = global()->data->intTrainData[obs].X[j];
+    v = global()->data->dataIntTrain[obs].X[j];
     if (au[j] < bl[j]) { // no overlapping
       if (v < au[j])
         v -= al[j];
@@ -1439,7 +1449,7 @@ void RMASub::countingSortEC(const unsigned int &j) {
 
   for (i = numEC - 1; i >= 0; --i) {
     obs = vecEquivClass[sortedECidx[i]].getObs();
-    v = global()->data->intTrainData[obs].X[j];
+    v = global()->data->dataIntTrain[obs].X[j];
     if (au[j] < bl[j]) { // no overlapping
       if (v < au[j])
         v -= al[j];
@@ -1659,27 +1669,27 @@ double RMASub::getObjValue(const unsigned int &j, const unsigned int &v) {
     obs = vecEquivClass[sortedECidx[i]].getObs();
 
     // if the observation's jth attribute value = cut-value
-    if (global()->data->intTrainData[obs].X[j] == v) {
+    if (global()->data->dataIntTrain[obs].X[j] == v) {
       covgWt += vecEquivClass[sortedECidx[i]].getWt();
       // cout << "vecEquivClass1: " << sortedECidx[i]
       //     << " covgWt: " << covgWt << endl;
     } else if (au[j] < bl[j] && au[j] <= v && v <= bl[j] &&
-               au[j] <= global()->data->intTrainData[obs].X[j] &&
-               global()->data->intTrainData[obs].X[j] <= bl[j]) {
+               au[j] <= global()->data->dataIntTrain[obs].X[j] &&
+               global()->data->dataIntTrain[obs].X[j] <= bl[j]) {
       covgWt += vecEquivClass[sortedECidx[i]].getWt();
       // cout << "vecEquivClass2: " << sortedECidx[i]
       //     << " covgWt: " << covgWt << endl;
 
-    } else if (global()->data->intTrainData[obs].X[j] < v) {
+    } else if (global()->data->dataIntTrain[obs].X[j] < v) {
       if (globalPtr->args->debug >= 0)
         cout << "X[j] < v! ";
       //*
       if (globalPtr->args->debug >= 20) {
         cout << "curObs: " << curObs << " attribute: " << j << "; "
-             << global()->data->intTrainData[obs].X[j] << " < cutVal: " << v
+             << global()->data->dataIntTrain[obs].X[j] << " < cutVal: " << v
              << "\n";
         for (unsigned int i = 0; i < coveredObs.size(); ++i)
-          cout << global()->data->intTrainData[sortedECidx[i]].X[j]
+          cout << global()->data->dataIntTrain[sortedECidx[i]].X[j]
                << " bound (" << al[j] << ", " << au[j] << ", " << bl[j] << ", "
                << bu[j] << ")\n )";
       }
@@ -1745,7 +1755,7 @@ void RMASub::setInitialEquivClass() {
            << "\n";
     vecEquivClass.resize(1);
     vecEquivClass[0].addObsWt(coveredObs[0],
-                              global()->data->intTrainData[coveredObs[0]].w);
+                              global()->data->dataIntTrain[coveredObs[0]].w);
     return;
   }
 
@@ -1754,7 +1764,7 @@ void RMASub::setInitialEquivClass() {
   int obs1 = coveredObs[0];
   int obs2 = coveredObs[1];
   int k = 0;
-  vecEquivClass[0].addObsWt(obs1, global()->data->intTrainData[obs1].w);
+  vecEquivClass[0].addObsWt(obs1, global()->data->dataIntTrain[obs1].w);
 
   for (unsigned int i = 1; i < coveredObs.size();
        ++i) { // for each sorted, covered observation
@@ -1763,13 +1773,13 @@ void RMASub::setInitialEquivClass() {
 
       if (isInSameClass(obs1, obs2, j, au[j], bl[j])) {
         if (j == numAttrib() - 1) { // if it is in the same equivalent class
-          vecEquivClass[k].addObsWt(obs2, global()->data->intTrainData[obs2].w);
+          vecEquivClass[k].addObsWt(obs2, global()->data->dataIntTrain[obs2].w);
           if (i != coveredObs.size() - 1) // if not the last observation
             obs2 = coveredObs[i + 1];
         }
 
       } else { // detected obs1 and obs2 are in different equivClass
-        vecEquivClass[++k].addObsWt(obs2, global()->data->intTrainData[obs2].w);
+        vecEquivClass[++k].addObsWt(obs2, global()->data->dataIntTrain[obs2].w);
         if (i != coveredObs.size() - 1) { // if not the last observation
           obs1 = coveredObs[i];
           obs2 = coveredObs[i + 1];
@@ -1835,9 +1845,8 @@ void RMASub::mergeEquivClass(const unsigned int &j, const unsigned int &al_,
   vecEquivClass1.resize(sortedECidx1.size());
   vecEquivClass1[0] = vecEquivClass[idxEC1];
 
-  for (unsigned int i = 1; i < sortedECidx1.size();
-       ++i) { // for each sorted, covered observation
-
+  // for each sorted, covered observation
+  for (unsigned int i = 1; i < sortedECidx1.size(); ++i) {
     for (unsigned int f = 0; f < numAttrib(); ++f) { // for each attribute
 
       // always search merging equivalence classes from leaves
@@ -1857,6 +1866,7 @@ void RMASub::mergeEquivClass(const unsigned int &j, const unsigned int &al_,
         _bl = bl[J];
       }
 
+      // if the two observations are in the same equivalence class
       if (isInSameClass(obs1, obs2, J, _au, _bl)) {
         if (f == numAttrib() - 1) { // if it is in the same equivalent class
           vecEquivClass1[k].addEC(vecEquivClass[idxEC2]);
@@ -1907,8 +1917,8 @@ void RMASub::dropEquivClass(const unsigned int &j, const unsigned int &al_,
     idxEC = sortedECidx[i];
     obs = vecEquivClass[idxEC].getObs();
     // if covered, put the equiv class index to sortedECidx1
-    if (global()->data->intTrainData[obs].X[j] >= al_ &&
-        global()->data->intTrainData[obs].X[j] <= bu_)
+    if (global()->data->dataIntTrain[obs].X[j] >= al_ &&
+        global()->data->dataIntTrain[obs].X[j] <= bu_)
       sortedECidx1[++k] = idxEC;
   } // end each equivalence class
 
@@ -1921,16 +1931,16 @@ bool RMASub::isInSameClass(const unsigned int &obs1, const unsigned int &obs2,
                            const unsigned int &bl_) {
 
   // if obs1.feat == obs2.feat
-  if (global()->data->intTrainData[obs1].X[j] ==
-      global()->data->intTrainData[obs2].X[j])
+  if (global()->data->dataIntTrain[obs1].X[j] ==
+      global()->data->dataIntTrain[obs2].X[j])
     return true;
 
   //  OR obs1.feat, obs2.feat in [au, bl]
   if (au_ <= bl_ &&
-      (au_ <= global()->data->intTrainData[obs1].X[j] &&
-       global()->data->intTrainData[obs1].X[j] <= bl_) &&
-      (au_ <= global()->data->intTrainData[obs2].X[j] &&
-       global()->data->intTrainData[obs2].X[j] <= bl_)) {
+      (au_ <= global()->data->dataIntTrain[obs1].X[j] &&
+       global()->data->dataIntTrain[obs1].X[j] <= bl_) &&
+      (au_ <= global()->data->dataIntTrain[obs2].X[j] &&
+       global()->data->dataIntTrain[obs2].X[j] <= bl_)) {
     return true;
   }
   return false;
@@ -2076,11 +2086,11 @@ void rmaSolution::printContents(ostream &outStream) {
   for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
     if (0 < a[i]) // if lower bound changed
       cout << a[i] << "<=";
-    if (0 < a[i] || b[i] < global->data->distFeat[i])
+    if (0 < a[i] || b[i] < global->data->vecNumDistFeats[i])
       cout << "x" << i;
-    if (b[i] < global->data->distFeat[i])
+    if (b[i] < global->data->vecNumDistFeats[i]-1)
       cout << "<=" << b[i];
-    if (0 < a[i] || b[i] < global->data->distFeat[i])
+    if (0 < a[i] || b[i] < global->data->vecNumDistFeats[i])
       cout << ", ";
   }
   cout << "\n";
@@ -2118,11 +2128,11 @@ void rmaSolution::checkObjValue() {
        ++i) { // for each observation
     obs = global->sortedObsIdx[i];
     for (unsigned int j = 0; j < global->data->numAttrib; ++j) { // for each attribute
-      if (a[j] <= global->data->intTrainData[obs].X[j] &&
-          global->data->intTrainData[obs].X[j] <= b[j]) {
+      if (a[j] <= global->data->dataIntTrain[obs].X[j] &&
+          global->data->dataIntTrain[obs].X[j] <= b[j]) {
         // if this observation is covered by this solution
         if (j == global->data->numAttrib - 1)
-          wt += global->data->intTrainData[obs].w;
+          wt += global->data->dataIntTrain[obs].w;
       } else
         break; // else go to the next observation
     }          // end for each attribute
@@ -2142,11 +2152,11 @@ void rmaSolution::checkObjValue1(vector<unsigned int> &A, vector<unsigned int> &
   for (unsigned int i = 0; i < coveredObs.size(); ++i) { // for each observation
     obs = coveredObs[i];
     for (unsigned int j = 0; j < global->data->numAttrib; ++j) { // for each attribute
-      if (A[j] <= global->data->intTrainData[obs].X[j] &&
-          global->data->intTrainData[obs].X[j] <= B[j]) {
+      if (A[j] <= global->data->dataIntTrain[obs].X[j] &&
+          global->data->dataIntTrain[obs].X[j] <= B[j]) {
         // if this observation is covered by this solution
         if (j == global->data->numAttrib - 1)
-          wt += global->data->intTrainData[obs].w;
+          wt += global->data->dataIntTrain[obs].w;
       } else
         break; // else go to the next observation
     }          // end for each attribute
@@ -2176,7 +2186,7 @@ int rmaSolution::maxContentsBufSize() {
   return 2 * (global->data->numAttrib + 1) * sizeof(int) * 1.5;
 }
 
-#endif
+#endif // ACRO_HAVE_MPI
 
 double rmaSolution::sequenceData() {
   if (sequenceCursor < a.size())

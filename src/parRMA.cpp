@@ -164,11 +164,11 @@ void parRMA::pack(PackBuffer &outBuf) {
     outBuf << sortedObsIdx[i];
 
   for (unsigned int i = 0; i < data->numOrigObs; ++i) {
-    outBuf << data->intTrainData[i].X << data->intTrainData[i].w;
+    outBuf << data->dataIntTrain[i].X << data->dataIntTrain[i].w;
     // outBuf << data->origTrainData[i].y;
   }
 
-  outBuf << data->distFeat << data->numTotalCutPts;
+  outBuf << data->vecNumDistFeats << data->numTotalCutPts;
 
 } // end function parRMA::pack
 
@@ -184,27 +184,28 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
   for (unsigned int i = 0; i < data->numOrigObs; ++i)
     inBuf >> sortedObsIdx[i];
 
-  data->intTrainData.resize(data->numOrigObs);
+  data->dataIntTrain.resize(data->numOrigObs);
   for (unsigned int i = 0; i < data->numOrigObs; ++i) {
-    data->intTrainData[i].X.resize(data->numAttrib);
-    inBuf >> data->intTrainData[i].X >> data->intTrainData[i].w;
+    data->dataIntTrain[i].X.resize(data->numAttrib);
+    inBuf >> data->dataIntTrain[i].X >> data->dataIntTrain[i].w;
     // inBuf >> data->origTrainData[i].y;
   }
 
-  inBuf >> data->distFeat >> data->numTotalCutPts;
+  inBuf >> data->vecNumDistFeats >> data->numTotalCutPts;
 
   if (args->debug >= 20)
     cout << "parRMA::unpack done." << '\n';
 
   if (args->debug >= 20) {
 
-    cout << " data->distFeat: ";
+    cout << " data->vecNumDistFeats: ";
 
-    for (unsigned int i = 0; i < data->numAttrib; ++i)
-      cout << data->distFeat[i] << ", ";
+    for (unsigned int j = 0; j < data->numAttrib; ++j)
+      cout << data->vecNumDistFeats[j] << ", ";
 
+    // TODO: we only need numTrainObs...
     for (unsigned int i = 0; i < data->numOrigObs; ++i)
-      cout << " wt: " << data->intTrainData[i].w << '\n';
+      cout << " wt: " << data->dataIntTrain[i].w << '\n';
   }
 
 } // end function parRMA::unpack

@@ -13,30 +13,22 @@ namespace arg {
 
   ArgRMA::ArgRMA():
 
-    _isPebblRMA(true),     // using PEBBL RMA or not
+    _isPebblRMA(true),            // wether or not to use PEBBL RMA
 
-    _isBinarySearchCutVal(false),  // using the binary search cut point value or not
-    _perCachedCutPts(0.000001),    // % of the cached cut point threshold
-    _perLimitAttrib(1.0),          // % of attribute to select
+    _isBinarySearchCutVal(false), // whether or not to use the binary search cut point value
+    _perCachedCutPts(0.000001),   // % of the cached cut point threshold
+    _perLimitAttrib(1.0),         // % of attribute to select
 
-    _isRandSeed(true),       // using the random seed or not
-    _isInitGuess(true),      // using the initial guess or not
-    _branchSelection(0),     // the branching selection
-    _isCountingSort(false),  // is using the counting sort
+    _isRandSeed(true),            // whether or not to use the random seed
+    _isInitGuess(true),           // whether or not to use the initial guess
+    _branchSelection(0),          // the branching selection
+    _isCountingSort(false),       // whether or not to use the counting sort
 
-    _isCheckObjVal(false),       // wheather or not to run the check objective run proecude
-    _isBruteForceEC(false),      // whether or not to use a brute force equivalence class construction method
-    _isBruteForceIncumb(false),  // weather or not to use a brute force incumbent computation method
+    _isCheckObjVal(false),        // wheather or not to run the check objective run proecude
+    _isBruteForceEC(false),       // whether or not to use a brute force equivalence class construction method
+    _isBruteForceIncumb(false),   // weather or not to use a brute force incumbent computation method
 
-    _nonUniformWt(""),           // specify the non-uniform weight
-
-    _isSaveInstances(false),
-    _isSaveNodeTime(false),
-    _isSaveCutPts(false),
-
-    // _isWriteInstances(false),
-    // _isWriteNodeTime(false),
-    // _isWriteCutPts(false),
+    _nonUniformWt(""),            // specify the non-uniform weight file
 
     _delta(-1),
     _shrinkDelta(.95),
@@ -44,7 +36,11 @@ namespace arg {
 
     _fixedSizeBin(-1),
 
-    _isPrintBBdetails(false),
+    _isPrintBBdetails(false),     // whether or not to print B&B details
+
+    _isSaveInstances(false),      // whether or not to save the observation info
+    _isSaveNodeTime(false),       // whether or not to save B&B nodes and run-time
+    _isSaveCutPts(false),         // whether or not to save cashed cutpoints
 
     _rampUpSizeFact(1.0)
 

@@ -5,23 +5,32 @@
  ***********************************************************/
 #include "dataRMA.h"
 
+
 namespace data {
+
 
 DataRMA::DataRMA(int &argc, char **&argv, ArgRMA *args_) : args(args_) {
 
-  readData(argc, argv); // read the data and set origTrainData
+  readData(argc, argv); // read the data and set dataOrigTrain
   setDataDimensions();  // set data dimensions
 
   // setStandData();
-  setIntTrainData(); // set IntTrainData
-  removeZeroWtObs();
-  setNumMaxDistVal();
-  setPosNegObs();
+  setDataIntTrainX();        // set dataIntTrain
+  setDataIntTrainWeight();  // set weights for dataIntTrain
+
+  if (args->nonUniformWt() != "")  // if the nonUniform weight file is given
+    removeZeroWtObs();   // remove observations with zero weights
+
+  setVecNumDistFeats(); // set a vector of # of distinct values for each attribute
+  setMaxNumDistFeats(); // set the maximum number of the distinct values among attributes
+  setNumTotalCutPts();  // set # of total cut points for B&B
+
+  setNumPosNegObs();      // set each observation to be positive or negative
 
 } // end constructor DataRMA
 
 
-// read data file and set origTrainData
+// read data file and set dataOrigTrain
 bool DataRMA::readData(int &argc, char **&argv) {
 
   unsigned int i, j;
@@ -31,16 +40,17 @@ bool DataRMA::readData(int &argc, char **&argv) {
   if (args->debug >= 10)
     cout << "Data::readData\n";
 
-  tc.startTime();
-
-  numOrigObs = 0;
-  numAttrib = 0;
-
   // read data from the data file
   if (argc <= 1) {
     cerr << "No filename specified\n";
     return false;
   }
+
+  tc.startTime();  // start the timer
+
+  numOrigObs = 0;
+  numAttrib  = 0;
+
   ifstream s(argv[1]); // open the data file
 
   // check whether or not the file is opened correctly
@@ -50,7 +60,7 @@ bool DataRMA::readData(int &argc, char **&argv) {
   }
 
   // read how many columns and rows
-  while (getline(s, line)) {
+  while (getline(s, line)) { // for each lline
     if (numOrigObs == 0) {
       istringstream streamCol(line);
       while (streamCol >> tmp)
@@ -71,18 +81,18 @@ bool DataRMA::readData(int &argc, char **&argv) {
   s.clear();
   s.seekg(0, ios::beg);
 
-  origTrainData.resize(numOrigObs);
+  dataOrigTrain.resize(numOrigObs);
   for (i = 0; i < numOrigObs; ++i) { // for each observation
-    origTrainData[i].X.resize(numAttrib);
+    dataOrigTrain[i].X.resize(numAttrib);
     for (j = 0; j < numAttrib; j++) // for each attribute
-      s >> origTrainData[i].X[j];
-    s >> origTrainData[i].y;
-  } // end while
+      s >> dataOrigTrain[i].X[j];
+    s >> dataOrigTrain[i].y;
+  } // end for each observation
 
   // if the original data has 0 as -1 class, change from 0 to -1
   for (i = 0; i < numOrigObs; ++i) // for each observation
-    if (origTrainData[i].y == 0)
-      origTrainData[i].y = -1.0;
+    if (dataOrigTrain[i].y == 0)   // if y=0
+      dataOrigTrain[i].y = -1.0;
 
   s.close(); // close the data file
 
@@ -103,76 +113,86 @@ bool DataRMA::readData(int &argc, char **&argv) {
   return true;
 }
 
+
+// TODO: not using this any more
 // read shuffled observation from the data file
-bool DataRMA::readRandObs(int argc, char **argv) {
+// bool DataRMA::readRandObs(int argc, char **argv) {
+//
+//   ucout << "Use Shuffled Obs\n";
+//   ifstream s(argv[2]); // open the data file
+//
+//   // check whether or not the file is opened correctly
+//   if (!s) {
+//     cerr << "Could not open file \"" << argv[2] << "\"\n";
+//     return false;
+//   }
+//
+//   vecRandObs.resize(numOrigObs);
+//
+//   // read data
+//   for (unsigned int i = 0; i < numOrigObs; ++i)
+//     s >> vecRandObs[i];
+//
+//   s.close(); // close the data file
+//
+//   if (args->debug >= 2)
+//     cout << "vecRandObs: " << vecRandObs;
+//   return true;
+// }
 
-  ucout << "Use Shuffled Obs\n";
-  ifstream s(argv[2]); // open the data file
 
-  // check whether or not the file is opened correctly
-  if (!s) {
-    cerr << "Could not open file \"" << argv[2] << "\"\n";
-    return false;
-  }
-
-  vecRandObs.resize(numOrigObs);
-
-  // read data
-  for (unsigned int i = 0; i < numOrigObs; ++i)
-    s >> vecRandObs[i];
-
-  s.close(); // close the data file
-
-  if (args->debug >= 2)
-    cout << "vecRandObs: " << vecRandObs;
-  return true;
-}
-
-
+// remove observations with zero weight
 void DataRMA::removeZeroWtObs() {
+
   int numNonZeroObs = 0;
 
-  for (unsigned int i = 0; i < numTrainObs; ++i) {
-    if (intTrainData[i].w != 0) {
-      vecTrainData[numNonZeroObs] = i;
+  for (unsigned int i = 0; i < numTrainObs; ++i) { // for each training observation
+    if (dataIntTrain[i].w != 0) {  // if objservation i has non-zero wiehgt
+      vecTrainObsIdx[numNonZeroObs] = i;
       ++numNonZeroObs;
     }
   }
 
   numTrainObs = numNonZeroObs;
-  vecTrainData.resize(numTrainObs);
+  vecTrainObsIdx.resize(numTrainObs);
+
 }
 
 
+// read non uniform weight and set the weight for each observation
 void DataRMA::readNonUniformWt() {
 
   vector<double> vecNonUniformWt;
   vecNonUniformWt.resize(numTrainObs);
 
+  // TODO: for now, each process is reading non-uniform weight file
   /*
 #ifdef ACRO_HAVE_MPI
   if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
   */
-  ifstream inFile(args->nonUniformWt());
-  if (inFile.is_open()) {
+  ifstream inFile(args->nonUniformWt()); // Input stream class to operate on non-uniform weight file
+  if (inFile.is_open()) { // if the file is open
     string line, tmp;
+    // read a string or a line from an input stream
+    // inFile is an object of istream class
+    // line is a string object that input is stored in this object after being read from the stream
     while (getline(inFile, line)) {
-      stringstream ss(line);
-      for (unsigned int i = 0; i < numTrainObs; ++i) {
+      stringstream ss(line);  // Used for breaking words
+      for (unsigned int i = 0; i < numTrainObs; ++i) { // for each training observation
         getline(ss, tmp, ',');
         // cout << "tmp " << tmp << "\n";
-        vecNonUniformWt[i] = stod(tmp);
+        vecNonUniformWt[i] = stod(tmp);  // stod: convert string to double
         // cout << "vec " <<vecNonUniformWt[i] << "\n";
-      }
-    }
-  } else {
+      } // end for each train observation
+    } // end while
+  } else { // if the program could not open the file
     cout << "error: cannot read nonuniform wt";
   }
-  // rma->setWeight(vecNonUniformWt, vecObsIdx);
+  // rma->setDataIntTrainWeight(vecNonUniformWt, vecObsIdx);
 
-  for (unsigned int i = 0; i < numTrainObs; ++i) {
-    intTrainData[i].w = vecNonUniformWt[i];
+  for (unsigned int i = 0; i < numTrainObs; ++i) { // for each training observation
+    dataIntTrain[i].w = vecNonUniformWt[i]; // assigned the non-uniform weight
   }
   /*
 #ifdef ACRO_HAVE_MPI
@@ -182,176 +202,234 @@ void DataRMA::readNonUniformWt() {
 
   if (args->debug >= 10) {
     ucout << "rank: " << uMPI::rank << " wt: ";
-    for (unsigned int i = 0; i < numTrainObs; ++i)
-      ucout << intTrainData[i].w << ", ";
+    for (unsigned int i = 0; i < numTrainObs; ++i) // for each observation
+      ucout << dataIntTrain[i].w << ", ";          // print out weight
     ucout << "\n";
-  }
+  } // end if
+
 }
 
+
+// set data dimensions
 void DataRMA::setDataDimensions() {
 
-  numTrainObs = numOrigObs;
+  numTrainObs = numOrigObs; // TODO: need to be fixed
 
   if (args->debug >= 10)
     cout << "numTrainObs: " << numTrainObs << "\n";
 
-  intTrainData.resize(numTrainObs);
-  standTrainData.resize(numTrainObs);
+  dataIntTrain.resize(numTrainObs);
+  dataStandTrain.resize(numTrainObs);
 
   for (unsigned int i = 0; i < numTrainObs; ++i) {
-    intTrainData[i].X.resize(numAttrib);
-    standTrainData[i].X.resize(numAttrib);
+    dataIntTrain[i].X.resize(numAttrib);
+    dataStandTrain[i].X.resize(numAttrib);
   }
 
-  distFeat.resize(numAttrib);
+
   vecFeature.resize(numAttrib);
 
-  vecTrainData.resize(numTrainObs);
+  vecTrainObsIdx.resize(numTrainObs);
   for (unsigned int i = 0; i < numTrainObs; ++i)
-    vecTrainData[i] = i;
+    vecTrainObsIdx[i] = i;
 }
 
-// set X and weights for the intTrainData
-void DataRMA::setIntTrainData() {
+// set X for the dataIntTrain
+void DataRMA::setDataIntTrainX() {
 
   // set X values
-  if (args->delta() != -1)
-    integerizeData(origTrainData, intTrainData);
-  else {
+  if (args->delta() != -1) // integerize data
+    integerizeData(dataOrigTrain, dataIntTrain);
+  else  // assuming that the original data is already integerized
     for (unsigned int i = 0; i < numTrainObs; ++i) { // for each observation
-      for (unsigned int j = 0; j < numAttrib; j++) { // for each attribute
-        intTrainData[i].X[j] = origTrainData[i].X[j];
-        if (distFeat[j] < intTrainData[i].X[j])
-          distFeat[j] = intTrainData[i].X[j];
-      }
-      // intTrainData[i].w = origTrainData[i].y * 1.0 / (double) numTrainObs;
-    } // end for
-  }
+      for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
+        // assign the original X as integerized X
+        dataIntTrain[i].X[j] = dataOrigTrain[i].X[j];
+      } // end for each attribute
+    } // end for observation
 
-  setWeight();
-}
+} // end setDataIntTrainX function
 
-// set weights of intTrainData
-void DataRMA::setWeight() {
-  if (args->nonUniformWt() != "") {
-    readNonUniformWt();
+
+// set weights of dataIntTrain
+void DataRMA::setDataIntTrainWeight() {
+  if (args->nonUniformWt() != "") { // if the nonUniform weight file is given
+    readNonUniformWt();  // set the weights from the file
   } else {
+    // give equal weight for each observation (1/numTrainObs)
     for (unsigned int i = 0; i < numTrainObs; ++i) // for each observation
-      intTrainData[i].w = origTrainData[i].y * 1.0 / (double)numTrainObs;
+      dataIntTrain[i].w = dataOrigTrain[i].y * 1.0 / (double)numTrainObs;
   }
 }
+
+
+// set vecNumDistFeats (# of distinc values for each attributes)
+void DataRMA:: setVecNumDistFeats() {
+  vecNumDistFeats.resize(numAttrib);
+  for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
+    vecNumDistFeats[j] = 0;
+    for (unsigned int i = 0; i < numTrainObs; ++i)  // for each observation
+      if (vecNumDistFeats[j] < dataIntTrain[i].X[j] + 1)
+        vecNumDistFeats[j] = dataIntTrain[i].X[j] + 1;
+  } // end for each attribute
+}
+
 
 // set the maximum distinct value of all attributes
-void DataRMA::setNumMaxDistVal() {
-  numMaxDistVal = 0;
-  numTotalCutPts = 0;
-  for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
-    numTotalCutPts += distFeat[j];
-    if (numMaxDistVal < distFeat[j]+1)
-      numMaxDistVal = distFeat[j] + 1;
-  }
+void DataRMA::setMaxNumDistFeats() {
+  maxNumDistFeats     = 0;
+  for (unsigned int j = 0; j < numAttrib; ++j)  // for each attribute
+    if (maxNumDistFeats < vecNumDistFeats[j])
+      maxNumDistFeats = vecNumDistFeats[j];
 }
 
-void DataRMA::setPosNegObs() {
+
+// set the maximum distinct value of all attributes
+void DataRMA::setNumTotalCutPts() {
+  numTotalCutPts = 0;
+  for (unsigned int j = 0; j < numAttrib; ++j)  // for each attribute
+    numTotalCutPts += vecNumDistFeats[j]-1; // sum up the tatoal cut point
+}
+
+
+// set positive and negative observations
+void DataRMA::setNumPosNegObs() {
 
   numPosTrainObs = 0;
   numNegTrainObs = 0;
-  for (unsigned int i = 0; i < numTrainObs; ++i) {
-    if (origTrainData[vecTrainData[i]].y == 1)
-      ++numPosTrainObs;
+
+  for (unsigned int i = 0; i < numTrainObs; ++i) { // for each training observation
+    if (dataOrigTrain[vecTrainObsIdx[i]].y == 1) // if the response value is 1
+      ++numPosTrainObs;  // count observation i as postive
     else
-      ++numNegTrainObs;
+      ++numNegTrainObs;  // count observation i as negative
   }
 
 #ifdef ACRO_HAVE_MPI
   if (uMPI::rank == 0) {
 #endif //  ACRO_HAVE_MPI
-    ucout << "m^+ m^-: " << numPosTrainObs << "\t" << numNegTrainObs << "\n";
+    ucout << "# of Positive : Negative Observations: "
+          << numPosTrainObs << " : " << numNegTrainObs << "\n";
 #ifdef ACRO_HAVE_MPI
   }
 #endif //  ACRO_HAVE_MPI
 }
 
-// set avgX and sdX, average and standard devication vectors for X
-void DataRMA::setXStat(vector<DataXy> &origData) {
+
+// set vecAvgX, a vector of average X for each attribute
+void DataRMA::setVecAvgX(vector<DataXy> &origData) { // TODO: why passing this data
 
   unsigned int i, j;
-  avgX.resize(numAttrib);
-  sdX.resize(numAttrib);
+  vecAvgX.resize(numAttrib);
 
-  for (j = 0; j < numAttrib; ++j) {
-    avgX[j] = 0;
-    sdX[j] = 0;
+  for (j = 0; j < numAttrib; ++j)
+    vecAvgX[j] = 0;
+
+  for (j = 0; j < numAttrib; ++j) {   // for each attribute j
+    for (i = 0; i < numTrainObs; ++i) // for each training observation i
+      vecAvgX[j] += origData[i].X[j]; // set the sum of X value for attribute j
+    vecAvgX[j] /= numTrainObs;        // set the average of X value for attribute j
+  } // for each attribute j
+
+} // end setVecAvgX function
+
+
+// set vecSdX, a vector of standard deviation of X for each attribute
+void DataRMA::setVecSdX(vector<DataXy> &origData) {
+
+  unsigned int i, j;
+  vecSdX.resize(numAttrib);
+
+  for (j = 0; j < numAttrib; ++j)
+    vecSdX[j]  = 0;
+
+  // set the vecAvgX and vecSdX for all attributes
+  for (j = 0; j < numAttrib; ++j) {    // for each attribute j
+    for (i = 0; i < numTrainObs; ++i)  // for each training observation
+      vecSdX[j] += pow(origData[i].X[j] - vecAvgX[j], 2);
+    vecSdX[j] /= numTrainObs;
+    vecSdX[j] = sqrt(vecSdX[j]);
+  } // end for each attribute j
+
+} // end setVecSdX function
+
+
+// set avgY, the average of Y values
+void DataRMA::setAvgY(vector<DataXy> &origData) {
+
+  unsigned int obs;
+  avgY = 0;
+
+  for (unsigned int i = 0; i < numTrainObs; ++i) {
+    obs = vecTrainObsIdx[i];
+    avgY += origData[obs].y; // get avg of y
   }
-
-  /////////////////// get average of X in each attribute /////////////////////
-  for (i = 0; i < numTrainObs; ++i)
-    for (j = 0; j < numAttrib; ++j)
-      avgX[j] += origData[i].X[j];
-
-  /////////////////// get std dev of X in each attribute
-  //////////////////////////////
-  for (j = 0; j < numAttrib; ++j) {
-    avgX[j] /= numTrainObs;
-    for (i = 0; i < numTrainObs; ++i)
-      sdX[j] += pow(origData[i].X[j] - avgX[j], 2);
-    sdX[j] /= numTrainObs;
-    sdX[j] = sqrt(sdX[j]);
-  }
-
-} // enf setXStat function
-
-// set avgX and sdX, average and standard devication vectors for X
-void DataRMA::setYStat(vector<DataXy> &origData) {
-
-  unsigned int i;
-  avgY = 0, sdY = 0;
-
-  ////////////////////////////////////////////////////////////////////////////
-  for (i = 0; i < numTrainObs; ++i)
-    avgY += origData[i].y; // get avg of y
 
   avgY /= numTrainObs; // get average response value
 
-  for (i = 0; i < numTrainObs; ++i)
-    sdY += pow(origData[i].y - avgY, 2); // get std dev of y
+}
+
+
+// set sdY, the standard devication of Y values
+void DataRMA::setSdY(vector<DataXy> &origData) {
+
+  unsigned int obs;
+  sdY = 0;
+
+  for (unsigned int i = 0; i < numTrainObs; ++i){
+    obs = vecTrainObsIdx[i];
+    sdY += pow(origData[obs].y - avgY, 2); // get std dev of y
+  }
 
   sdY /= numTrainObs;
   sdY = sqrt(sdY);
+
 }
 
+
+// set Standadize Data
 void DataRMA::setStandDataX(vector<DataXy> &origData,
                             vector<DataXy> &standData) {
 
-  unsigned int i, j;
+  unsigned int i, j, obs;
 
-  setXStat(origData);
+  setVecAvgX(origData);
+  setVecSdX(origData);
 
   // standardize X in each attribute
-  for (j = 0; j < numAttrib; ++j)
-    for (i = 0; i < numTrainObs; ++i)
-      standData[i].X[j] = (origData[i].X[j] - avgX[j]) / sdX[j];
+  for (j = 0; j < numAttrib; ++j) // for each attribute
+    for (i = 0; i < numTrainObs; ++i) { // for each training observation
+      obs = vecTrainObsIdx[i];
+      standData[obs].X[j] = (origData[obs].X[j] - vecAvgX[j]) / vecSdX[j];
+    }
 
-  for (i = 0; i < numTrainObs; ++i)
-    standData[i].y = (origData[i].y - avgY) / sdY;
+  // if (args->debug >= 100)
+  //   // print the standData
+  //   for (i = 0; i < numTrainObs; ++i) {
+  //     obs = vecTrainObsIdx[i];
+  //     cout << "obs: " << obs << ": " << standData[obs] << "\n";
+  //   }
 
-  ////////////////////////////////////////////////////////////////////////////
-  if (args->debug >= 1)
-    for (i = 0; i < numTrainObs; ++i)
-      cout << "obs: " << i << ": " << standData[i] << "\n";
 }
 
+
+// set the standardized data for Y-value
 void DataRMA::setStandDataY(vector<DataXy> &origData,
                             vector<DataXy> &standData) {
 
-  unsigned int i;
+  unsigned int obs;
 
-  setYStat(origData);
+  setAvgY(origData); // set avgY
+  setSdY(origData);  // set sdY
 
   // standardize y
-  for (i = 0; i < numTrainObs; ++i)
-    standData[i].y = (origData[i].y - avgY) / sdY;
+  for (unsigned int i = 0; i < numTrainObs; ++i) { // for each obseration i
+    obs = vecTrainObsIdx[i];
+    standData[obs].y = (origData[obs].y - avgY) / sdY;
+  }
+
 }
+
 
 void DataRMA::integerizeData(vector<DataXy> &origData,
                              vector<DataXw> &intData) {
@@ -372,29 +450,29 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
                               // integeried value
   map<double, int>::iterator itm; // iterator for the map
 
-  vector<IntMinMax>
-      copyIntMinMax; // a vector contins min and max for each integerized value
+  vector<IntMinMax> copyIntMinMax; // a vector contins min and max for each integerized value
 
   tc.startTime();
 
-  maxX.resize(numAttrib);
-  minX.resize(numAttrib);
+  vecMaxX.resize(numAttrib);
+  vecMinX.resize(numAttrib);
 
+  // reset the minimum and maximum values of X for each attribute
   for (j = 0; j < numAttrib; ++j) {
-    minX[j] = getInf();
-    maxX[j] = -getInf();
+    vecMinX[j] = getInf();
+    vecMaxX[j] = -getInf();
   }
 
   // if (isLPBoost()) setXStat();
 
-  for (j = 0; j < numAttrib; ++j) {
+  for (j = 0; j < numAttrib; ++j) { // for each attribute
 
     if (args->debug >= 2)
       cout << "feat: " << j << "\n";
     setDistVal.clear();
     cout << "test: ";
-    for (i = 0; i < numTrainObs; ++i) {
-      obs = vecTrainData[i];
+    for (i = 0; i < numTrainObs; ++i) { // for each training observation
+      obs = vecTrainObsIdx[i];  // get the observation index
       if (args->debug >= 10)
         cout << "test: " << origData[obs].X[j] << "\n";
       setDistVal.insert(origData[obs].X[j]);
@@ -411,7 +489,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
     }
 
     // get 95% confidence interval range
-    interval = min(4.0 * sdX[j], *setDistVal.rbegin() - *setDistVal.begin());
+    interval = min(4.0 * vecSdX[j], *setDistVal.rbegin() - *setDistVal.begin());
 
     // episiolon, aggregation level, for integerization
     eps = min(args->delta(), args->maxInterval()) * interval;
@@ -419,9 +497,9 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
     eps0 = eps;
     if (args->debug >= 2)
       cout << "delta: " << args->delta() << "\n"
-           << "max: " << *setDistVal.rbegin()
+           << "max: "   << *setDistVal.rbegin()
            << ", min: " << *setDistVal.begin() << "\n"
-           << "eps: " << eps << "\n"
+           << "eps: "   << eps << "\n"
            << "maxInterval: " << args->maxInterval() * interval << "\n";
 
     /************ assign integer without recursive integerization ************/
@@ -457,7 +535,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
     }
 
     vecFeature[j].vecIntMinMax.resize(k + 1);
-    distFeat[j] = k; // get distinct # of feature
+    vecNumDistFeats[j] = k; // get distinct # of feature
 
     /************************ recursive integerization ************************/
 
@@ -602,63 +680,64 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
       }
 
       vecFeature[j].vecIntMinMax.resize(k + p + 1);
-      distFeat[j] = k + p; // get distinct # of feature
+      vecNumDistFeats[j] = k + p; // get distinct # of feature
 
     } // end if recursive discretization applies
 
     // set intData sets
     for (i = 0; i < numTrainObs; ++i) {
-      obs = vecTrainData[i];
+      obs = vecTrainObsIdx[i];
       intData[obs].X.resize(numAttrib);
       intData[obs].X[j] = mapDblInt[origData[obs].X[j]];
     }
 
-  } // end for each attribute
+  } // end for each attr// set vecAvgX and vecSdX, average and standard devication vectors for X
 
   /*
   for (i=0; i<numTrainObs ; ++i) {
-    obs = vecTrainData[i];
+    obs = vecTrainObsIdx[i];
     DEBUGPRX(20, this, "IntObs: " << obs << ": "
       << intData[obs] << '\n');
   }*/
 
   if (args->debug >= 1)
-    cout << "distFeat: " << distFeat << "\n";
+    cout << "vecNumDistFeats: " << vecNumDistFeats << "\n";
 
   /*
     #ifdef ACRO_HAVE_MPI
       if (uMPI::rank==0) {
     #endif //  ACRO_HAVE_MPI
       if (writePred()) {
-        writeObs(origTrainData);
-        writeObs(intTrainData);
+        saveXObs(dataOrigTrain);
+        saveXObs(dataIntTrain);
       }
     #ifdef ACRO_HAVE_MPI
       }
     #endif //  ACRO_HAVE_MPI
   */
-  numMaxDistVal = 0;
+  maxNumDistFeats = 0;
   for (j = 0; j < numAttrib; ++j) {
-    numTotalCutPts += distFeat[j];
-    if (numMaxDistVal - 1 < distFeat[j])
-      numMaxDistVal = distFeat[j] + 1;
+    numTotalCutPts += vecNumDistFeats[j];
+    if (maxNumDistFeats - 1 < vecNumDistFeats[j])
+      maxNumDistFeats = vecNumDistFeats[j] + 1;
   }
 
   ////////////////////////////////////////////////////////////////////////////
   if (args->debug >= 1)
     for (i = 0; i < numTrainObs; ++i) {
-      obs = vecTrainData[i];
+      obs = vecTrainObsIdx[i];
       cout << "obs: " << obs << ": " << intData[obs] << "\n";
     }
 
-  if (args->debug >= 1)
+  if (args->debug >= 1) {
     cout << "integerizeProblem: \t";
-  if (args->debug >= 1)
     tc.getCPUTime();
+  }
   if (args->debug >= 2)
     tc.getWallTime();
 
 } // end integerizeData
+
 
 //  integerize into fixed bin
 void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
@@ -666,53 +745,58 @@ void DataRMA::integerizeFixedLengthData(vector<DataXy> &origData,
 
   unsigned int i, j, obs, glMaxL = -1;
   unsigned int sizeBin = args->fixedSizeBin();
-  numMaxDistVal = 0;
+  maxNumDistFeats = 0;
 
   // fix X matrix
   for (i = 0; i < numTrainObs; ++i) {
-    obs = vecTrainData[i];
+    obs = vecTrainObsIdx[i];
     for (j = 0; j < numAttrib; ++j) {
-      if (standTrainData[obs].X[j] < minX[j])
-        minX[j] = standTrainData[obs].X[j]; // get minX[j]
-      if (standTrainData[obs].X[j] > maxX[j])
-        maxX[j] = standTrainData[obs].X[j]; // get maxX[j]
+      if (dataStandTrain[obs].X[j] < vecMinX[j])
+        vecMinX[j] = dataStandTrain[obs].X[j]; // get vecMinX[j]
+      if (dataStandTrain[obs].X[j] > vecMaxX[j])
+        vecMaxX[j] = dataStandTrain[obs].X[j]; // get vecMaxX[j]
     }
   }
 
-  distFeat.resize(numAttrib);
+  vecNumDistFeats.resize(numAttrib);
   for (j = 0; j < numAttrib; ++j) {
-    numMaxDistVal = -1;
+    maxNumDistFeats = -1;
     for (i = 0; i < numTrainObs; ++i) {
-      obs = vecTrainData[i];
+      obs = vecTrainObsIdx[i];
       intData[obs].X.resize(numAttrib);
-      intData[obs].X[j] = floor((origData[obs].X[j] - minX[j]) /
-                                ((maxX[j] - minX[j]) / (double)sizeBin));
-      if (numMaxDistVal < intData[obs].X[j])
-        numMaxDistVal = intData[obs].X[j];
+      intData[obs].X[j] = floor((origData[obs].X[j] - vecMinX[j]) /
+                                ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin));
+      if (maxNumDistFeats < intData[obs].X[j])
+        maxNumDistFeats = intData[obs].X[j];
     }
 
-    distFeat[j] = numMaxDistVal;
-    if (glMaxL < numMaxDistVal)
-      glMaxL = numMaxDistVal;
+    vecNumDistFeats[j] = maxNumDistFeats;
+    if (glMaxL < maxNumDistFeats)
+      glMaxL = maxNumDistFeats;
 
-    vecFeature[j].vecIntMinMax.resize(numMaxDistVal);
-    for (i = 0; i < numMaxDistVal; ++i) {
+    vecFeature[j].vecIntMinMax.resize(maxNumDistFeats);
+    for (i = 0; i < maxNumDistFeats; ++i) {
       vecFeature[j].vecIntMinMax[0].minOrigVal =
-          (double)i * ((maxX[j] - minX[j]) / (double)sizeBin) + minX[j];
+          (double)i * ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin) + vecMinX[j];
       vecFeature[j].vecIntMinMax[0].maxOrigVal =
-          (double)(i + 1) * ((maxX[j] - minX[j]) / (double)sizeBin) + minX[j];
+          (double)(i + 1) * ((vecMaxX[j] - vecMinX[j]) / (double)sizeBin) + vecMinX[j];
     }
   }
 }
 
-template <class T> void DataRMA::writeObs(T vecData) {
+
+// TODO: need this?
+// save X values of all the training observations
+template <class T> void DataRMA::saveXObs(T vecData) {
+
   unsigned int i, j, obs;
   stringstream s;
   (typeid(T) == typeid(int)) ? s << "int" << '.' : s << "orig" << '.';
   ofstream os(s.str().c_str());
-  for (i = 0; i < numTrainObs; ++i) {
-    for (j = 0; j < numAttrib; ++j) {
-      obs = vecTrainData[i];
+
+  for (i = 0; i < numTrainObs; ++i) { // for each training observation
+    for (j = 0; j < numAttrib; ++j) { // for each attribute
+      obs = vecTrainObsIdx[i];
       os << vecData[obs].X[j] << " ";
     }
     os << "\n";

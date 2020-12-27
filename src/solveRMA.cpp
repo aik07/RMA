@@ -9,7 +9,7 @@
 
 namespace rma {
 
-
+  // setup to sovle RMA
   void SolveRMA::setupSolveRMA(int& argc, char**& argv) {
 
     setup(argc, argv);           // setup all paramaters
@@ -41,13 +41,13 @@ namespace rma {
     }
 #endif // ACRO_HAVE_MPI
 
-    rma->setParameters(this); // passing arguments
-    rma->setData(data);
+    rma->setParameters(this);    // passing arguments
+    rma->setData(data);          // set data
 
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-      rma->setSortedObsIdx(data->vecTrainData);
+      rma->setSortedObsIdx(data->vecTrainObsIdx);
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
@@ -59,20 +59,28 @@ namespace rma {
   }
 
 
+  // solve RMA using the chosen methods
   void SolveRMA::solveRMA() {
-    if (isPebblRMA()) {
 
-      resetExactRMA();
+    if (isPebblRMA()) { // if RMA is solved using PEBBL
 
-      if (isInitGuess()) {
-	/*
+      resetPebblRMA();  // reset PEEBL RMA variables
+
+      if (isInitGuess()) {  // if the PEBBL get initial guess by solving the greedy RMA
+
+// TODO: the greedy RMA can be solved using only one process
+
+  /*
 #ifdef ACRO_HAVE_MPI
 	if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
 	/*/
-    	  solveGreedyRMA();
-    	  rma->setInitialGuess(grma->isPosIncumb, grma->maxObjValue,
-    			       grma->L, grma->U);
+    	  solveGreedyRMA();  // solve the greedy RMA
+        // set the initial guess solution using the greedy RMA solution
+        // (positive or negative solution, initial objective value,
+        //  lower and upper bounds)
+    	  rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
+    			                   grma->getLowerBounds(), grma->getUpperBounds());
 	  /*
 #ifdef ACRO_HAVE_MPI
 	}
@@ -81,14 +89,14 @@ namespace rma {
 
       }
 
-      solveExactRMA();
+      solvePebblRMA();  // solve RMA using PEBBL
 
-    } else {
+    } else { // if RMA is solved using PEBBL
 
 #ifdef ACRO_HAVE_MPI
       if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-	solveGreedyRMA();
+	      solveGreedyRMA();  // solve the greedy RMA
 #ifdef ACRO_HAVE_MPI
       }
 #endif //  ACRO_HAVE_MPI
@@ -97,59 +105,65 @@ namespace rma {
   }
 
 
+  // solve Greedy RMA
   void SolveRMA::solveGreedyRMA() {
     grma = new greedyRMA::GreedyRMA(this, data);
     grma->runGreedyRangeSearch();
   }
 
 
-  void SolveRMA::resetExactRMA() {
+  // reset PEBBL RMA variables
+  void SolveRMA::resetPebblRMA() {
 
 #ifdef ACRO_HAVE_MPI
-    if (isParallel) {
-      prma->reset();
-      if (isPrintBBdetails()) prma->printConfiguration();
+    if (isParallel) { // if in parallel
+      prma->reset();                 // reset the prallel RMA class
+      if (isPrintBBdetails())        // if B&B details should be shown
+        prma->printConfiguration();  // print the PEBBL configuration
       CommonIO::begin_tagging();
-    } else {
+    } else { // if in serial
 #endif //  ACRO_HAVE_MPI
-      rma->reset();
+      rma->reset(); // reset the serial PEBBL RMA settings
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
 
-    rma->mmapCachedCutPts.clear();
-    rma->workingSol.value = -getInf();
+    rma->mmapCachedCutPts.clear();     // clean up the cached cut points storage
+    rma->workingSol.value = -getInf(); // set the working solution value to be negative infinity
 
   }
 
 
-  // solve RMA
-  void SolveRMA::solveExactRMA() {
+  // solve RMA using PEBBL
+  void SolveRMA::solvePebblRMA() {
 
-    rma->resetTimers();
+    rma->resetTimers();  // reset PEBBL timers
     InitializeTiming();
 
-    tc.startTime();
+    tc.startTime();      // start the timer
 
     if (isPrintBBdetails()) rma->solve();  // print out B&B details
-    else                  rma->search();
+    else                    rma->search(); // only get the RMA optimal value (no B&B details)
 
-    tc.getCPUTime();
-    tc.getWallTime();
-    printRMASolutionTime();
+    printPebblRMASolutionTime();
 
-  } // end function solveExactRMA()
+  } // end function solvePebblRMA()
 
 
-  void SolveRMA::printRMASolutionTime() {
+  void SolveRMA::printPebblRMASolutionTime() {
 
-    double global_solution = rma->workingSol.value;
-    int    total_nodes     = rma->subCount[2];
+    double global_solution = rma->workingSol.value; // set the current node's RMA solution value
+    int    total_nodes     = rma->subCount[2];      // set the current node's subproblems which
 
-    if (uMPI::size>1) {
+    if (uMPI::size>1) { // if the PEBBL RMA is solved in parllel
+
       // ucout << "reduce " << " " << total_nodes << "\n";
+
+      // set the global solution value to be the maximum among all nodes's solutions
       MPI_Reduce(&rma->workingSol.value, &global_solution,
                  1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+      // set the total node to be the sum of the nodes among all nodes
       MPI_Reduce(&rma->subCount[2],      &total_nodes,
                  1, MPI_INT,    MPI_SUM, 0, MPI_COMM_WORLD);
     }

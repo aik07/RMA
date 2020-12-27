@@ -1,10 +1,13 @@
 #include "utilRMA.h"
 
+
+// get the double infinity value
 double getInf() {
  return std::numeric_limits<double>::infinity();
 }
 
 
+// get the integer inifinitiy value
 int getIntInf() {
  return std::numeric_limits<int>::max();
 }
@@ -40,6 +43,7 @@ ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
   }
   return os;
 }
+
 template ostream &operator<< <unsigned int>(ostream &os,
                  const vector<vector<unsigned int> > &v);
 template ostream &operator<< <double>(ostream &os,

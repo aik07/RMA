@@ -31,6 +31,7 @@ using namespace arg;
 
 namespace base {
 
+  // This class is a copy of one of pebbl class
   class BaseRMA : public ArgRMA,
     virtual public pebblParams,
     virtual public parallelPebblParams {

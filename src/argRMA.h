@@ -70,34 +70,27 @@ namespace arg {
 
     int    fixedSizeBin()       const {return _fixedSizeBin;}
 
-    // void   setPrintBBdetails(bool isPrint) {_printBBdetails = isPrint;}
-
   private:
 
-    bool   _isPebblRMA;            // solve RMA using PEBBL
+    bool   _isPebblRMA;              // solve RMA using PEBBL
     //bool   _isGreedyRMA;           // solve the greedy RMA
 
     // for non-strong branching ...
     bool   _isBinarySearchCutVal;  // an option for binary-sarching cutpoint
-    double _perCachedCutPts;     // check only stored cuts points which is x % of total cut points
-    double _perLimitAttrib;      // percentages of features to check
+    double _perCachedCutPts;       // check only stored cuts points which is x % of total cut points
+    double _perLimitAttrib;        // percentages of features to check
 
     bool   _isRandSeed;            // random seed for tied solution or bound
     bool   _isInitGuess;	         // compute an initial incumbent
-    int    _branchSelection;     // random, first, or last one for tied branch
+    int    _branchSelection;       // random, first, or last one for tied branch
     bool   _isCountingSort;        // use counting sourt (default is bucket sort)
 
     // for validation
-    bool   _isCheckObjVal;	 // check the solution is right or not
+    bool   _isCheckObjVal;	       // check the solution is right or not
     bool   _isBruteForceEC;        // brute force way to create equivalence classes
     bool   _isBruteForceIncumb;    // brute force way to check incumbent in each atrribute
 
-    string  _nonUniformWt;       // use test weight
-
-    // for saving information
-    bool   _isSaveInstances;
-    bool   _isSaveNodeTime;       // make an output file containing BoundedSP and run time
-    bool   _isSaveCutPts;
+    string  _nonUniformWt;         // use test weight
 
     // for recursive integerization
     double _delta;               // if the continuous value is less than delta, aggregate to the same integer
@@ -109,6 +102,11 @@ namespace arg {
 
     // for printing more details
     bool   _isPrintBBdetails;
+
+    // for saving information
+    bool   _isSaveInstances;
+    bool   _isSaveNodeTime;       // make an output file containing BoundedSP and run time
+    bool   _isSaveCutPts;
 
     double _rampUpSizeFact;      // TODO: what is this?
 
