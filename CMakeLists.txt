@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(rma)
-#project(rma CXX)
+# project(rma CXX)
 
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
@@ -15,6 +15,7 @@ set(PEBBL_LIBRARIES ${PEBBL_ROOT}/build/src/pebbl/libpebbl.a)
 set(PEBBL_INCLUDES  ${PEBBL_ROOT}/src ${PEBBL_ROOT}/build/src)
 
 set(CMAKE_CXX_COMPILER mpicxx)
+# set(CMAKE_CXX_COMPILER /usr/bin/mpicxx)
 
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_COMPILE_FLAGS})
 set(CMAKE_CXX_LINK_FLAGS ${CMAKE_CXX_LINK_FLAGS} ${MPI_LINK_FLAGS})
@@ -53,3 +54,16 @@ target_link_libraries(rma ${PEBBL_LIBRARIES})
 #file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 add_library(lrma STATIC ${SOURCES})
 target_link_libraries(lrma ${PEBBL_LIBRARIES})
+
+# pybind11
+Message("Link pybind11")
+add_subdirectory(external/pybind11)
+
+# find_package(PythonInterp REQUIRED)
+# FIND_PACKAGE( PythonLibs )
+# INCLUDE_DIRECTORIES( ${PYTHON_INCLUDE_PATH} )
+# INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR} )
+# INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR}/src )
+
+# pybind11_add_module(pyRMA src/python/pythonInterface.cpp)
+# pybind11_add_module(pyRMA ./src/solveRMA.cpp)

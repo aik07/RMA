@@ -183,3 +183,20 @@ namespace rma {
   }
 
 } // end namespace rma
+
+
+// #include <pybind11/pybind11.h>
+// namespace py = pybind11;
+//
+//
+// PYBIND11_MODULE(SolveRMA, m) {
+//
+//     // optional module docstring
+//     m.doc() = "pybind11 plugin for RMA";
+//
+//     // bindings to Pet class
+//     py::class_<SolveRMA>(m, "SolveRMA")
+//         .def(py::init<>())
+//         .def("setupSolveRMA", &SolveRMA::setupSolveRMA)
+//         .def("solveRMA",      &SolveRMA::solveRMA);
+// }

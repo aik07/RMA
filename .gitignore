@@ -5,6 +5,7 @@ obj/
 build/
 
 external/pebbl
+external/pybind11
 
 result*
 

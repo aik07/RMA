@@ -443,7 +443,7 @@ void DataRMA::integerizeData(vector<DataXy> &origData,
 
   vector<double> vecTemp(numOrigObs);
 
-  set<double> setDistVal; // a set continas all distinct values for each attribute
+  set<double> setDistVal;        // a set continas all distinct values for each attribute
   set<double>::iterator it, itp; // iterator for the set
 
   map<double, int> mapDblInt; // a container maps from an original value to an

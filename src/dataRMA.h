@@ -102,7 +102,7 @@ public:
   void setVecSdX(vector<DataXy> &origData);   // set vecSdX
 
   void setAvgY(vector<DataXy> &origData);     // set avgY
-  void setSdY(vector<DataXy>  &origData);      // set sdY
+  void setSdY(vector<DataXy>  &origData);     // set sdY
 
   // set the standerdized data of X and Y
   void setStandDataX (vector<DataXy>& origData, vector<DataXy> &standData);
@@ -112,7 +112,8 @@ public:
   void integerizeData(vector<DataXy>& origData, vector<DataXw> &intData);
 
   // integerize data by using fixed interval length
-  void integerizeFixedLengthData(vector<DataXy> &origData, vector<DataXw> &stdandData);
+  void integerizeFixedLengthData(vector<DataXy> &origData,
+                                 vector<DataXw> &stdandData);
 
   template <class T> void saveXObs(T vecData);
 
@@ -129,7 +130,7 @@ public:
   unsigned int numPosTrainObs;   // # of positive training observations
   unsigned int numNegTrainObs;   // # of negative training observations
   unsigned int numTotalCutPts;   // # of cutpoints for RMA
-  unsigned int maxNumDistFeats;       // maximum distinct value among all attributes
+  unsigned int maxNumDistFeats;  // maximum distinct value among all attributes
 
   // average and standard deviation of Y
   double         avgY, sdY;
@@ -158,6 +159,11 @@ public:
   // vector<DataXy>  dataStandTest;
 
   vector<Feature> vecFeature;    // contains features original and integeried values
+
+
+
+
+
 
   Time     tc;     // Time class object
   ArgRMA   *args;  // ArgRMA class object
