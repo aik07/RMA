@@ -168,7 +168,7 @@ void parRMA::pack(PackBuffer &outBuf) {
     // outBuf << data->origTrainData[i].y;
   }
 
-  outBuf << data->vecNumDistFeats << data->numTotalCutPts;
+  outBuf << data->vecNumDistVals << data->numTotalCutPts;
 
 } // end function parRMA::pack
 
@@ -191,17 +191,17 @@ void parRMA::unpack(UnPackBuffer &inBuf) {
     // inBuf >> data->origTrainData[i].y;
   }
 
-  inBuf >> data->vecNumDistFeats >> data->numTotalCutPts;
+  inBuf >> data->vecNumDistVals >> data->numTotalCutPts;
 
   if (args->debug >= 20)
     cout << "parRMA::unpack done." << '\n';
 
   if (args->debug >= 20) {
 
-    cout << " data->vecNumDistFeats: ";
+    cout << " data->vecNumDistVals: ";
 
     for (unsigned int j = 0; j < data->numAttrib; ++j)
-      cout << data->vecNumDistFeats[j] << ", ";
+      cout << data->vecNumDistVals[j] << ", ";
 
     // TODO: we only need numTrainObs...
     for (unsigned int i = 0; i < data->numOrigObs; ++i)

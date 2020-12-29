@@ -56,8 +56,8 @@ add_library(lrma STATIC ${SOURCES})
 target_link_libraries(lrma ${PEBBL_LIBRARIES})
 
 # pybind11
-Message("Link pybind11")
-add_subdirectory(external/pybind11)
+# Message("Link pybind11")
+# add_subdirectory(external/pybind11)
 
 # find_package(PythonInterp REQUIRED)
 # FIND_PACKAGE( PythonLibs )

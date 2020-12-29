@@ -306,13 +306,13 @@ RMA::~RMA() {
 
 
 void rmaSolution::reset(const unsigned int numAttrib,
-                        vector<unsigned int> &vecNumDistFeats) {
+                        vector<unsigned int> &vecNumDistVals) {
   vector<unsigned int> tmp(numAttrib, 0);
-  this->setData(true, 0, tmp, vecNumDistFeats);
+  this->setData(true, 0, tmp, vecNumDistVals);
   // this->isPosIncumb = true;
   // this->value = 0;
   // this->a = tmp;
-  // this->b = vecNumDistFeats;
+  // this->b = vecNumDistVals;
 }
 
 void rmaSolution::setData(const bool isPosIncumb, const double objVal,
@@ -326,7 +326,7 @@ void rmaSolution::setData(const bool isPosIncumb, const double objVal,
 
 solution *RMA::initialGuess() {
 
-  workingSol.reset(data->numAttrib, data->vecNumDistFeats);
+  workingSol.reset(data->numAttrib, data->vecNumDistVals);
 
   if (args->isInitGuess())
     return guess;
@@ -410,7 +410,7 @@ void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
   if (!isAlreadyInCache) {
     if (0 > j || j > data->numAttrib)
       cout << "ERROR! j is out of range for setCachedCutPts";
-    else if (0 > v || v > data->vecNumDistFeats[j]-2)
+    else if (0 > v || v > data->vecNumDistVals[j]-2)
       cout << "ERROR! v is out of range for setCachedCutPts";
     else
       mmapCachedCutPts.insert(make_pair(j, v));
@@ -509,7 +509,7 @@ void RMASub::setRootComputation() {
   au.resize(numAttrib());
   fill(al.begin(), al.end(), 0);
   for (unsigned int j=0; j<numAttrib(); ++j)
-    au[j] = vecNumDistFeats()[j]-1;
+    au[j] = vecNumDistVals()[j]-1;
   bl << al;
   bu << au;
   deqRestAttrib.resize(numAttrib(), false);
@@ -1027,7 +1027,7 @@ void RMASub::hybridBranching() {
 
   for (unsigned int j = 0; j < numAttrib(); ++j) { // for each attribute
 
-    if (vecNumDistFeats()[j] < 30) {
+    if (vecNumDistVals()[j] < 30) {
       while (k < cachedCutPts.size()) {
         if (j == cachedCutPts[k].j) {
           branchingProcess(cachedCutPts[k].j, cachedCutPts[k].v);
@@ -1058,7 +1058,7 @@ void RMASub::hybridBranching() {
       U = bu[j];
       firstFewCutPts = true;
       vecCheckedCutVal.clear();
-      vecCheckedCutVal.resize(vecNumDistFeats()[j]);
+      vecCheckedCutVal.resize(vecNumDistVals()[j]);
 
       while (true) {
         if (numCutValues > 3) {
@@ -1165,7 +1165,7 @@ void RMASub::binaryBranching() {
     U = bu[j];
     firstFewCutPts = true;
     vecCheckedCutVal.clear();
-    vecCheckedCutVal.resize(vecNumDistFeats()[j] + 1);
+    vecCheckedCutVal.resize(vecNumDistVals()[j] + 1);
 
     while (true) {
       if (numCutValues > 3) {
@@ -1284,7 +1284,7 @@ void RMASub::cutpointCaching() {
       _branchChoice.branchVar > globalPtr->data->numAttrib)
     return; // cout << "ERROR! j is out of range for setCachedCutPts";
   else if (_branchChoice.cutVal < 0 ||
-           _branchChoice.cutVal > globalPtr->data->vecNumDistFeats[j]-2)
+           _branchChoice.cutVal > globalPtr->data->vecNumDistVals[j]-2)
     return; // cout << "ERROR! v is out of range for setCachedCutPts";
   else
     globalPtr->setCachedCutPts(_branchChoice.branchVar, _branchChoice.cutVal);
@@ -2086,11 +2086,11 @@ void rmaSolution::printContents(ostream &outStream) {
   for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
     if (0 < a[i]) // if lower bound changed
       cout << a[i] << "<=";
-    if (0 < a[i] || b[i] < global->data->vecNumDistFeats[i])
+    if (0 < a[i] || b[i] < global->data->vecNumDistVals[i])
       cout << "x" << i;
-    if (b[i] < global->data->vecNumDistFeats[i]-1)
+    if (b[i] < global->data->vecNumDistVals[i]-1)
       cout << "<=" << b[i];
-    if (0 < a[i] || b[i] < global->data->vecNumDistFeats[i])
+    if (0 < a[i] || b[i] < global->data->vecNumDistVals[i])
       cout << ", ";
   }
   cout << "\n";

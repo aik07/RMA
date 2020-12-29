@@ -21,7 +21,7 @@ void GreedyRMA::runGreedyRangeSearch() {
   vecUpperMax.resize(data->numAttrib);
   vecLower.resize(data->numAttrib);
   vecUpper.resize(data->numAttrib);
-  vecValueWeight.resize(data->maxNumDistFeats);
+  vecValueWeight.resize(data->maxNumDistVals);
 
   searchMinOptRange();    // search oprimal range for minimum objective value
 
@@ -335,9 +335,9 @@ void GreedyRMA::setVecValueWeight(const unsigned int &j) {
   unsigned int i, v, obs;
 
   // initialize the vecValueWeight
-  // vecValueWeight.resize(data->vecNumDistFeats[j]);
+  // vecValueWeight.resize(data->vecNumDistVals[j]);
   // fill(vecValueWeight.begin(), vecValueWeight.end(), 0);
-  for (i = 0; i < data->vecNumDistFeats[j]; ++i)
+  for (i = 0; i < data->vecNumDistVals[j]; ++i)
     vecValueWeight[i] = 0;
 
   for (i = 0; i < vecCvdObsIdx.size(); ++i) {  // for each covered observation index
@@ -368,8 +368,8 @@ void GreedyRMA::resetMinOptRange() {
   fill(vecLowerMin.begin(), vecLowerMin.end(), 0);
 
   // set upper vector for the minimim version
-  // vecUpperMin.resize(data->vecNumDistFeats.size());
-  copy(data->vecNumDistFeats.begin(), data->vecNumDistFeats.end(), vecUpperMin.begin());
+  // vecUpperMin.resize(data->vecNumDistVals.size());
+  copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMin.begin());
 
   // set the covered observation indices
   vecCvdObsIdx.resize(data->numTrainObs);
@@ -394,8 +394,8 @@ void GreedyRMA::resetMaxOptRange() {
   fill(vecLowerMax.begin(), vecLowerMax.end(), 0);
 
   // set upper vector for the maximum version
-  // vecUpperMax.resize(data->vecNumDistFeats.size());
-  copy(data->vecNumDistFeats.begin(), data->vecNumDistFeats.end(), vecUpperMax.begin());
+  // vecUpperMax.resize(data->vecNumDistVals.size());
+  copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
   vecCvdObsIdx.resize(data->vecTrainObsIdx.size());
   copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),
@@ -488,14 +488,14 @@ void GreedyRMA::setInit1DRules() {
   Lmin.clear();
   Lmin.resize(data->numAttrib);
 
-  Umin.resize(data->vecNumDistFeats.size());
-  copy(data->vecNumDistFeats.begin(), data->vecNumDistFeats.end(), Umin.begin());
+  Umin.resize(data->vecNumDistVals.size());
+  copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), Umin.begin());
 
   vecLowerMax.clear();
   vecLowerMax.resize(data->numAttrib);
 
-  vecUpperMax.resize(data->vecNumDistFeats.size());
-  copy(data->vecNumDistFeats.begin(), data->vecNumDistFeats.end(), vecUpperMax.begin());
+  vecUpperMax.resize(data->vecNumDistVals.size());
+  copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
   vecCvdObsIdx.resize(data->numTrainObs);
   copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),

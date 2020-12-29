@@ -169,7 +169,7 @@ public:
   rmaSolution(rmaSolution *toCopy);
   virtual ~rmaSolution() {}
 
-  void reset(const unsigned int numAttrib, vector<unsigned int> &vecNumDistFeats);
+  void reset(const unsigned int numAttrib, vector<unsigned int> &vecNumDistVals);
   void setData(const bool isPosIncumb, const double objVal,
                vector<unsigned int> &a, vector<unsigned int> &b);
 
@@ -392,8 +392,8 @@ protected:
   inline unsigned int numDistObs()       { return global()->data->numTrainObs; };
   inline unsigned int numAttrib()        { return global()->data->numAttrib; };
 
-  inline vector<unsigned int> vecNumDistFeats() {
-    return global()->data->vecNumDistFeats;
+  inline vector<unsigned int> vecNumDistVals() {
+    return global()->data->vecNumDistVals;
   };
 
 public:

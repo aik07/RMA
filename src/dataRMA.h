@@ -24,9 +24,11 @@ using namespace utilib;
 
 namespace data {
 
-  struct IntMinMax { double minOrigVal, maxOrigVal; };
-  struct Feature   { vector<IntMinMax> vecIntMinMax; };
+  // each bin has lower and upper bound of the original values
+  struct Bin           { double lowerBound, upperBound; };
 
+  // each attronites have manmy bins where each bin for each integer value
+  struct BinsPerAttrib { vector<Bin> vecBins; };
 
 //////////////////// a clsss for integerized dataset (X and w) ////////////////////
 class DataXw {
@@ -37,7 +39,7 @@ public:
   DataXw( const vector<unsigned int>& X_ ) : X(X_) {}
 
   int read(istream& is)        { is >> X >> w; return 0; }
-  int write(ostream& os) const { os << X << w; return 0; }
+  int write(ostream& os) const { os << X << " : "<< w; return 0; }
 
 //private:
   vector<unsigned int> X; // integerized explanatory variables
@@ -57,7 +59,7 @@ public:
   DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
   int read(istream& is)        { is >> X >> y;        return 0; }
-  int write(ostream& os) const { os << X << " " << y; return 0; }
+  int write(ostream& os) const { os << X << " : " << y; return 0; }
 
 //private:
   vector<double> X;  // explanatory variables
@@ -88,35 +90,41 @@ public:
 
   void setDataDimensions();
 
+  // count # of positive and negative observations
   void setNumPosNegObs();
-  void setDataIntTrainX();
-  void setDataIntTrainWeight();
 
+  // set dataIntTrainX
+  void setDataIntX();
+
+  // set setDataIntTrainWeight
+  void setDataIntWeight();
+
+  // remove onservations with zero weights from the training data
   void removeZeroWtObs();
 
-  void setVecNumDistFeats();
-  void setMaxNumDistFeats();
+  void setVecNumDistVals();  // set vecNumDistVals
+  void setMaxNumDistVals(); // set maxNumDistVals
   void setNumTotalCutPts();
 
-  void setVecAvgX(vector<DataXy> &origData);  // set vecAvgX
-  void setVecSdX(vector<DataXy> &origData);   // set vecSdX
+  void setVecAvgX();  // set vecAvgX
+  void setVecSdX();   // set vecSdX
 
-  void setAvgY(vector<DataXy> &origData);     // set avgY
-  void setSdY(vector<DataXy>  &origData);     // set sdY
+  void setAvgY();   // set avgY
+  void setSdY();    // set sdY
 
   // set the standerdized data of X and Y
-  void setStandDataX (vector<DataXy>& origData, vector<DataXy> &standData);
-  void setStandDataY (vector<DataXy>& origData, vector<DataXy> &standData);
+  void setDataStandX ();
+  void setDataStandY ();
 
-  // integerize data by using episolon
-  void integerizeData(vector<DataXy>& origData, vector<DataXw> &intData);
+  // integergize data by using the episilon aggregation
+  void integerizeEpsData();
 
   // integerize data by using fixed interval length
-  void integerizeFixedLengthData(vector<DataXy> &origData,
-                                 vector<DataXw> &stdandData);
+  void integerizeFixedData();
 
   template <class T> void saveXObs(T vecData);
 
+  inline unsigned int idxTrain(const int &i) { return vecTrainObsIdx[i]; };
 //protected:
 
   // # of observations in original data
@@ -130,12 +138,16 @@ public:
   unsigned int numPosTrainObs;   // # of positive training observations
   unsigned int numNegTrainObs;   // # of negative training observations
   unsigned int numTotalCutPts;   // # of cutpoints for RMA
-  unsigned int maxNumDistFeats;  // maximum distinct value among all attributes
+  unsigned int maxNumDistVals;  // maximum distinct value among all attributes
 
+  // average and standard deviation of Y
+  double           avgY, sdY;
 
+  // average and standard deviation vectors of X for each attribute
+  vector<double>   vecAvgX, vecSdX;
 
   // a vector contains # of distinct featrues for each attribute after discretization
-  vector<unsigned int>  vecNumDistFeats;
+  vector<unsigned int>  vecNumDistVals;
 
   // a vector contains only training observation indices
   vector<unsigned int>  vecTrainObsIdx;
@@ -154,23 +166,61 @@ public:
   Time     tc;     // Time class object
   ArgRMA   *args;  // ArgRMA class object
 
+  void setSetDistVals(const int &j);
 
-  // integerize and standardize data
+  // set episilon for attribute j
+  void setEpsilon(const int &j);
 
-  vector<Feature> vecFeature;    // contains features original and integeried values
+  void printIntegerizationInfo();
 
-  // average and standard deviation of Y
-  double         avgY, sdY;
+  // assign integer values without the recursive technique
+  void assignIntNotRecursively(const unsigned int &j);
 
-  // average and standard deviation vectors of X for each attribute
-  vector<double> vecAvgX, vecSdX;
+  // assign integer values recursively
+  void assignIntRecursively(const unsigned int &j);
 
-  // minimum and maximum deviation vectors of X for each attribute
-  vector<double> vecMinDevX, vecMaxDevX;
+  void setVecBinsCopy(const unsigned int &j);
+
+  void setMapOrigInt(const unsigned int &j);
+
+  void setDataIntEps(const unsigned int &j);
+
+  void printRecursiveIntInfo(int j, int k, int countExtraBins,
+                             int countL, int countR, int q);
+
+  void printLowerUpperInfo(int lower, int upper);
+
+  void printVecAttribIntInfo(const unsigned int &j,
+                             const unsigned int &countExtraBins);
+
+  void printAfterEpsIntegerization();
+
+  // fixed length integerization
 
   void setInitVecMinMaxDevX();
-  set<double> setDistVal;        // a set continas all distinct values for each attribute
 
+  // set dataIntTrain
+  void setDataIntFixed();
+
+  void setVecAttribIntInfoIntFixed();
+
+  // contains info about bins of lower and upper bounds info for all attributes
+  vector<BinsPerAttrib> vecAttribIntInfo;
+
+  vector<Bin>      vecBinsCopy; // a vector contins min and max for each integerized value
+
+  // minimum and maximum deviation vectors of X for each attribute
+  vector<double>   vecMinDevX, vecMaxDevX;
+
+  // a set continas all distinct values for each attribute
+  set<double>      setDistVals;
+
+  // a container maps from an original value to an
+  map<double, int> mapOrigInt;
+
+  double           eps; // episilon, aggregation level
+
+  double           interval;  // confidence interval range
 
 };
 

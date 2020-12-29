@@ -4,6 +4,8 @@
 #include <limits>
 #include <vector>
 #include <deque>
+#include <set>
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -20,6 +22,9 @@ ostream& operator<<(ostream& os, const deque<T>& v);
 // for 1D set output
 template<class T>
 ostream& operator<<(ostream& os, const set<T>& v);
+
+// for map output
+ostream& operator<<(ostream& os, const map<double, int>& v);
 
 // for 1D vector output
 template<class T>

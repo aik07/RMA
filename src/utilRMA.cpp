@@ -36,6 +36,15 @@ ostream &operator<<(ostream &os, const set<T> &v) {
 }
 
 
+// for map output
+ostream &operator<<(ostream &os, const map<double, int> &m) {
+  for (typename map<double, int>::const_iterator i =m.begin(); i !=m.end(); ++i)
+    os << " [" << i->first << ':' << i->second << ']';
+  os << " \n";
+  return os;
+}
+
+
 // for 2D vector output
 template<class T>
 ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
