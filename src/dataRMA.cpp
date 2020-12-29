@@ -124,33 +124,6 @@ bool DataRMA::readData(int &argc, char **&argv) {
 } // readData
 
 
-// TODO: not using this any more
-// read shuffled observation from the data file
-// bool DataRMA::readRandObs(int argc, char **argv) {
-//
-//   ucout << "Use Shuffled Obs\n";
-//   ifstream s(argv[2]); // open the data file
-//
-//   // check whether or not the file is opened correctly
-//   if (!s) {
-//     cerr << "Could not open file \"" << argv[2] << "\"\n";
-//     return false;
-//   }
-//
-//   vecRandObs.resize(numOrigObs);
-//
-//   // read data
-//   for (unsigned int i = 0; i < numOrigObs; ++i)
-//     s >> vecRandObs[i];
-//
-//   s.close(); // close the data file
-//
-//   if (args->debug >= 2)
-//     cout << "vecRandObs: " << vecRandObs;
-//   return true;
-// }
-
-
 // set X for the dataIntTrain
 void DataRMA::setDataIntX() {
 
@@ -383,6 +356,32 @@ void DataRMA::setSdY() {
   sdY /= numTrainObs;
   sdY = sqrt(sdY);
 
+
+// TODO: not using this any more
+// read shuffled observation from the data file
+// bool DataRMA::readRandObs(int argc, char **argv) {
+//
+//   ucout << "Use Shuffled Obs\n";
+//   ifstream s(argv[2]); // open the data file
+//
+//   // check whether or not the file is opened correctly
+//   if (!s) {
+//     cerr << "Could not open file \"" << argv[2] << "\"\n";
+//     return false;
+//   }
+//
+//   vecRandObs.resize(numOrigObs);
+//
+//   // read data
+//   for (unsigned int i = 0; i < numOrigObs; ++i)
+//     s >> vecRandObs[i];
+//
+//   s.close(); // close the data file
+//
+//   if (args->debug >= 2)
+//     cout << "vecRandObs: " << vecRandObs;
+//   return true;
+// }
 } // end setSdY
 
 
@@ -544,13 +543,6 @@ void DataRMA::assignIntNotRecursively(const unsigned int &j) {
   vecAttribIntInfo[j].vecBins.resize(vecNumDistVals[j]);
 
 } // end assignIntNotRecursively function
-
-
-void DataRMA::printLowerUpperInfo(int lower, int upper) {
-  cout << "current lower: "   << lower
-       << ", current upper: " << upper
-       << ", diff: "          << (upper - lower) << "\n";
-}
 
 
 // assign the integer recursively
@@ -760,6 +752,12 @@ void DataRMA::printIntegerizationInfo() {
        << ", maxInterval: " << args->maxInterval() * interval << "\n";
 } // end printIntegerizationInfo function
 
+
+void DataRMA::printLowerUpperInfo(int lower, int upper) {
+  cout << "current lower: "   << lower
+       << ", current upper: " << upper
+       << ", diff: "          << (upper - lower) << "\n";
+}
 
 void DataRMA::printRecursiveIntInfo(int j, int k, int countExtraBins,
                                     int countL, int countR, int countIn) {
@@ -975,3 +973,30 @@ istream &operator>>(istream &is, data::DataXw &obj) {
   obj.read(is);
   return is;
 }
+
+
+// TODO: not using this any more
+// read shuffled observation from the data file
+// bool DataRMA::readRandObs(int argc, char **argv) {
+//
+//   ucout << "Use Shuffled Obs\n";
+//   ifstream s(argv[2]); // open the data file
+//
+//   // check whether or not the file is opened correctly
+//   if (!s) {
+//     cerr << "Could not open file \"" << argv[2] << "\"\n";
+//     return false;
+//   }
+//
+//   vecRandObs.resize(numOrigObs);
+//
+//   // read data
+//   for (unsigned int i = 0; i < numOrigObs; ++i)
+//     s >> vecRandObs[i];
+//
+//   s.close(); // close the data file
+//
+//   if (args->debug >= 2)
+//     cout << "vecRandObs: " << vecRandObs;
+//   return true;
+// }

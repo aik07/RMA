@@ -30,11 +30,11 @@ namespace arg {
 
     _nonUniformWt(""),            // specify the non-uniform weight file
 
-    _delta(-1),
-    _shrinkDelta(.95),
-    _maxInterval(getInf()),
+    _delta(-1),                   // delta for recursive discretization
+    _shrinkDelta(.95),            // shrink delta for recursive discretization
+    _maxInterval(getInf()),       //the maximum interval length
 
-    _fixedSizeBin(-1),
+    _fixedSizeBin(-1),           // fixed # of bins for each attribute
 
     _isPrintBBdetails(false),     // whether or not to print B&B details
 
@@ -99,14 +99,13 @@ namespace arg {
       "CPU time for each iteration", "RMA");
 
     create_categorized_parameter("delta", _delta, "<double>",
-      "0", "delta for recursive discretization", "RMA");
+      "-1", "delta for recursive discretization", "RMA");
 
     create_categorized_parameter("shrinkDelta", _shrinkDelta, "<double>",
       ".95", "shrink delta for recursive discretization", "RMA");
 
     create_categorized_parameter("maxInterval", _maxInterval, "<double>",
       "inf", "set the maximum interval length for recursive integerization", "RMA");
-
 
     create_categorized_parameter("isPrintBBdetails", _isPrintBBdetails, "<bool>",
       "true", "print the complete output of the PEBBL branch-and bound", "RMA");
