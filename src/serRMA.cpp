@@ -4,6 +4,7 @@
 // Description: a source file for serial RMA solver using PEBBL
 // **********************************************************
 
+
 #include "serRMA.h"
 
 namespace pebblRMA {
@@ -471,37 +472,6 @@ void RMA::writeStatDataToFile(const int &iterNum) {
 }
 
 
-void RMA::startTime() {
-
-#ifdef ACRO_HAVE_MPI
-  if (uMPI::rank == 0) {
-#endif //  ACRO_HAVE_MPI
-    timeStart = clock();
-#ifdef ACRO_HAVE_MPI
-  }
-#endif //  ACRO_HAVE_MPI
-
-}
-
-
-double RMA::endTime() {
-
-#ifdef ACRO_HAVE_MPI
-  if (uMPI::rank == 0) {
-#endif //  ACRO_HAVE_MPI
-    timeEnd = clock();
-    clockTicksTaken = timeEnd - timeStart;
-    timeInSeconds = clockTicksTaken / (double)CLOCKS_PER_SEC;
-    cout << "Time: " << timeInSeconds << "\n";
-#ifdef ACRO_HAVE_MPI
-  }
-#endif //  ACRO_HAVE_MPI
-
-  return timeInSeconds;
-
-}
-
-
 // ********************* RMASub methods (start) *******************************
 
 void RMASub::setRootComputation() {
@@ -524,9 +494,9 @@ void RMASub::boundComputation(double *controlParam) {
     cout << "\nal: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
   }
 
-  NumTiedSols    = 1;
-  NumPosTiedSols = 0;
-  NumNegTiedSols = 0;
+  numTiedSols    = 1;
+  numPosTiedSols = 0;
+  numNegTiedSols = 0;
 
   // setCoveredObs();	// find covered observation which are in [al. bu]
   // sort each feature based on [au, bl]
@@ -908,19 +878,19 @@ void RMASub::branchingProcess(const unsigned int &j, const unsigned int &v) {
       cout << "Improves best attribute: " << j << "\n";
     if (global()->args->debug >= 2)
       cout << "Branch choice now: " << _branchChoice << "\n";
-    NumTiedSols = 1;
+    numTiedSols = 1;
     // foundBound=true;
   } else if (thisChoice == _branchChoice) {
     // cout << "branchBound: " << thisChoice.branch[0].exactBound << " "
     //     << _branchChoice.branch[0].exactBound;
     if (global()->args->branchSelection() == 0) {
-      NumTiedSols++;
-      (globalPtr->args->isRandSeed()) ? srand(NumTiedSols * time(NULL) * 100)
+      numTiedSols++;
+      (globalPtr->args->isRandSeed()) ? srand(numTiedSols * time(NULL) * 100)
                                     : srand(1);
       double rand_num = (rand() % 10001) / 10000.0;
       // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
-      // DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
-      if (rand_num <= 1.0 / NumTiedSols) {
+      // DEBUGPRX(0, global(), "rand1: " << 1.0 /  numTiedSols << "\n");
+      if (rand_num <= 1.0 / numTiedSols) {
         _branchChoice = thisChoice;
         if (global()->args->debug >= 50)
           cout << "Improves best attribute: " << j << "\n";
@@ -1480,28 +1450,28 @@ void RMASub::compIncumbent(const unsigned int &j) {
   curObs = 0;
   tmpMin = runMinKadane(j);
   if (tmpMin == minVal) {
-    NumNegTiedSols++;
-    (globalPtr->args->isRandSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
+    numNegTiedSols++;
+    (globalPtr->args->isRandSeed()) ? srand(numNegTiedSols * time(NULL) * 100)
                                   : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
-    if (rand_num <= 1.0 / NumNegTiedSols)
+    if (rand_num <= 1.0 / numNegTiedSols)
       setOptMin(j);
   } else if (tmpMin < minVal) { // if better min incumbent was found
-    NumNegTiedSols = 1;
+    numNegTiedSols = 1;
     setOptMin(j);
   }
 
   curObs = 0;
   tmpMax = runMaxKadane(j);
   if (tmpMax == maxVal) {
-    NumPosTiedSols++;
-    (globalPtr->args->isRandSeed()) ? srand(NumNegTiedSols * time(NULL) * 100)
+    numPosTiedSols++;
+    (globalPtr->args->isRandSeed()) ? srand(numNegTiedSols * time(NULL) * 100)
                                   : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
-    if (rand_num <= 1.0 / NumPosTiedSols)
+    if (rand_num <= 1.0 / numPosTiedSols)
       setOptMax(j);
   } else if (tmpMax > maxVal) {
-    NumPosTiedSols = 1;
+    numPosTiedSols = 1;
     setOptMax(j);
   }
 
@@ -1511,7 +1481,7 @@ void RMASub::compIncumbent(const unsigned int &j) {
 void RMASub::chooseMinOrMaxRange() {
   if (max(maxVal, -minVal) > workingSol()->value + .000001) {
     (globalPtr->args->isRandSeed())
-        ? srand((NumNegTiedSols + NumPosTiedSols) * time(NULL) * 100)
+        ? srand((numNegTiedSols + numPosTiedSols) * time(NULL) * 100)
         : srand(1);
     rand_num = (rand() % 10001) / 10000.0;
     workingSol()->a << al;
@@ -1519,7 +1489,7 @@ void RMASub::chooseMinOrMaxRange() {
     if (maxVal > -minVal ||
         (maxVal == minVal &&
          rand_num <=
-             NumPosTiedSols / (double)(NumNegTiedSols + NumPosTiedSols))) {
+             numPosTiedSols / (double)(numNegTiedSols + numPosTiedSols))) {
       workingSol()->value = maxVal;
       workingSol()->a[optMaxAttrib] = optMaxLower;
       workingSol()->b[optMaxAttrib] = optMaxUpper;

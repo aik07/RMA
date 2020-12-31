@@ -1,8 +1,8 @@
 /**********************************************************
-*  File name:   parRMA.cpp
 *  Author:      Ai Kagawa
 *  Description: a header file for the parallel RMA solver using PEBBL
 **********************************************************/
+
 
 #ifndef pebbl_paralleRMA_h
 #define pebbl_paralleRMA_h

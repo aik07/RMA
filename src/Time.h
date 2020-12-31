@@ -1,6 +1,6 @@
 /*
- *  File name: Time.h
- *  Author:    Ai Kagawa
+ *  Author:     Ai Kagawa
+ * Description: timer related functiosn
  */
 
 

@@ -1,3 +1,9 @@
+/*
+ *  Author:     Ai Kagawa
+ * Description: a source file of utility functions for RMA
+ */
+
+
 #include "utilRMA.h"
 
 
@@ -59,42 +65,6 @@ ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
 
 template ostream &operator<< <unsigned int>(ostream &os,
                  const vector<vector<unsigned int> > &v);
+
 template ostream &operator<< <double>(ostream &os,
                  const vector<vector<double> > &v);
-
-
-// ostream &operator<<(ostream &os, const deque<bool> &v) {
-//   os << "(";
-//   for (deque<bool>::const_iterator i = v.begin(); i != v.end(); ++i)
-//     os << " " << *i;
-//   os << " )\n";
-//   return os;
-// }
-
-// ostream &operator<<(ostream &os, const vector<double> &v) {
-//   os << "(";
-//   for (vector<double>::const_iterator i = v.begin(); i != v.end(); ++i)
-//     os << " " << *i;
-//   os << " )\n";
-//   return os;
-// }
-//
-// ostream &operator<<(ostream &os, const vector<vector<int>> &v) {
-//   for (unsigned int i = 0; i < v.size(); ++i) {
-//     os << "(";
-//     for (unsigned int j = 0; j < v[i].size(); ++j)
-//       os << v[i][j] << " ";
-//     os << " )\n";
-//   }
-//   return os;
-// }
-
-// ostream &operator<<(ostream &os, const vector<vector<double>> &v) {
-//   for (unsigned int i = 0; i < v.size(); ++i) {
-//     os << "(";
-//     for (unsigned int j = 0; j < v[i].size(); ++j)
-//       os << v[i][j] << " ";
-//     os << " )\n";
-//   }
-//   return os;
-// }

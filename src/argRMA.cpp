@@ -1,7 +1,9 @@
 /**********************************************************
- *  File name: argRMA.h
- *  Author:    Ai Kagawa
+ *  Author:     Ai Kagawa
+ * Description: a header file for ArgRMA class which contains
+ *              all parameters for RMA
 **********************************************************/
+
 
 #include "argRMA.h"
 
@@ -114,6 +116,6 @@ namespace arg {
       "1.00", "if (#storedCutPts) <= rampUpSizeFact * (#processors),"
       "get out the ramp-up", "RMA");
 
-  }
+} // end ArgRMA class
 
-} // namespace BaseRMA
+} // end namespace BaseRMA

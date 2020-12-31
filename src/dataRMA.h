@@ -1,8 +1,8 @@
 //**********************************************************
-//  File name:   dataRMA.h
 //  Author:      Ai Kagawa
 //  Description: a header file for RMA data class
 //*********************************************************
+
 
 #ifndef DATA_h
 #define DATA_h
@@ -124,7 +124,8 @@ public:
 
   template <class T> void saveXObs(T vecData);
 
-  inline unsigned int idxTrain(const int &i) { return vecTrainObsIdx[i]; };
+  inline unsigned int idxTrain(const unsigned int &i) { return vecTrainObsIdx[i]; };
+
 //protected:
 
   // # of observations in original data
@@ -132,7 +133,7 @@ public:
 
   // # of distinct observation after discretization
   unsigned int numTrainObs;
-  // unsigned int numTestObs;       // # of testing observations
+  unsigned int numTestObs;       // # of testing observations
 
   unsigned int numAttrib;        // # of attributes
   unsigned int numPosTrainObs;   // # of positive training observations
@@ -153,14 +154,14 @@ public:
   vector<unsigned int>  vecTrainObsIdx;
 
   // vector<unsigned int>  vecRandObs;    // contains randomize all observations
-  // vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
+  vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
 
   vector<DataXy>  dataOrigTrain;      // original datasets X and y
   vector<DataXy>  dataStandTrain;     // starndardized datasets of X and y
   vector<DataXw>  dataIntTrain;       // discretized data X abd w (weight)
 
-  // vector<DataXy>  dataOrigTest;      // original datasets X and y
-  // vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
+  vector<DataXy>  dataOrigTest;      // original datasets X and y
+  vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
   // vector<DataXy>  dataStandTest;
 
   Time     tc;     // Time class object
@@ -207,10 +208,11 @@ public:
   // contains info about bins of lower and upper bounds info for all attributes
   vector<BinsPerAttrib> vecAttribIntInfo;
 
-  vector<Bin>      vecBinsCopy; // a vector contins min and max for each integerized value
+  /********************** for episilon integerization *****************/
 
-  // minimum and maximum deviation vectors of X for each attribute
-  vector<double>   vecMinDevX, vecMaxDevX;
+  double           eps; // episilon, aggregation level
+
+  double           interval;  // confidence interval range
 
   // a set continas all distinct values for each attribute
   set<double>      setDistVals;
@@ -218,16 +220,22 @@ public:
   // a container maps from an original value to an
   map<double, int> mapOrigInt;
 
-  double           eps; // episilon, aggregation level
+  // a vector contins min and max for each integerized value
+  vector<Bin>      vecBinsCopy;
 
-  double           interval;  // confidence interval range
+  /********************** for integerization by fixed bins *****************/
+  // minimum and maximum deviation vectors of X for each attribute
+  vector<double>   vecMinDevX, vecMaxDevX;
 
-};
+}; // end DataRMA class
 
 } // end namespace data
 
+// operator overloading to write and read DataXw class object info
 ostream& operator<<(ostream& os, data::DataXw& obj);
 istream& operator>>(istream& is, data::DataXw& obj);
+
+// operator overloading to write and read DataXy class object info
 ostream& operator<<(ostream& os, data::DataXy& obj);
 istream& operator>>(istream& is, data::DataXy& obj);
 

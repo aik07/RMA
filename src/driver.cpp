@@ -1,7 +1,6 @@
 //**********************************************************
-// File name:   driver.cpp
 // Author:      Ai Kagawa
-// Description: serial or parallel driver
+// Description: a serial or parallel driver
 // ***********************************************************
 
 

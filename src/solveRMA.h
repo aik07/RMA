@@ -1,8 +1,8 @@
 /**********************************************************
-* File name:   solveRMA.h
 * Author:      Ai Kagawa
-* Description: a header file for RMA driver class
+* Description: a header file for RMA solver class
 ***********************************************************/
+
 
 #ifndef RMA_h
 #define RMA_h

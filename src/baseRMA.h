@@ -1,8 +1,9 @@
 /**********************************************************
- * File name:   baseRMA.h
  * Author:      Ai Kagawa
  * Description: a header file for RMA base class
+                This is mostly a one of PEBBL class.
 **********************************************************/
+
 
 #ifndef BASE_RMA_h
 #define BASE_RMA_h
@@ -73,7 +74,7 @@ namespace base {
     string        solver_name;
     unsigned int  min_num_required_args;
 
-  };
+}; // end BaseRMA class
 
 } // end namespace base
 

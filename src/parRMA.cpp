@@ -4,6 +4,7 @@
  *  Description: a source file for the parallel RMA solver using PEBBL
  **********************************************************/
 
+
 #include "parRMA.h"
 #include "serRMA.h"
 
@@ -548,7 +549,7 @@ void parRMASub::boundComputation(double *controlParam) {
     return;
   }
 
-  NumTiedSols = 1;
+  numTiedSols = 1;
 
   // Special handling of ramp-up
   if (global()->args->debug >= 20)
@@ -620,7 +621,7 @@ void parRMASub::boundComputation(double *controlParam) {
 
   if (global()->args->debug >= 1)
     cout << "Best local choice is " << _branchChoice
-         << " NumTiedSols: " << NumTiedSols << '\n';
+         << " numTiedSols: " << numTiedSols << '\n';
 
   /******************* rampUpIncumbentSync *******************/
 

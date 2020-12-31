@@ -1,8 +1,9 @@
 /**********************************************************
- * File name:   dataRMA.cpp
  * Author:      Ai Kagawa
  * Description: a source file for Data class
  ***********************************************************/
+
+
 #include "dataRMA.h"
 
 
@@ -218,7 +219,7 @@ void DataRMA::readNonUniformWt() {
     } // end while
 
   } else { // if the program could not open the file
-    cout << "error: cannot read nonuniform wt";
+    cerr << "error: cannot read nonuniform wt";
   }
   // rma->setDataIntWeight(vecNonUniformWt, vecObsIdx);
 
@@ -309,6 +310,8 @@ void DataRMA::setVecAvgX() {
     vecAvgX[j] /= numTrainObs;        // set the average of X value for attribute j
   } // for each attribute j
 
+  if (args->debug >= 2) cout << "vecAvgX: " << vecAvgX;
+
 } // end setVecAvgX function
 
 
@@ -328,6 +331,8 @@ void DataRMA::setVecSdX() {
     vecSdX[j] /= numTrainObs;
     vecSdX[j] = sqrt(vecSdX[j]);
   } // end for each attribute j
+
+  if (args->debug >= 2) cout << "vecSdX: " << vecSdX;
 
 } // end setVecSdX function
 
@@ -356,32 +361,6 @@ void DataRMA::setSdY() {
   sdY /= numTrainObs;
   sdY = sqrt(sdY);
 
-
-// TODO: not using this any more
-// read shuffled observation from the data file
-// bool DataRMA::readRandObs(int argc, char **argv) {
-//
-//   ucout << "Use Shuffled Obs\n";
-//   ifstream s(argv[2]); // open the data file
-//
-//   // check whether or not the file is opened correctly
-//   if (!s) {
-//     cerr << "Could not open file \"" << argv[2] << "\"\n";
-//     return false;
-//   }
-//
-//   vecRandObs.resize(numOrigObs);
-//
-//   // read data
-//   for (unsigned int i = 0; i < numOrigObs; ++i)
-//     s >> vecRandObs[i];
-//
-//   s.close(); // close the data file
-//
-//   if (args->debug >= 2)
-//     cout << "vecRandObs: " << vecRandObs;
-//   return true;
-// }
 } // end setSdY
 
 
@@ -398,22 +377,30 @@ void DataRMA::setDataStandX() {
   // standardize X in each attribute
   for (j = 0; j < numAttrib; ++j) { // for each attribute
 
-    dataStandTrain[i].X.resize(numAttrib);
-
     for (i = 0; i < numTrainObs; ++i) { // for each training observation
-      dataStandTrain[idxTrain(i)].X[j]
-        = (dataOrigTrain[idxTrain(i)].X[j] - vecAvgX[j]) / vecSdX[j];
+
+      // resize each observation's X
+      dataStandTrain[i].X.resize(numAttrib);
+
+      if (vecSdX[j]!=0)
+        dataStandTrain[idxTrain(i)].X[j]
+          = (dataOrigTrain[idxTrain(i)].X[j] - vecAvgX[j]) / vecSdX[j];
+      else  // if the standard deviation is 0, do not divide
+        dataStandTrain[idxTrain(i)].X[j]
+           = dataOrigTrain[idxTrain(i)].X[j] - vecAvgX[j];
     } // end for each observation
 
   } // end for each attribute
 
-  // if (args->debug >= 100)
-  //   // print the dataStandTrain
-  //   for (i = 0; i < numTrainObs; ++i) {
-  //     cout << "obs: " << idxTrain(i) << ": " << dataStandTrain[idxTrain(i)] << "\n";
-  //   }
+  if (args->debug >= 10) {
+    // print the dataStandTrain
+    cout << "dataStandTrain: \n";
+    for (i = 0; i < numTrainObs; ++i) {
+      cout << "obs: " << idxTrain(i) << ": " << dataStandTrain[idxTrain(i)] << "\n";
+    }
+  }
 
-}
+} // end setDataStandX function
 
 
 // set the standardized data for Y-value
@@ -974,6 +961,31 @@ istream &operator>>(istream &is, data::DataXw &obj) {
   return is;
 }
 
+// TODO: not using this any more
+// read shuffled observation from the data file
+// bool DataRMA::readRandObs(int argc, char **argv) {
+//
+//   ucout << "Use Shuffled Obs\n";
+//   ifstream s(argv[2]); // open the data file
+//
+//   // check whether or not the file is opened correctly
+//   if (!s) {
+//     cerr << "Could not open file \"" << argv[2] << "\"\n";
+//     return false;
+//   }
+//
+//   vecRandObs.resize(numOrigObs);
+//
+//   // read data
+//   for (unsigned int i = 0; i < numOrigObs; ++i)
+//     s >> vecRandObs[i];
+//
+//   s.close(); // close the data file
+//
+//   if (args->debug >= 2)
+//     cout << "vecRandObs: " << vecRandObs;
+//   return true;
+// }
 
 // TODO: not using this any more
 // read shuffled observation from the data file

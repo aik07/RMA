@@ -1,8 +1,8 @@
 /*
-*  File name:   greedyRMA.h
 *  Author:      Ai Kagawa
 *  Description: a serial greedy rectangular maximum agreement problem solver
 */
+
 
 #ifndef GREEDY_RMA_h
 #define GREEDY_RMA_h

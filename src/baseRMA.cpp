@@ -1,3 +1,10 @@
+/**********************************************************
+ * Author:      Ai Kagawa
+ * Description: a source file for RMA base class, BaseRMA
+                This is mostly a one of PEBBL class.
+**********************************************************/
+
+
 #include "baseRMA.h"
 
 
@@ -73,7 +80,8 @@ namespace base {
       setName(argv[1]);
 
     return true;
-  }
+
+} 
 
 
   bool BaseRMA::checkParameters(char const* progName) {

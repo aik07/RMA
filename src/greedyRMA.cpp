@@ -1,5 +1,4 @@
 /**********************************************************
- * File name:   greedyRMA.cpp
  * Author:      Ai Kagawa
  * Description: a source file for greedy RMA solver
  ***********************************************************/

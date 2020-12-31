@@ -1,8 +1,9 @@
 /**********************************************************
 * File name:   solveRMA.cpp
 * Author:      Ai Kagawa
-* Description: a source file for RMA driver class
+* Description: a source file for RMA solver class
 ***********************************************************/
+
 
 #include "solveRMA.h"
 
@@ -74,18 +75,18 @@ namespace rma {
 #ifdef ACRO_HAVE_MPI
 	if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-	/*/
-    	  solveGreedyRMA();  // solve the greedy RMA
+       /*/
+       solveGreedyRMA();  // solve the greedy RMA
         // set the initial guess solution using the greedy RMA solution
         // (positive or negative solution, initial objective value,
         //  lower and upper bounds)
-    	  rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
-    			                   grma->getLowerBounds(), grma->getUpperBounds());
-	  /*
+        rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
+                          grma->getLowerBounds(), grma->getUpperBounds());
+        /*
 #ifdef ACRO_HAVE_MPI
-	}
+        }
 #endif //  ACRO_HAVE_MPI
-	  /*/
+       /*/
 
       }
 

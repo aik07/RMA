@@ -1,8 +1,9 @@
 /**********************************************************
- * File name:   argRMA.h
  * Author:      Ai Kagawa
- * Description: a header file for RMA argument class
+ * Description: a source file for ArgRMA class which contains
+ *              all parameters for RMA
 **********************************************************/
+
 
 #ifndef ARG_RMA_h
 #define ARG_RMA_h
@@ -56,19 +57,19 @@ namespace arg {
     bool   isBruteForceEC()       const {return _isBruteForceEC;}
     bool   isBruteForceIncumb()   const {return _isBruteForceIncumb;}
 
-    bool   isSaveInstances()   const {return _isSaveInstances;}
-    bool   isSaveNodeTime()    const {return _isSaveNodeTime;}
-    bool   isSaveCutPts()      const {return _isSaveCutPts;}
+    bool   isSaveInstances()      const {return _isSaveInstances;}
+    bool   isSaveNodeTime()       const {return _isSaveNodeTime;}
+    bool   isSaveCutPts()         const {return _isSaveCutPts;}
 
-    double rampUpSizeFact()     const {return _rampUpSizeFact;}
+    double rampUpSizeFact()       const {return _rampUpSizeFact;}
 
-    double delta()              const {return _delta;}
-    double shrinkDelta()        const {return _shrinkDelta;}
-    double maxInterval()        const {return _maxInterval;}
+    double delta()                const {return _delta;}
+    double shrinkDelta()          const {return _shrinkDelta;}
+    double maxInterval()          const {return _maxInterval;}
 
     bool   isPrintBBdetails()     const {return _isPrintBBdetails;}
 
-    int    fixedSizeBin()       const {return _fixedSizeBin;}
+    int    fixedSizeBin()         const {return _fixedSizeBin;}
 
   private:
 
