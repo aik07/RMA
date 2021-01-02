@@ -54,7 +54,7 @@ namespace base {
     void   write_usage_info(char const* progName, ostream& os) const;
     void   writeCommandUsage(char const* progName, ostream& os) const;
     bool   processParameters(int& argc, char**& argv,
-			     unsigned int min_num_required_args);
+                             unsigned int min_num_required_args);
 
     // Register the parameters into a ParameterList object
     void   register_parameters() { plist.register_parameters(*this); }
@@ -74,7 +74,7 @@ namespace base {
     string        solver_name;
     unsigned int  min_num_required_args;
 
-}; // end BaseRMA class
+  }; // end BaseRMA class
 
 } // end namespace base
 

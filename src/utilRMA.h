@@ -2,7 +2,7 @@
  *  Author:     Ai Kagawa
  * Description: a header file of utility functions for RMA
  */
- 
+
 
 #ifndef UTILITY_h
 #define UTILITY_h

@@ -68,3 +68,6 @@ template ostream &operator<< <unsigned int>(ostream &os,
 
 template ostream &operator<< <double>(ostream &os,
                  const vector<vector<double> > &v);
+
+template ostream &operator<< <bool>(ostream &os,
+                 const vector<vector<bool> > &v);

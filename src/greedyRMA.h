@@ -22,6 +22,7 @@ using namespace data;
 
 namespace greedyRMA {
 
+
   // greedy RMA class compute the greedy RMA solution using Kadane's algorithm
   class GreedyRMA {
 
@@ -147,9 +148,9 @@ private:
     DataRMA*  data;  // data RMA class
     Time      ts;    // Time class
 
-  };
+  }; // end GreedyRMA class
 
 
 } // namespace greedyRMA
 
-#endif
+#endif  // GREEDY_RMA_h

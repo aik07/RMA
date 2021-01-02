@@ -30,204 +30,209 @@ namespace data {
   // each attronites have manmy bins where each bin for each integer value
   struct BinsPerAttrib { vector<Bin> vecBins; };
 
-//////////////////// a clsss for integerized dataset (X and w) ////////////////////
-class DataXw {
+  /////////////// a clsss for integerized dataset (X and w) ////////////////
+  class DataXw {
 
-public:
+  public:
 
-  DataXw() : w(0.0) {}
-  DataXw( const vector<unsigned int>& X_ ) : X(X_) {}
+    DataXw() : w(0.0) {}
+    DataXw( const vector<unsigned int>& X_ ) : X(X_) {}
 
-  int read(istream& is)        { is >> X >> w; return 0; }
-  int write(ostream& os) const { os << X << " : "<< w; return 0; }
+    int read(istream& is)        { is >> X >> w; return 0; }
+    int write(ostream& os) const { os << X << " : "<< w; return 0; }
 
-//private:
-  vector<unsigned int> X; // integerized explanatory variables
-  double               w;	// weight of each observation
+  //private:
+    vector<unsigned int> X; // integerized explanatory variables
+    double               w;	// weight of each observation
+
+    friend class DataRMA;
+
+  }; // end DataXw class
+
+
+  ///////////////// a clsss for original dataset (X and y)/////////////////
+  class DataXy {
+
+  public:
+
+    DataXy() : y(0.0) {}
+    DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
+
+    int read(istream& is)        { is >> X >> y;        return 0; }
+    int write(ostream& os) const { os << X << " : " << y; return 0; }
+
+  //private:
+    vector<double> X;  // explanatory variables
+    double         y;	 // dependent variable
 
   friend class DataRMA;
 
-};
+}; // end DataXy class
 
 
-//////////////////// a clsss for original dataset (X and y)////////////////////
-class DataXy {
+  /////////////////////////// DataRMA class ///////////////////////////
+  class DataRMA {
 
-public:
+  public:
 
-  DataXy() : y(0.0) {}
-  DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
+    DataRMA() {}
+    DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
-  int read(istream& is)        { is >> X >> y;        return 0; }
-  int write(ostream& os) const { os << X << " : " << y; return 0; }
+    // DataRMA& operator=( const DataRMA& other );
 
-//private:
-  vector<double> X;  // explanatory variables
-  double         y;	 // dependent variable
+    // read data from the data file, and set dataOrigTrain
+    bool readData(int& argc, char**& argv);
 
-friend class DataRMA;
+    // bool readRandObs(int argc, char** argv);
 
-};
+    // read nonuniform weights from a specified file
+    void readNonUniformWt();
 
+    // count # of positive and negative observations
+    void setNumPosNegObs();
 
-/////////////////////////// DataRMA class ///////////////////////////
-class DataRMA {
+    // set dataIntTrainX
+    void setDataIntX();
 
-public:
+    // set setDataIntTrainWeight
+    void setDataIntWeight();
 
-  DataRMA() {}
-  DataRMA(int& argc, char**& argv, ArgRMA *args_);
+    // remove onservations with zero weights from the training data
+    void removeZeroWtObs();
 
-  // DataRMA& operator=( const DataRMA& other );
+    // set # of distinct values for each attribute
+    void setVecNumDistVals();
 
-  // read data from the data file, and set dataOrigTrain
-  bool readData(int& argc, char**& argv);
+    // set the maximum # of distinct values among all attributes
+    void setMaxNumDistVals();
 
-  // bool readRandObs(int argc, char** argv);
+    // set # of total cutpoints
+    void setNumTotalCutPts();
 
-  // read nonuniform weights from a specified file
-  void readNonUniformWt();
+    void setVecAvgX();  // set vecAvgX
+    void setVecSdX();   // set vecSdX
 
-  void setDataDimensions();
+    void setAvgY();   // set avgY
+    void setSdY();    // set sdY
 
-  // count # of positive and negative observations
-  void setNumPosNegObs();
+    // set the standerdized data of X and Y
+    void setDataStandX ();
+    void setDataStandY ();
 
-  // set dataIntTrainX
-  void setDataIntX();
+    // integergize data by using the episilon aggregation
+    void integerizeEpsData();
 
-  // set setDataIntTrainWeight
-  void setDataIntWeight();
+    // integerize data by using fixed interval length
+    void integerizeFixedData();
 
-  // remove onservations with zero weights from the training data
-  void removeZeroWtObs();
+    template <class T> void saveXObs(T vecData);
 
-  void setVecNumDistVals();  // set vecNumDistVals
-  void setMaxNumDistVals(); // set maxNumDistVals
-  void setNumTotalCutPts();
+    inline unsigned int idxTrain(const unsigned int &i) {
+      return vecTrainObsIdx[i];
+    }
 
-  void setVecAvgX();  // set vecAvgX
-  void setVecSdX();   // set vecSdX
+  //protected:
 
-  void setAvgY();   // set avgY
-  void setSdY();    // set sdY
+    // # of observations in original data
+    unsigned int numOrigObs;
 
-  // set the standerdized data of X and Y
-  void setDataStandX ();
-  void setDataStandY ();
+    // # of distinct observation after discretization
+    unsigned int numTrainObs;
+    unsigned int numTestObs;       // # of testing observations
 
-  // integergize data by using the episilon aggregation
-  void integerizeEpsData();
+    unsigned int numAttrib;        // # of attributes
+    unsigned int numPosTrainObs;   // # of positive training observations
+    unsigned int numNegTrainObs;   // # of negative training observations
+    unsigned int numTotalCutPts;   // # of cutpoints for RMA
+    unsigned int maxNumDistVals;  // maximum distinct value among all attributes
 
-  // integerize data by using fixed interval length
-  void integerizeFixedData();
+    // average and standard deviation of Y
+    double           avgY, sdY;
 
-  template <class T> void saveXObs(T vecData);
+    // average and standard deviation vectors of X for each attribute
+    vector<double>   vecAvgX, vecSdX;
 
-  inline unsigned int idxTrain(const unsigned int &i) { return vecTrainObsIdx[i]; };
+    // a vector contains # of distinct featrues for each attribute after discretization
+    vector<unsigned int>  vecNumDistVals;
 
-//protected:
+    // a vector contains only training observation indices
+    vector<unsigned int>  vecTrainObsIdx;
 
-  // # of observations in original data
-  unsigned int numOrigObs;
+    // vector<unsigned int>  vecRandObs;    // contains randomize all observations
+    vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
 
-  // # of distinct observation after discretization
-  unsigned int numTrainObs;
-  unsigned int numTestObs;       // # of testing observations
+    vector<DataXy>  dataOrigTrain;      // original datasets X and y
+    vector<DataXy>  dataStandTrain;     // starndardized datasets of X and y
+    vector<DataXw>  dataIntTrain;       // discretized data X abd w (weight)
 
-  unsigned int numAttrib;        // # of attributes
-  unsigned int numPosTrainObs;   // # of positive training observations
-  unsigned int numNegTrainObs;   // # of negative training observations
-  unsigned int numTotalCutPts;   // # of cutpoints for RMA
-  unsigned int maxNumDistVals;  // maximum distinct value among all attributes
+    vector<DataXy>  dataOrigTest;      // original datasets X and y
+    vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
+    // vector<DataXy>  dataStandTest;
 
-  // average and standard deviation of Y
-  double           avgY, sdY;
+    Time     tc;     // Time class object
+    ArgRMA   *args;  // ArgRMA class object
 
-  // average and standard deviation vectors of X for each attribute
-  vector<double>   vecAvgX, vecSdX;
+    void setSetDistVals(const int &j);
 
-  // a vector contains # of distinct featrues for each attribute after discretization
-  vector<unsigned int>  vecNumDistVals;
+    // set episilon for attribute j
+    void setEpsilon(const int &j);
 
-  // a vector contains only training observation indices
-  vector<unsigned int>  vecTrainObsIdx;
+    void printIntegerizationInfo();
 
-  // vector<unsigned int>  vecRandObs;    // contains randomize all observations
-  vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
+    // assign integer values without the recursive technique
+    void assignIntNotRecursively(const unsigned int &j);
 
-  vector<DataXy>  dataOrigTrain;      // original datasets X and y
-  vector<DataXy>  dataStandTrain;     // starndardized datasets of X and y
-  vector<DataXw>  dataIntTrain;       // discretized data X abd w (weight)
+    // assign integer values recursively
+    void assignIntRecursively(const unsigned int &j);
 
-  vector<DataXy>  dataOrigTest;      // original datasets X and y
-  vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
-  // vector<DataXy>  dataStandTest;
+    void setVecBinsCopy(const unsigned int &j);
 
-  Time     tc;     // Time class object
-  ArgRMA   *args;  // ArgRMA class object
+    void setMapOrigInt(const unsigned int &j);
 
-  void setSetDistVals(const int &j);
+    void setDataIntEps(const unsigned int &j);
 
-  // set episilon for attribute j
-  void setEpsilon(const int &j);
+    void printRecursiveIntInfo(int j, int k, int countExtraBins,
+                               int countL, int countR, int q);
 
-  void printIntegerizationInfo();
+    void printLowerUpperInfo(int lower, int upper);
 
-  // assign integer values without the recursive technique
-  void assignIntNotRecursively(const unsigned int &j);
+    void printVecAttribIntInfo(const unsigned int &j,
+                               const unsigned int &countExtraBins);
 
-  // assign integer values recursively
-  void assignIntRecursively(const unsigned int &j);
+    void printAfterEpsIntegerization();
 
-  void setVecBinsCopy(const unsigned int &j);
+    // fixed length integerization
 
-  void setMapOrigInt(const unsigned int &j);
+    void setInitVecMinMaxDevX();
 
-  void setDataIntEps(const unsigned int &j);
+    // set dataIntTrain
+    void setDataIntFixed();
 
-  void printRecursiveIntInfo(int j, int k, int countExtraBins,
-                             int countL, int countR, int q);
+    void setVecAttribIntInfoIntFixed();
 
-  void printLowerUpperInfo(int lower, int upper);
+    // contains info about bins of lower and upper bounds info for all attributes
+    vector<BinsPerAttrib> vecAttribIntInfo;
 
-  void printVecAttribIntInfo(const unsigned int &j,
-                             const unsigned int &countExtraBins);
+    /********************** for episilon integerization *****************/
 
-  void printAfterEpsIntegerization();
+    double           eps;         // episilon, aggregation level
 
-  // fixed length integerization
+    double           interval;    // confidence interval range
 
-  void setInitVecMinMaxDevX();
+    // a set continas all distinct values for each attribute
+    set<double>      setDistVals;
 
-  // set dataIntTrain
-  void setDataIntFixed();
+    // a container maps from an original value to an
+    map<double, int> mapOrigInt;
 
-  void setVecAttribIntInfoIntFixed();
+    // a vector contins min and max for each integerized value
+    vector<Bin>      vecBinsCopy;
 
-  // contains info about bins of lower and upper bounds info for all attributes
-  vector<BinsPerAttrib> vecAttribIntInfo;
+    /********************** for integerization by fixed bins *****************/
+    // minimum and maximum deviation vectors of X for each attribute
+    vector<double>   vecMinDevX, vecMaxDevX;
 
-  /********************** for episilon integerization *****************/
-
-  double           eps; // episilon, aggregation level
-
-  double           interval;  // confidence interval range
-
-  // a set continas all distinct values for each attribute
-  set<double>      setDistVals;
-
-  // a container maps from an original value to an
-  map<double, int> mapOrigInt;
-
-  // a vector contins min and max for each integerized value
-  vector<Bin>      vecBinsCopy;
-
-  /********************** for integerization by fixed bins *****************/
-  // minimum and maximum deviation vectors of X for each attribute
-  vector<double>   vecMinDevX, vecMaxDevX;
-
-}; // end DataRMA class
+  }; // end DataRMA class
 
 } // end namespace data
 

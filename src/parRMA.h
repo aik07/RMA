@@ -44,6 +44,7 @@
 #include "serRMA.h"
 #include "utilRMA.h"
 
+
 using namespace std;
 using namespace pebbl;
 using namespace utilib;
@@ -51,9 +52,11 @@ using namespace utilib;
 
 namespace pebblRMA {
 
+
   class RMA;
   class RMASub;
   class CutPtThd;
+
 
   //**************************************************************************
   //  The parallel branching class...
@@ -100,7 +103,7 @@ namespace pebblRMA {
   protected:
     double rampUpFeatureFac;
 
-  };//************************************************************************
+  }; // end reset function
 
 
   //**************************************************************************
@@ -142,7 +145,7 @@ namespace pebblRMA {
     int numLiveCutPts;
     bool isCachedCutPts;
 
-  };// **********************************************************
+  }; // end parRMASub function
 
 
   // **********************************************************
@@ -161,7 +164,7 @@ namespace pebblRMA {
 
     int j, v;
     parRMA* ptrParRMA;
-  }; // **********************************************************
+  }; // end CutPtThd class
 
 } // namespace pebblRMA
 

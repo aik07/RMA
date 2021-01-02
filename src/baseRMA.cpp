@@ -26,8 +26,8 @@ namespace base {
         ucout << "Using default values for all solver options" << std::endl;
       } else {
         ucout << "User-specified solver options: " << std::endl;
-	      plist.write_parameters(ucout);
-	      ucout << std::endl;
+        plist.write_parameters(ucout);
+        ucout << std::endl;
       }
 #ifdef ACRO_HAVE_MPI
     }
@@ -45,10 +45,10 @@ namespace base {
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
       if (plist.unused() > 0) {
-      	ucout << "\nERROR: unused parameters: " << std::endl;
-      	plist.write_unused_parameters(ucout);
-      	ucout << utilib::Flush;
-      	return false;
+        ucout << "\nERROR: unused parameters: " << std::endl;
+        plist.write_unused_parameters(ucout);
+        ucout << utilib::Flush;
+        return false;
       }
 #ifdef ACRO_HAVE_MPI
     }
@@ -56,16 +56,17 @@ namespace base {
 
     return true;
 
-  }
+  } // end setup function
 
 
   bool BaseRMA::processParameters(int& argc, char**& argv,
-  				  unsigned int min_num_required_args__) {
+                                  unsigned int min_num_required_args__) {
 
     if (argc > 0)
       solver_name = argv[0];
     else
       solver_name = "unknown";
+
     if (!parameters_registered) {
       register_parameters();
       parameters_registered=true;
@@ -81,7 +82,7 @@ namespace base {
 
     return true;
 
-} 
+} // end processParameters function
 
 
   bool BaseRMA::checkParameters(char const* progName) {
@@ -95,16 +96,17 @@ namespace base {
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
       if (debug_solver_params) {
-	ucout << "---- Parameters ----" << endl;
-	write_parameter_values(ucout);
-	ucout << endl << utilib::Flush;
+        ucout << "---- Parameters ----" << endl;
+        write_parameter_values(ucout);
+        ucout << endl << utilib::Flush;
       }
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI
 
     return true;
-  }
+
+  }  // end checkParameters function
 
 
   void BaseRMA::write_usage_info(char const* progName,std::ostream& os) const {
@@ -112,7 +114,7 @@ namespace base {
     os << endl;
     plist.write_registered_parameters(os);
     os << endl;
-  }
+  }  // end writeCommandUsage function
 
 
   void BaseRMA::writeCommandUsage(char const* progName,std::ostream& os) const {
@@ -122,13 +124,12 @@ namespace base {
     else if (min_num_required_args == 1)
       os << " <" << min_num_required_args << " problem data files>";
     os << endl;
-  }
+  } // end writeCommandUsage function
 
 
   // This sets the official name of the problem by chewing up the
   // filename.  It can be overridden.  This version just finds the last
   // "/" or "\" in the name and removes it and everything before it.
-
   void BaseRMA::setName(const char* cname) {
 #if defined (TFLOPS)
     problemName = cname;
@@ -159,6 +160,7 @@ namespace base {
     if ((endOfName == ".data") || (endOfName == ".DATA"))
       problemName.erase(n-5,n);
 #endif
-  }
+  } // end setName function
+
 
 } // end namespacs base

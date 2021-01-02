@@ -24,6 +24,7 @@
 #include "Time.h"
 #include "utilRMA.h"
 
+
 #ifdef ACRO_HAVE_MPI
   #include <pebbl/pbb/parBranching.h>
   #include "parRMA.h"
@@ -58,8 +59,6 @@ namespace rma {
       data = new data::DataRMA(argc, argv, (ArgRMA *) this);
     }
 
-    void updateWt();         // update the weights
-
     void setupPebblRMA(int& argc, char**& argv);  // setup PebblRMA
 
     void resetPebblRMA();    // reset PEBBL RMA variables
@@ -67,8 +66,6 @@ namespace rma {
     void solveRMA();         // solve RMA using the selected methods
     void solveGreedyRMA();   // solve RMA using the greedy algorithm
     void solvePebblRMA();    // solve RMA using PEBBL
-
-    void printPebblRMASolutionTime();  // print RMA solution and time
 
   protected:
 

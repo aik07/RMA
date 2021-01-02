@@ -111,7 +111,7 @@ namespace arg {
 
     double _rampUpSizeFact;      // TODO: what is this?
 
-  };
+  }; // end ArgRMA class
 
 } // namespace arguments
 
