@@ -12,7 +12,7 @@
 #include <string>
 
 #include "argRMA.h"
-#include "utilRMA.h"
+#include "utility.h"
 
 #include <pebbl_config.h>
 #include <pebbl/utilib/ParameterSet.h>

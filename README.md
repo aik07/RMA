@@ -93,19 +93,19 @@ Please read the user guide about how to use parameters for the RMA solver.
 ├── baseRMA.cpp      : a file contains a base class for a SolveRMA class
 ├── baseRMA.h
 ├── dataRMA.cpp      : a file contains RMA data classes
-├── dataRMA.h        
+├── dataRMA.h
 ├── driver.cpp       : a driver file
 ├── greedyRMA.cpp    : a file contains greedy RMA class
-├── greedyRMA.h      
+├── greedyRMA.h
 ├── parRMA.cpp       : a file contains parallel RMA class
-├── parRMA.h   
+├── parRMA.h
 ├── serRMA.cpp       : a file contains serial RMA class
 ├── serRMA.h
 ├── Time.h           : a header file for time
 ├── solveRMA.cpp     : a file contains SolveRMA class
-├── solveRMA.h      
-├── utilRMA.cpp      : a file contains RMA utility functions
-└── utilRMA.h        
+├── solveRMA.h
+├── utility.cpp      : a file contains RMA utility functions
+└── utility.h
 ```
 
 ## Reference

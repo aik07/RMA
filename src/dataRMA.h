@@ -15,7 +15,7 @@
 
 #include "Time.h"
 #include "argRMA.h"
-#include "utilRMA.h"
+#include "utility.h"
 
 using namespace std;
 using namespace arg;

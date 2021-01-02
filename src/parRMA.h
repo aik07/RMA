@@ -42,7 +42,7 @@
 #include <pebbl/pbb/parPebblBase.h>
 
 #include "serRMA.h"
-#include "utilRMA.h"
+#include "utility.h"
 
 
 using namespace std;

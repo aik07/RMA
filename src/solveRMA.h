@@ -22,7 +22,7 @@
 #include "serRMA.h"
 #include "greedyRMA.h"
 #include "Time.h"
-#include "utilRMA.h"
+#include "utility.h"
 
 
 #ifdef ACRO_HAVE_MPI

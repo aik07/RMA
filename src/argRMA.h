@@ -21,7 +21,7 @@
 #include <pebbl/bb/pebblParams.h>
 #include <pebbl/pbb/parPebblParams.h>
 
-#include "utilRMA.h"
+#include "utility.h"
 
 using namespace std;
 using namespace utilib;

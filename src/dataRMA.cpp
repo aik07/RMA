@@ -372,8 +372,8 @@ namespace data {
 
     dataStandTrain.resize(numTrainObs);
 
-    setVecAvgX();
-    setVecSdX();
+    if (vecAvgX.size()==0) setVecAvgX();
+    if (vecSdX.size()==0)  setVecSdX();
 
     // standardize X in each attribute
     for (j = 0; j < numAttrib; ++j) { // for each attribute
@@ -425,17 +425,19 @@ namespace data {
 
     tc.startTime(); // start the timer
 
+    vecNumDistVals.resize(numAttrib);
+
     for (unsigned int j = 0; j < numAttrib; ++j) { // for each attribute
 
-      setSetDistVals(j);
+      setSetDistVals(j);           // set setDostVals
 
-      setEpsilon(j);
+      setEpsilon(j);               // set epsilon
 
       assignIntNotRecursively(j);  // non-recursive integerization
 
       assignIntRecursively(j);     // recursive integerization
 
-      setDataIntEps(j);  // set dataInt for Epsilon Integerization
+      setDataIntEps(j);            // set dataInt for Epsilon Integerization
 
     } // end for each attribute
 
@@ -466,10 +468,15 @@ namespace data {
   // set episilon for attribute j
   void DataRMA::setEpsilon(const int &j) {
 
+    if (vecAvgX.size()==0) setVecAvgX();
+    if (vecSdX.size()==0)  setVecSdX();
+
     // TODO: avoid hard-cording of 4.0
     // get 95% confidence interval range
     // minimm of 4 standard deviations or the entire rnage
-    interval = min(4.0 * vecSdX[j], *setDistVals.rbegin() - *setDistVals.begin());
+
+    interval = min(4.0 * vecSdX[j],
+                   *setDistVals.rbegin() - *setDistVals.begin());
 
     // minimum of delta or max interval limit, and multiple the interval
     eps = min(args->delta(), args->maxInterval()) * interval;

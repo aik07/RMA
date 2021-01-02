@@ -32,7 +32,7 @@
 #include "Time.h"
 #include "argRMA.h"
 #include "dataRMA.h"
-#include "utilRMA.h"
+#include "utility.h"
 
 using namespace std;
 using namespace pebbl;
