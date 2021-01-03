@@ -36,7 +36,7 @@ namespace arg {
     _shrinkDelta(.95),            // shrink delta for recursive discretization
     _maxInterval(getInf()),       //the maximum interval length
 
-    _fixedSizeBin(-1),           // fixed # of bins for each attribute
+    _numFixedSizeBins(-1),           // fixed # of bins for each attribute
 
     _isPrintBBdetails(false),     // whether or not to print B&B details
 
@@ -108,6 +108,9 @@ namespace arg {
 
     create_categorized_parameter("maxInterval", _maxInterval, "<double>",
       "inf", "set the maximum interval length for recursive integerization", "RMA");
+
+    create_categorized_parameter("numFixedSizeBins", _numFixedSizeBins, "<double>",
+      "-1", "# of bins for fixed bins integerization", "RMA");
 
     create_categorized_parameter("isPrintBBdetails", _isPrintBBdetails, "<bool>",
       "true", "print the complete output of the PEBBL branch-and bound", "RMA");

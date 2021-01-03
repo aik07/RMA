@@ -38,7 +38,10 @@ namespace data {
     DataXw() : w(0.0) {}
     DataXw( const vector<unsigned int>& X_ ) : X(X_) {}
 
+    // read X and w
     int read(istream& is)        { is >> X >> w; return 0; }
+
+    // output X and w
     int write(ostream& os) const { os << X << " : "<< w; return 0; }
 
   //private:
@@ -58,7 +61,10 @@ namespace data {
     DataXy() : y(0.0) {}
     DataXy( const vector<double>& X_, const int & y_ ) : X(X_), y(y_) { }
 
+    // read X and y
     int read(istream& is)        { is >> X >> y;        return 0; }
+
+    // output X and w
     int write(ostream& os) const { os << X << " : " << y; return 0; }
 
   //private:
@@ -125,8 +131,10 @@ namespace data {
     // integerize data by using fixed interval length
     void integerizeFixedData();
 
+    // save X values for all observations
     template <class T> void saveXObs(T vecData);
 
+    // get the i-th training observation index
     inline unsigned int idxTrain(const unsigned int &i) {
       return vecTrainObsIdx[i];
     }
@@ -172,11 +180,13 @@ namespace data {
     Time     tc;     // Time class object
     ArgRMA   *args;  // ArgRMA class object
 
+    // set setDistVals, distinct values for attribute j
     void setSetDistVals(const int &j);
 
     // set episilon for attribute j
     void setEpsilon(const int &j);
 
+    // print integerization information
     void printIntegerizationInfo();
 
     // assign integer values without the recursive technique
@@ -185,39 +195,50 @@ namespace data {
     // assign integer values recursively
     void assignIntRecursively(const unsigned int &j);
 
+    // set vecBinsCopy
     void setVecBinsCopy(const unsigned int &j);
 
+    // set matOrigLower and matOrigUpper
     void setMapOrigInt(const unsigned int &j);
 
+    // set data for episilon integerization
     void setDataIntEps(const unsigned int &j);
 
+    // print recursive integerization info
     void printRecursiveIntInfo(int j, int k, int countExtraBins,
                                int countL, int countR, int q);
 
+    // print lower and upper bounds
     void printLowerUpperInfo(int lower, int upper);
 
+    // print vecAttribIntInfo
     void printVecAttribIntInfo(const unsigned int &j,
                                const unsigned int &countExtraBins);
 
+    // print info after episilon integerization
     void printAfterEpsIntegerization();
 
-    // fixed length integerization
+    /***************** fixed length integerization ******************/
 
-    void setInitVecMinMaxDevX();
+    // set the initial values for vecMinValX and vecMaxValX
+    void setInitVecMinMaxValX();
 
     // set dataIntTrain
     void setDataIntFixed();
 
+    // set vecAttribIntInfo while using fixed length integerization
     void setVecAttribIntInfoIntFixed();
 
     // contains info about bins of lower and upper bounds info for all attributes
     vector<BinsPerAttrib> vecAttribIntInfo;
 
+    /********************** for integerization *****************/
+
+    double           interval;    // confidence interval range
+
     /********************** for episilon integerization *****************/
 
     double           eps;         // episilon, aggregation level
-
-    double           interval;    // confidence interval range
 
     // a set continas all distinct values for each attribute
     set<double>      setDistVals;
@@ -230,7 +251,7 @@ namespace data {
 
     /********************** for integerization by fixed bins *****************/
     // minimum and maximum deviation vectors of X for each attribute
-    vector<double>   vecMinDevX, vecMaxDevX;
+    vector<double>   vecMinValX, vecMaxValX;
 
   }; // end DataRMA class
 

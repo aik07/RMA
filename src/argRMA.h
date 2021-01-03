@@ -69,7 +69,7 @@ namespace arg {
 
     bool   isPrintBBdetails()     const {return _isPrintBBdetails;}
 
-    int    fixedSizeBin()         const {return _fixedSizeBin;}
+    unsigned int getNumFixedSizeBins() const {return _numFixedSizeBins;}
 
   private:
 
@@ -99,7 +99,7 @@ namespace arg {
     double _maxInterval;         // the maximum Interval length
 
     // for fixed size bin integerization
-    int    _fixedSizeBin;
+    unsigned int _numFixedSizeBins;
 
     // for printing more details
     bool   _isPrintBBdetails;

@@ -52,19 +52,20 @@ namespace pebblRMA {
   class branchItem {
 
   public:
-    double roundedBound, exactBound;
-    int whichChild;
 
-    branchItem()
-        : roundedBound(1.0), exactBound(1.0),
-          whichChild(-1){}; // , arrayPosition(-1)
+    double roundedBound, exactBound;
+    int    whichChild;
+
+    branchItem() : roundedBound(1.0), exactBound(1.0), whichChild(-1){};
 
     branchItem(branchItem &toCopy)
         : roundedBound(toCopy.roundedBound), exactBound(toCopy.exactBound),
           whichChild(toCopy.whichChild){};
 
     void set(double bound, double roundQuantum);
-  };
+
+  }; // end branchItem class
+
 
   /******************************************************************************/
   //  The branching choice class...
@@ -100,34 +101,45 @@ namespace pebblRMA {
     branchItem branch[3];
     unsigned int branchVar, cutVal;
     unsigned int numTiedSols;
-  };
+
+  }; // end branchChoice class
 
   #ifdef ACRO_HAVE_MPI
+
   void branchChoiceCombiner(void *invec, void *inoutvec, int *len,
                             MPI_Datatype *datatype);
+
   void branchChoiceRand(branchChoice *inBranch, branchChoice *outBranch,
                         int *len, MPI_Datatype *datatype);
+
   #endif
 
   /******************************************************************************/
   // CutPt class to plot cut point in order
   class CutPtOrder {
+
   public:
+
     CutPtOrder(){};
     CutPtOrder(unsigned int _order, unsigned int _j, unsigned int _v) : order(_order), j(_j), v(_v){};
     ~CutPtOrder(){};
+
     void setCutPt(CutPtOrder cp) {
       order = cp.order;
       j = cp.j;
       v = cp.v;
     }
+
     unsigned int order, j, v;
+
   };
 
   /******************************************************************************/
   // Equivalcnece Class
   class EquivClass {
+
   public:
+
     EquivClass() : obsIdx(-1), wt(0.0) {}
     EquivClass(const int &obs, const double &wt_) : obsIdx(obs), wt(wt_) {}
     ~EquivClass() {}
@@ -141,10 +153,13 @@ namespace pebblRMA {
       if (obsIdx == -1)  // if this equivalence class has no representative observation
         obsIdx = obs;    // save this observation as the representative observation
       wt += weight;  // adding up all weight in the same class
-    }
+    } // end addObsWt function
 
-    int    getObs() const { return obsIdx; } // returns the obervation index
-    double getWt() const { return wt; }   // get the weight of this equiv class
+    // get the obervation index
+    unsigned int getObs() const { return obsIdx; }
+
+    // get the weight of this equiv class
+    double       getWt()  const { return wt; }
 
     int write(ostream &os) const {
       os << obsIdx << " : " << wt;
@@ -152,9 +167,11 @@ namespace pebblRMA {
     }
 
   private:
+
     int    obsIdx;  // representive observation idex
     double wt;      // the total weight of thie equivalence class
-  }; // end EquivClass
+
+  }; // end EquivClass class
 
 
   // Shortcut operators for reading writing RMA items to/from streams
@@ -169,22 +186,29 @@ namespace pebblRMA {
   class rmaSolution : virtual public solution {
 
   public:
+
     rmaSolution(){};
     rmaSolution(RMA *global_);
     rmaSolution(rmaSolution *toCopy);
+
     virtual ~rmaSolution() {}
 
-    void reset(const unsigned int numAttrib, vector<unsigned int> &vecNumDistVals);
-    void setData(const bool isPosIncumb, const double objVal,
-                 vector<unsigned int> &a, vector<unsigned int> &b);
+    void reset(const unsigned int numAttrib,
+               vector<unsigned int> &vecNumDistVals);
+
+    void setSolution(const bool isPosIncumb, const double objVal,
+                     vector<unsigned int> &a, vector<unsigned int> &b);
 
     solution *blankClone() { return new rmaSolution(this); }
 
     void foundRMASolution(syncType sync = notSynchronous);
+
     void fileCutPts(RMA *global_);
+
     void copy(rmaSolution *toCopy);
 
     virtual void printContents(ostream &s);
+
     void const printSolution();
 
     void checkObjValue();
@@ -207,12 +231,16 @@ namespace pebblRMA {
     bool isPosIncumb;            // whether or not it is positive incumbent
 
   protected:
+
     RMA *global;
+
     double sequenceData();
+
     size_type sequenceLength() {
       return a.size() + b.size() + sizeof(isPosIncumb);
     }
-  };
+
+  }; // end rmaSolution class
 
 
   /******************************************************************************/
@@ -237,7 +265,7 @@ namespace pebblRMA {
     // (Note: read PEBBL user guide to understand how to use these functions)
     bool setupProblem(int &argc, char **&argv) { return true; } // read data file
     branchSub *blankSub();
-    solution *initialGuess();
+    solution  *initialGuess();
     bool haveIncumbentHeuristic() { return true; }
 
     // set the initial guess
@@ -255,6 +283,7 @@ namespace pebblRMA {
     // double getWeight(double pred, set<int> CovgIdx);
 
     void setWeight(vector<double> wt, vector<unsigned int> train);
+
     void getPosCovg(set<int> &output, rmaSolution *);
     void getNegCovg(set<int> &output, rmaSolution *);
 
@@ -301,10 +330,12 @@ namespace pebblRMA {
   }; // end RMA class
   // ************************************************************************
 
+
   inline void rmaSolution::foundRMASolution(syncType sync) {
     global->foundSolution(new rmaSolution(this), sync);
     // fileCutPts(global);
   };
+
 
   //******************************************************************************
   //  RMA branchSub class
@@ -313,7 +344,6 @@ namespace pebblRMA {
   public:
     RMASub() : globalPtr(NULL){}; // A constructor for a subproblem
     virtual ~RMASub(){};          // A virtual destructor for a subproblem
-
 
     // PEBBL functions
     // (Note: read PEBBL user guide to understand how to use these functions)
@@ -329,6 +359,7 @@ namespace pebblRMA {
     void setGlobalInfo(RMA *glbl) { globalPtr = glbl; }
 
     void RMASubFromRMA(RMA *master);
+
     void RMASubAsChildOf(RMASub *parent, int whichChild);
 
     // Initialize this subproblem to be the root of the branching tree

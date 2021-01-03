@@ -35,7 +35,7 @@ namespace pebblRMA {
     for (unsigned int i = 0; i < n; ++i)
       if (inPtr[i] < inOutPtr[i])
         inOutPtr[i] = inPtr[i];
-  }
+  } // end branchChoiceCombiner function
 
 
   void branchChoiceRand(branchChoice *in, branchChoice *inout, int *len,
@@ -154,10 +154,10 @@ namespace pebblRMA {
     for (unsigned int i = 0; i < 3; ++i)
       branch[i].whichChild = i;
 
-    cutVal = cut;
+    cutVal    = cut;
     branchVar = j;
 
-  }
+  } // end branchChoice function
 
 
   void branchChoice::setBounds(double a, double b, double c, int cut, int j) {
@@ -169,10 +169,10 @@ namespace pebblRMA {
     for (unsigned int i = 0; i < 3; ++i)
       branch[i].whichChild = i;
 
-    cutVal = cut;
+    cutVal    = cut;
     branchVar = j;
 
-  }
+  } // end setBounds function
 
 
   // Primitive sort, but only three elements
@@ -206,14 +206,17 @@ namespace pebblRMA {
 
 
   void branchChoice::possibleSwap(size_type i1, size_type i2) {
+
     double roundedBound1 = branch[i1].roundedBound;
     double roundedBound2 = branch[i2].roundedBound;
+
     if (roundedBound1 < roundedBound2) {
       branchItem tempItem(branch[i1]);
       branch[i1] = branch[i2];
       branch[i2] = tempItem;
     }
-  }
+
+  } // end possibleSwap function
 
   //////////////////// branchItem class methods ////////////////////
 
@@ -237,14 +240,11 @@ namespace pebblRMA {
     workingSol.serial = 0;
     workingSol.sense  = maximization;
 
-  }; //  Constructor for RMA class
+  } // end RMA class constructor
 
 
   // RMA constructor
   RMA::RMA(pebblParams *param) : workingSol(this), numCC_SP(0) { //, numTotalCutPts(0)
-
-    this->debug         = param->debug;
-    this->maxCPUMinutes = param->maxCPUMinutes;
 
     // version_info += ", RMA example 1.1";
     min_num_required_args = 1;
@@ -253,56 +253,70 @@ namespace pebblRMA {
     workingSol.serial = 0;
     workingSol.sense  = maximization;
 
-    // TODO: need to copy the RMA parameters to the PEBBL parameters
+    this->debug = param->debug;
 
-    // int statusPrintCount;
-    // double statusPrintSeconds;
-    // bool depthFirst;
-    // bool breadthFirst;
-    // bool initialDive;
-    // bool integralityDive;
-    // bool lazyBounding;
-    // bool eagerBounding;
-    // double relTolerance;
-    // double absTolerance;
-    // double earlyOutputMinutes;
-    // double startIncumbent;
-    // bool validateLog;
-    // bool heurLog;
-    // double loadLogSeconds;
-    // double loadLogWriteSeconds;
-    // int maxSPBounds;
-    // double maxCPUMinutes;
-    // double maxWallMinutes;
-    // bool haltOnIncumbent;
-    // bool printAbortMessage;
-    // bool printIntMeasure;
-    // bool printDepth;
-    // int debugPrecision;
-    // bool suppressWarnings;
-    // int loadMeasureDegree;
-    // double enumRelTol;
-    // double enumAbsTol;
-    // double enumCutoff;
-    // int enumCount;
-    // int enumHashSize;
-    // bool debug_solver_params;
-    // bool use_abort;
-    // bool version_flag;
-    // bool printFullSolution;
-    // std::string solFileName;
-    // int printSpTimes;
+    this->statusPrintCount = param->statusPrintCount;
+    this->statusPrintSeconds = param->statusPrintSeconds;
 
-  }; //  Constructor for RMA class
+    this->depthFirst = param->depthFirst;
+    this->breadthFirst = param->breadthFirst;
+
+    this->initialDive = param->initialDive;
+    this->integralityDive = param->integralityDive;
+
+    this->lazyBounding = param->lazyBounding;
+    this->eagerBounding = param->eagerBounding;
+
+    this->relTolerance = param->relTolerance;
+    this->absTolerance = param->absTolerance;
+
+    this->earlyOutputMinutes = param->earlyOutputMinutes;
+    this->startIncumbent = param->startIncumbent;
+    this->validateLog = param->validateLog;
+    this->heurLog = param->heurLog;
+    this->loadLogSeconds = param->loadLogSeconds;
+    this->loadLogWriteSeconds = param->loadLogWriteSeconds;
+
+    this->maxSPBounds = param->maxSPBounds;
+    this->maxCPUMinutes = param->maxCPUMinutes;
+    this->maxWallMinutes = param->maxWallMinutes;
+
+    this->haltOnIncumbent = param->haltOnIncumbent;
+
+    this->printAbortMessage = param->printAbortMessage;
+    this->printIntMeasure = param->printIntMeasure;
+    this->printDepth = param->printDepth;
+
+    this->debugPrecision = param->debugPrecision;
+    this->suppressWarnings = param->suppressWarnings;
+    this->loadLogWriteSeconds = param->loadLogWriteSeconds;
+    this->loadMeasureDegree = param->loadMeasureDegree;
+
+    this->enumRelTol = param->enumRelTol;
+    this->enumAbsTol = param->enumAbsTol;
+    this->enumCutoff = param->enumCutoff;
+    this->enumCount = param->debugPrecision;
+    this->enumHashSize = param->enumHashSize;
+
+    this->debug_solver_params = param->debug_solver_params;
+    this->use_abort = param->use_abort;
+    this->version_flag = param->version_flag;
+    this->printFullSolution = param->printFullSolution;
+    this->solFileName = param->solFileName;
+    this->printSpTimes = param->printSpTimes;
+
+  }; //  end RMA class constructor
 
 
   RMA::~RMA() {
 
+    // if % of cached cutpoints is less than 100
     if (args->perCachedCutPts() < 1) {
-      int rank, sendbuf, recvbuf;
-      // MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-      rank    = uMPI::rank;
-      sendbuf = numCC_SP;
+
+      int recvbuf;
+      int rank    = uMPI::rank;
+      int sendbuf = numCC_SP;
+
       DEBUGPRX(0, this, "Local non-stron branching SP is: " << numCC_SP << "\n");
 
       uMPI::reduceCast(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM);
@@ -311,17 +325,19 @@ namespace pebblRMA {
       // MPI_Reduce(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
       // Print the result
-      if (rank == 0) {
+      if (rank == 0)
         cout << "Total non-strong branching SP is: " << recvbuf << "\n";
-      }
-    }
+
+    } // end if % of cached cutpoints is less than 100
+
     /*
       if (verifyLog()) {
       verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
       delete _vlFile;    // Doesn't delete file; actually closes it
       }//*/
     // workingSol.decrementRefs();
-  }
+
+  } // end RMA class destructor
 
 
   solution *RMA::initialGuess() {
@@ -341,21 +357,9 @@ namespace pebblRMA {
                             vector<unsigned int> upperBound) {
 
     guess = new rmaSolution(this);
-    // guess->isPosIncumb = isPosIncumb;
-    // guess->value = maxObjValue;
-    // guess->a = L;
-    // guess->b = U;
 
-    guess->setData(    isPosIncumb, maxObjValue, lowerBound, upperBound);
-    workingSol.setData(isPosIncumb, maxObjValue, lowerBound, upperBound);
-
-    // TODO: fix this code!  // guess->a = L;
-    // guess->b = U;
-
-    // workingSol.isPosIncumb = isPosIncumb;
-    // workingSol.value = maxObjValue;
-    // workingSol.a = L;
-    // workingSol.b = U;
+    guess    ->setSolution(isPosIncumb, maxObjValue, lowerBound, upperBound);
+    workingSol.setSolution(isPosIncumb, maxObjValue, lowerBound, upperBound);
 
   } // end setInitialGuess function
 
@@ -366,18 +370,22 @@ namespace pebblRMA {
     multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
 
     itlow = mmapCachedCutPts.lower_bound(j); // itlow points to
-    itup = mmapCachedCutPts.upper_bound(j);  // itup points to
+    itup  = mmapCachedCutPts.upper_bound(j);  // itup points to
 
     // print range [itlow,itup):
     for (it = itlow; it != itup; ++it) {
+
       if ((*it).first == j && (*it).second == v)
         isAlreadyInCache = true;
+
       if (args->debug >= 10)
         cout << (*it).first << " => " << (*it).second << '\n';
+
     }
 
     if (args->debug >= 10)
       cout << "cut point (" << j << ", " << v << ") ";
+
     if (args->debug >= 10)
       cout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
 
@@ -466,7 +474,7 @@ namespace pebblRMA {
               << " \tNum of Nodes: " << total_nodes << "\n";
 
   #ifdef ACRO_HAVE_MPI
-    }
+    } // end if (uMPI::rank==0)
   #endif //  ACRO_HAVE_MPI
 
   } // end printSolutionTime function
@@ -475,12 +483,17 @@ namespace pebblRMA {
   // writes data with weights to a file whose name we concoct
   // from the iteration number argument; added by JE
   void RMA::writeInstanceToFile(const int &iterNum) {
+
+    // create a file name
     stringstream s;
     s << 'w' << iterNum << '.' << problemName;
     ofstream instanceOutputFile(s.str().c_str());
-    writeWeightedData(instanceOutputFile);
-    instanceOutputFile.close();
-  }
+
+    writeWeightedData(instanceOutputFile);  // write weights
+
+    instanceOutputFile.close();  // close the file
+
+  } // end writeInstanceToFile function
 
 
   // Routine added by JE to write out data with weights.  Note that
@@ -494,14 +507,14 @@ namespace pebblRMA {
     std::ios_base::fmtflags oldFlags = os.setf(ios::scientific);
 
     // Write data
-    for (size_type i = 0; i < data->numOrigObs; ++i) {
+    for (unsigned int i = 0; i < data->numOrigObs; ++i) {
       os << data->dataIntTrain[i].w << ';';
-
       // Restore stream state
       os.precision(oldPrecision);
       os.flags(oldFlags);
-    }
-  }
+    } // end for each observation
+
+  } // end writeWeightedData function
 
 
   // Routine added by AK to write out the number of B&B node and CPU time.
@@ -512,18 +525,22 @@ namespace pebblRMA {
 
   // writes the number of B&B node and CPU time; added by AK
   void RMA::writeStatDataToFile(const int &iterNum) {
+
     stringstream s;
     s << "BBNode_CPUTime" << '_' << problemName;
-    if (iterNum == 1) {
+
+    ofstream instanceOutputFile(s.str().c_str());
+
+    if (iterNum == 1)
       ofstream instanceOutputFile(s.str().c_str(), ofstream::out);
-      writeStatData(instanceOutputFile);
-      instanceOutputFile.close();
-    } else {
+    else
       ofstream instanceOutputFile(s.str().c_str(), ofstream::app);
-      writeStatData(instanceOutputFile);
-      instanceOutputFile.close();
-    }
-  }
+
+    writeStatData(instanceOutputFile);
+
+    instanceOutputFile.close();  // close the file
+
+  } // end writeStatDataToFile function
 
 
   // ********************* RMASub methods (start) *******************************
@@ -532,43 +549,43 @@ namespace pebblRMA {
   void rmaSolution::reset(const unsigned int numAttrib,
                           vector<unsigned int> &vecNumDistVals) {
     vector<unsigned int> tmp(numAttrib, 0);
-    this->setData(true, 0, tmp, vecNumDistVals);
-    // this->isPosIncumb = true;
-    // this->value = 0;
-    // this->a = tmp;
-    // this->b = vecNumDistVals;
-  }
+    this->setSolution(true, 0, tmp, vecNumDistVals);
+  } // end reset function
 
 
-  void rmaSolution::setData(const bool isPosIncumb, const double objVal,
+  void rmaSolution::setSolution(const bool isPosIncumb, const double objVal,
                             vector<unsigned int> &a, vector<unsigned int> &b) {
     this->isPosIncumb = true;
-    this->value = objVal;
-    this->a = a;
-    this->b = b;
-  }
+    this->value       = objVal;
+    this->a           = a;
+    this->b           = b;
+  } // end setSolution function
 
 
   void RMASub::setRootComputation() {
+
     al.resize(numAttrib());
     au.resize(numAttrib());
     fill(al.begin(), al.end(), 0);
+
     for (unsigned int j=0; j<numAttrib(); ++j)
       au[j] = vecNumDistVals()[j]-1;
+
     bl << al;
     bu << au;
+
     deqRestAttrib.resize(numAttrib(), false);
     // workingSol() = globalPtr->guess;
-  };
+
+  } // end setRootComputation function
 
 
   void RMASub::boundComputation(double *controlParam) {
 
     // globalPtr->getSolution();
 
-    if (global()->debug >= 1) {
+    if (global()->debug >= 1)
       cout << "\nal: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-    }
 
     numTiedSols    = 1;
     numPosTiedSols = 0;
@@ -589,10 +606,13 @@ namespace pebblRMA {
     if (global()->args->perCachedCutPts() < 1.0 &&
         global()->args->isBinarySearchCutVal())
       hybridBranching(); // hybrid branching
+
     else if (global()->args->isBinarySearchCutVal())
       binaryBranching(); // binary search cut point caching
+
     else if (global()->args->perCachedCutPts() < 1.0)
       cutpointCaching(); // cut point caching
+
     else // check all cut points (strong branching)
       strongBranching();
 
@@ -613,38 +633,48 @@ namespace pebblRMA {
     }
 
     if (_branchChoice.branchVar > numAttrib()) {
-      if (global()->debug >= 10)
+
+      if (global()->debug >= 10) {
         cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-      if (global()->debug >= 10)
         cout << "branchVar > numAttrib. \n";
+      }
+
       setState(dead);
+
       return;
+
     }
 
     deqRestAttrib[_branchChoice.branchVar] = true;
 
     // If (current objValue) >= (current bound), we found the solution.
     if (workingSol()->value >= _branchChoice.branch[0].exactBound) {
-      if (global()->debug >= 10)
+
+      if (global()->debug >= 10) {
         workingSol()->printSolution();
-      if (global()->debug >= 10)
         cout << "Bound: " << _branchChoice.branch[0].exactBound << "\n";
+      }
+
       foundRMASolution(synchronous);
       setState(dead);
+
       return;
+
     }
 
     ///////////////////// create listExcluded list (start) ////////////////
   #ifndef ACRO_HAVE_MPI
+
     sort(listExcluded.begin(), listExcluded.end());
+
     listExcluded.erase(unique(listExcluded.begin(), listExcluded.end()),
                        listExcluded.end());
+
     DEBUGPR(150, cout << "Excluded: " << _branchChoice.branchVar << listExcluded);
     // DEBUGPR(50, cout << " bound: " << bound << ", sol val=" <<
     // getObjectiveVal() << "\n");
   #endif
-    /////////////////////////////////// check errors (start)
-    ////////////////////////////////////////
+    ////////////////////////// check errors (start) ////////////////////////////
     if (_branchChoice.branchVar >= numAttrib()) {
       DEBUGPR(20, cout << "ERROR: branch feature is invalid! (j="
                        << _branchChoice.branchVar << ")\n");
@@ -672,7 +702,7 @@ namespace pebblRMA {
     listExcluded.push_back(_branchChoice.branchVar);
   #endif
     ///////////////// create listExclided list (end) ////////////////////
-  }
+  } // end boundComputation function
 
 
   int RMASub::getNumLiveCachedCutPts() {
@@ -686,47 +716,65 @@ namespace pebblRMA {
     // count numLiveCachedCutPts and print out cached cut points
     if (global()->args->debug >= 20)
       cout << "catched cut-points: ";
+
     while (curr != end) {
+
       j = curr->first;
       v = curr->second;
+
       if (global()->args->debug >= 20)
         cout << j << ", " << v << "\n";
       // if (j>numAttrib() || v<0) break;
+
       curr++;
+
       if (al[j] <= v && v < bu[j])                       // if v in [al, bu)
         if (!(au[j] < bl[j] && au[j] <= v && v < bl[j])) // if not overlapping
           ++numLiveCachedCutPts;
     }
+
     if (global()->args->debug >= 20)
       cout << "\n";
+
     return numLiveCachedCutPts;
-  }
+
+  } // end getNumLiveCachedCutPts function
+
 
   // return how many children to make from current subproblem
   int RMASub::splitComputation() {
+
     int numChildren = 0;
     for (unsigned int i = 0; i < 3; ++i)
       if (_branchChoice.branch[i].roundedBound >= 0)
         numChildren++;
+
     setState(separated);
+
     return numChildren;
-  }
+
+  } // end splitComputation function
 
 
   // make a child of current subproblem
   branchSub *RMASub::makeChild(int whichChild) {
+
     if (whichChild == -1) {
       cerr << "ERROR: No children to make!\n";
       return NULL;
     }
+
     if (this->_branchChoice.branchVar > numAttrib()) {
       cerr << "ERROR: It is not proper attribute!\n";
       return NULL;
     }
+
     RMASub *temp = new RMASub();
     temp->RMASubAsChildOf(this, whichChild);
+
     return temp;
-  }
+
+  } // end makeChild function
 
 
   void RMASub::RMASubAsChildOf(RMASub *parent, int whichChild) {
@@ -740,14 +788,15 @@ namespace pebblRMA {
   #ifndef ACRO_HAVE_MPI
     listExcluded << parent->listExcluded;
   #endif
+
     excCutFeat << parent->excCutFeat;
-    excCutVal << parent->excCutVal;
+    excCutVal  << parent->excCutVal;
 
     globalPtr = parent->global();
     branchSubAsChildOf(parent);
 
     // set bound
-    bound = parent->_branchChoice.branch[whichChild].roundedBound;
+    bound      = parent->_branchChoice.branch[whichChild].roundedBound;
     whichChild = parent->_branchChoice.branch[whichChild].whichChild;
 
     if (global()->args->debug >= 10)
@@ -823,9 +872,11 @@ namespace pebblRMA {
            << j << "]=" << au[j] << endl;
       return;
     }
+
     if (global()->args->debug >= 10)
       cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-  }
+
+  } // end RMASubAsChildOf function
 
 
   // find a particular subproblem object to the problem description embodied in
@@ -835,20 +886,22 @@ namespace pebblRMA {
     // workingSol()->value = getObjectiveVal(); // set bound value as current
     // solution
     if (global()->args->debug >= 20)
-      cout << "Created blank problem, out of rmaSub:::RMASubFromRMA"
-           << "\n";
-  };
+      cout << "Created blank problem, out of rmaSub:::RMASubFromRMA\n";
+  } // end RMASubFromRMA function
 
 
   bool RMASub::candidateSolution() {
+
     if (global()->args->debug >= 20)
       cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
+
     for (unsigned int j = 0; j < numAttrib(); ++j) {
       if (al[j] != au[j])
         return false;
       if (bl[j] != bu[j])
         return false;
     }
+
     workingSol()->a << al;
     workingSol()->b << bu;
 
@@ -876,8 +929,11 @@ namespace pebblRMA {
     */
     if (global()->args->debug >= 5)
       workingSol()->printSolution();
+
     return true;
-  }
+
+  } // end candidateSolution function
+
 
   // ***************** RMASub helper functions (start) ****************
 
@@ -1833,7 +1889,6 @@ namespace pebblRMA {
       return;
     }
 
-
     vecEquivClass.resize(coveredObs.size());
 
     int obs1 = coveredObs[0];
@@ -2004,6 +2059,7 @@ namespace pebblRMA {
 
   } // end function RMASub::dropEquivClass
 
+
   bool RMASub::isInSameClass(const unsigned int &obs1, const unsigned int &obs2,
                              const unsigned int &j, const unsigned int &au_,
                              const unsigned int &bl_) {
@@ -2049,6 +2105,7 @@ namespace pebblRMA {
       cout << "j: " << j << " (al, au, bl, bu) = (" << al << ", " << au << ", "
            << bl << ", " << bu << ")\n";
   }
+
 
   void RMASub::printCurrentBounds() {
     if (globalPtr->args->debug >= 10)
@@ -2128,6 +2185,7 @@ namespace pebblRMA {
     count++;
   }
 
+
   // ******************************************************************************
   // RMASolution methods
 
@@ -2141,12 +2199,14 @@ namespace pebblRMA {
     typeId = 0;
   }
 
+
   rmaSolution::rmaSolution(rmaSolution *toCopy) {
     // DEBUGPRX(100, global,  "Copy constructing rmaSolution at "
     //   << (void*) this << " from " << toCopy << endl; );
     copy(toCopy);
     serial = ++(global->solSerialCounter);
   }
+
 
   void rmaSolution::copy(rmaSolution *toCopy) {
     solution::copy(toCopy);
@@ -2155,6 +2215,7 @@ namespace pebblRMA {
     b << toCopy->b;
     isPosIncumb = toCopy->isPosIncumb;
   }
+
 
   void rmaSolution::printContents(ostream &outStream) {
 
@@ -2195,10 +2256,12 @@ namespace pebblRMA {
 
   } // end function printContents
 
+
   void const rmaSolution::printSolution() {
     cout << ((isPosIncumb) ? "Positive" : "Negative") << "\n";
     cout << "printSolution: a: " << a << "printSolution: b: " << b << "\n";
   }
+
 
   void rmaSolution::checkObjValue() {
 
@@ -2223,6 +2286,7 @@ namespace pebblRMA {
 
   } // end function rmaSolution::checkObjValue
 
+
   void rmaSolution::checkObjValue1(vector<unsigned int> &A, vector<unsigned int> &B,
                                    vector<unsigned int> &coveredObs,
                                    vector<unsigned int> &sortedECidx) {
@@ -2246,12 +2310,15 @@ namespace pebblRMA {
     cout << "A: " << A;
     cout << "B: " << B;
     cout << "RMA ObjValue=" << wt << "\n";
+
     if (abs(value - abs(wt)) > .00001) {
       cout << "RMA Obj Not Match! " << wt << " " << value << "\n";
       cout << "check coveredObs: " << coveredObs;
       cout << "check sortedECidx: " << sortedECidx;
     }
+
   } // end function rmaSolution::checkObjValue
+
 
   #ifdef ACRO_HAVE_MPI
 
@@ -2269,6 +2336,7 @@ namespace pebblRMA {
 
   #endif // ACRO_HAVE_MPI
 
+
   double rmaSolution::sequenceData() {
     if (sequenceCursor < a.size())
       return a[sequenceCursor++];
@@ -2276,9 +2344,10 @@ namespace pebblRMA {
       return b[sequenceCursor++ - a.size()];
     else
       return isPosIncumb;
-  }
+  } // end sequenceData function
 
 } // namespace pebblRMA
+
 
 ostream &operator<<(ostream &os, pebblRMA::branchChoice &bc) {
   os << '(' << bc.branch[0].exactBound << ',' << bc.branch[1].exactBound << ','
@@ -2287,6 +2356,7 @@ ostream &operator<<(ostream &os, pebblRMA::branchChoice &bc) {
      << bc.branchVar << ">-(" << bc.cutVal << ')';
   return os;
 }
+
 
 ostream &operator<<(ostream &os, pebblRMA::EquivClass &obj) {
   obj.write(os);
