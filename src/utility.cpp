@@ -19,9 +19,6 @@ int getIntInf() {
 }
 
 
-/*************************** utility functions ********************/
-
-
 // for 1D deque output
 template<class T>
 ostream &operator<<(ostream &os, const deque<T> &v) {
@@ -52,6 +49,22 @@ ostream &operator<<(ostream &os, const map<double, int> &m) {
   os << " \n";
   return os;
 }
+
+
+// for 1D vector output
+template<class T>
+ostream &operator<<(ostream &os, const vector<T> &v) {
+  os << "(";
+  for (typename vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
+    os << " " << *i;
+  os << " )\n";
+  return os;
+}
+template ostream &operator<< <bool>(ostream &os, const vector<bool> &v);
+template ostream &operator<< <double>(ostream &os, const vector<double> &v);
+template ostream &operator<< <int>(ostream &os, const vector<int> &v);
+template ostream &operator<< <unsigned int>(ostream &os,
+                                            const vector<unsigned int> &v);
 
 
 // for 2D vector output

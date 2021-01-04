@@ -584,8 +584,8 @@ namespace pebblRMA {
 
     // globalPtr->getSolution();
 
-    if (global()->debug >= 1)
-      cout << "\nal: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
+    if (global()->debug >= 10)
+      cout << "\nal: " << al << ", au: " << au << ", bl: " << bl << ", bu: " << bu;
 
     numTiedSols    = 1;
     numPosTiedSols = 0;
@@ -1657,8 +1657,8 @@ namespace pebblRMA {
           cout << "negative ";
       }
       foundRMASolution(synchronous);
-      if (globalPtr->args->debug >= 1)
-        cout << "new incumbent  " << workingSol()->value << '\n';
+      if (globalPtr->args->debug >= 10)
+        cout << " new incumbent  " << workingSol()->value << '\n';
       if (globalPtr->args->debug >= 1)
         workingSol()->printSolution();
       // DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a,
@@ -2258,8 +2258,9 @@ namespace pebblRMA {
 
 
   void const rmaSolution::printSolution() {
-    cout << ((isPosIncumb) ? "Positive" : "Negative") << "\n";
-    cout << "printSolution: a: " << a << "printSolution: b: " << b << "\n";
+    cout << "printSolution; ";
+    cout << ((isPosIncumb) ? "Positive" : "Negative");
+    cout << "; a: " << a << "; b: " << b << "\n";
   }
 
 
