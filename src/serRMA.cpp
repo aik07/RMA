@@ -555,7 +555,7 @@ namespace pebblRMA {
 
   void rmaSolution::setSolution(const bool isPosIncumb, const double objVal,
                             vector<unsigned int> &a, vector<unsigned int> &b) {
-    this->isPosIncumb = true;
+    this->isPosIncumb = isPosIncumb;
     this->value       = objVal;
     this->a           = a;
     this->b           = b;
@@ -619,7 +619,7 @@ namespace pebblRMA {
     if (global()->debug >= 10)
       printCurrentBounds();
 
-    if (global()->args->debug >= 1)
+    if (global()->args->debug >= 5)
       cout << "Branch choice: " << _branchChoice << "\n";
 
     bound = _branchChoice.branch[0].roundedBound; // look ahead bound
@@ -1646,20 +1646,20 @@ namespace pebblRMA {
         workingSol()->a[optMaxAttrib] = optMaxLower;
         workingSol()->b[optMaxAttrib] = optMaxUpper;
         workingSol()->isPosIncumb = true;
-        if (globalPtr->args->debug >= 5)
+        if (globalPtr->args->debug >= 10)
           cout << "positive ";
       } else {
         workingSol()->value = -minVal;
         workingSol()->a[optMinAttrib] = optMinLower;
         workingSol()->b[optMinAttrib] = optMinUpper;
         workingSol()->isPosIncumb = false;
-        if (globalPtr->args->debug >= 5)
+        if (globalPtr->args->debug >= 10)
           cout << "negative ";
       }
       foundRMASolution(synchronous);
-      if (globalPtr->args->debug >= 10)
+      if (globalPtr->args->debug >= 5)
         cout << " new incumbent  " << workingSol()->value << '\n';
-      if (globalPtr->args->debug >= 1)
+      if (globalPtr->args->debug >= 5)
         workingSol()->printSolution();
       // DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a,
       // workingSol()->b,
