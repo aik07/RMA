@@ -367,8 +367,10 @@ namespace greedyRMA {
     fill(vecLowerMin.begin(), vecLowerMin.end(), 0);
 
     // set upper vector for the minimim version
-    // vecUpperMin.resize(data->vecNumDistVals.size());
-    copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMin.begin());
+    vecUpperMin.resize(data->numAttrib);
+    for (unsigned int j=0; j<data->numAttrib; ++j)
+      vecUpperMin[j] = data->vecNumDistVals[j] - 1;
+    //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMin.begin());
 
     // set the covered observation indices
     vecCvdObsIdx.resize(data->numTrainObs);
@@ -393,8 +395,9 @@ namespace greedyRMA {
     fill(vecLowerMax.begin(), vecLowerMax.end(), 0);
 
     // set upper vector for the maximum version
-    // vecUpperMax.resize(data->vecNumDistVals.size());
-    copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
+    for (unsigned int j=0; j<data->numAttrib; ++j)
+      vecUpperMin[j] = data->vecNumDistVals[j] - 1;
+    //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
     vecCvdObsIdx.resize(data->vecTrainObsIdx.size());
     copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),

@@ -548,8 +548,12 @@ namespace pebblRMA {
 
   void rmaSolution::reset(const unsigned int numAttrib,
                           vector<unsigned int> &vecNumDistVals) {
-    vector<unsigned int> tmp(numAttrib, 0);
-    this->setSolution(true, 0, tmp, vecNumDistVals);
+    vector<unsigned int> lower(numAttrib, 0);
+    vector<unsigned int> upper(numAttrib, 0);
+    for (unsigned int j=0; j<numAttrib; ++j) upper[j] = vecNumDistVals[j]-1;
+    // set the current solution is positive, objective value = 0,
+    // and the initial lower and upper bounds
+    this->setSolution(true, 0, lower, upper);
   } // end reset function
 
 
