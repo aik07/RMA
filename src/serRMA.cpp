@@ -2232,11 +2232,11 @@ namespace pebblRMA {
     for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
       if (0 < a[i]) // if lower bound changed
         cout << a[i] << "<=";
-      if (0 < a[i] || b[i] < global->data->vecNumDistVals[i])
+      if (0 < a[i] || b[i] < global->data->vecNumDistVals[i]-1)
         cout << "x" << i;
       if (b[i] < global->data->vecNumDistVals[i]-1)
         cout << "<=" << b[i];
-      if (0 < a[i] || b[i] < global->data->vecNumDistVals[i])
+      if (0 < a[i] || b[i] < global->data->vecNumDistVals[i]-1)
         cout << ", ";
     }
     cout << "\n";

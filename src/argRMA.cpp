@@ -32,11 +32,11 @@ namespace arg {
 
     _nonUniformWt(""),            // specify the non-uniform weight file
 
-    _delta(-1),                   // delta for recursive discretization
+    _delta(0.005),                // delta for episilon-integerization, recursive discretization
     _shrinkDelta(.95),            // shrink delta for recursive discretization
     _maxInterval(getInf()),       //the maximum interval length
 
-    _numFixedSizeBins(-1),           // fixed # of bins for each attribute
+    _numFixedSizeBins(-1),        // fixed # of bins for each attribute
 
     _isPrintBBdetails(false),     // whether or not to print B&B details
 
