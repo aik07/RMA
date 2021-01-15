@@ -35,7 +35,7 @@ namespace rma {
       CommonIO::begin();
       CommonIO::setIOFlush(1);
       isParallel = true;
-      prma       = new pebblRMA::parRMA(MPI_COMM_WORLD);
+      prma       = new pebblRMA::parRMA(this, MPI_COMM_WORLD);
       rma        = prma;
     } else {
 #endif // ACRO_HAVE_MPI

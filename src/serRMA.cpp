@@ -253,6 +253,41 @@ namespace pebblRMA {
     workingSol.serial = 0;
     workingSol.sense  = maximization;
 
+    setPebblParameters(param);
+
+  }; //  end RMA class constructor
+
+
+  RMA::~RMA() {
+
+    // if % of cached cutpoints is less than 100
+    if (args->perCachedCutPts() < 1) {
+
+      int recvbuf = numCC_SP;
+
+      DEBUGPRX(1, this, "Local non-stron branching SP is: " << numCC_SP << "\n");
+
+      uMPI::reduceCast(&numCC_SP, &recvbuf, 1, MPI_INT, MPI_SUM);
+      // MPI_Reduce(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
+      // Print the result
+      if (uMPI::rank == 0)
+        cout << "Total non-strong branching SP is: " << recvbuf << "\n";
+
+    } // end if % of cached cutpoints is less than 100
+
+    /*
+      if (verifyLog()) {
+      verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
+      delete _vlFile;    // Doesn't delete file; actually closes it
+      }//*/
+    // workingSol.decrementRefs();
+
+  } // end RMA class destructor
+
+
+  void RMA::setPebblParameters(pebblParams *param) {
+
     this->debug = param->debug;
 
     this->statusPrintCount = param->statusPrintCount;
@@ -305,39 +340,7 @@ namespace pebblRMA {
     this->solFileName = param->solFileName;
     this->printSpTimes = param->printSpTimes;
 
-  }; //  end RMA class constructor
-
-
-  RMA::~RMA() {
-
-    // if % of cached cutpoints is less than 100
-    if (args->perCachedCutPts() < 1) {
-
-      int recvbuf;
-      int rank    = uMPI::rank;
-      int sendbuf = numCC_SP;
-
-      DEBUGPRX(0, this, "Local non-stron branching SP is: " << numCC_SP << "\n");
-
-      uMPI::reduceCast(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM);
-
-      // create new new communicator and then perform collective communications
-      // MPI_Reduce(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-
-      // Print the result
-      if (rank == 0)
-        cout << "Total non-strong branching SP is: " << recvbuf << "\n";
-
-    } // end if % of cached cutpoints is less than 100
-
-    /*
-      if (verifyLog()) {
-      verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
-      delete _vlFile;    // Doesn't delete file; actually closes it
-      }//*/
-    // workingSol.decrementRefs();
-
-  } // end RMA class destructor
+  } // end setPebblParameters function
 
 
   solution *RMA::initialGuess() {
@@ -460,21 +463,17 @@ namespace pebblRMA {
 
     } // end if the PEBBL RMA is solved in parllel
 
-  #endif //  ACRO_HAVE_MPI
-
-  #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
-  #endif //  ACRO_HAVE_MPI
 
-    // print RMA solution, Time, # of nodes
-    std::cout << std::fixed << std::setprecision(4)
-              << "ERMA Solution: "  << global_solution
-              << std::fixed << std::setprecision(2)
-              << " \tCPU time: "     << timeCPU     // searchTime
-              << " \tNum of Nodes: " << total_nodes << "\n";
+      // print RMA solution, Time, # of nodes
+      std::cout << std::fixed << std::setprecision(4)
+                << "ERMA Solution: "  << global_solution
+                << std::fixed << std::setprecision(2)
+                << " \tCPU time: "     << timeCPU     // searchTime
+                << " \tNum of Nodes: " << total_nodes << "\n";
 
-  #ifdef ACRO_HAVE_MPI
     } // end if (uMPI::rank==0)
+
   #endif //  ACRO_HAVE_MPI
 
   } // end printSolutionTime function

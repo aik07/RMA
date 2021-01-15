@@ -100,27 +100,13 @@ namespace pebblRMA {
 
   //////////////////////////// parRMA methods ////////////////////////////
 
-  parRMA::parRMA(MPI_Comm comm_) : RMA(), cutPtCaster(NULL) { // , mpiComm(comm_)
+  parRMA::parRMA(pebblParams *param, MPI_Comm comm_) : RMA(), cutPtCaster(NULL) { // , mpiComm(comm_)
 
     // Default is not to spend time on a dumb ramp up
     rampUpPoolLimitFac = 1.0;
+    
+    setPebblParameters(param);
 
-    /*
-      Parameter& p = get_parameter_object("rampUpPoolLimitFac");
-      p.default_value = "1.0";
-
-      rampUpFeatureFac = 1.0;
-      create_categorized_parameter("rampUpFeatureFac",
-      rampUpFeatureFac,
-      "<double>",
-      "1.0",
-      "Maximum number of subproblems "
-      "in pool to end ramp-up phase,\n\t"
-      "as a fraction of the total number "
-      "of features.",
-      "Maximum Monomial",
-      utilib::ParameterNonnegative<double>());
-    */
     branchChoice::setupMPI();
   }
 

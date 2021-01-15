@@ -255,6 +255,8 @@ namespace pebblRMA {
     RMA(pebblParams *param) ;
     virtual ~RMA(); // { workingSol.decrementRefs(); }		// Destructor
 
+    void setPebblParameters(pebblParams *param);
+
     // copy the RMA argument classe, ArgRMA clsss
     void setParameters(arg::ArgRMA *args_) { args = args_; }
 

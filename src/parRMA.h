@@ -64,7 +64,7 @@ namespace pebblRMA {
 
   public:
 
-    parRMA(MPI_Comm comm_ = MPI_COMM_WORLD);
+    parRMA(pebblParams *param, MPI_Comm comm_ = MPI_COMM_WORLD);
     ~parRMA();
 
     parallelBranchSub * blankParallelSub();
