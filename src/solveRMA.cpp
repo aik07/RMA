@@ -50,7 +50,7 @@ namespace rma {
 #ifdef ACRO_HAVE_MPI
     if (uMPI::rank==0) {
 #endif //  ACRO_HAVE_MPI
-      rma->setSortedObsIdx(data->vecTrainObsIdx);
+      rma->setSortedObsIdx(data->vecNonZeroWtObsIdx);
 #ifdef ACRO_HAVE_MPI
     }
 #endif //  ACRO_HAVE_MPI

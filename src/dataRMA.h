@@ -136,7 +136,7 @@ namespace data {
 
     // get the i-th training observation index
     inline unsigned int idxTrain(const unsigned int &i) {
-      return vecTrainObsIdx[i];
+      return vecNonZeroWtObsIdx[i];
     }
 
   //protected:
@@ -164,7 +164,7 @@ namespace data {
     vector<unsigned int>  vecNumDistVals;
 
     // a vector contains only training observation indices
-    vector<unsigned int>  vecTrainObsIdx;
+    vector<unsigned int>  vecNonZeroWtObsIdx;
 
     // vector<unsigned int>  vecRandObs;    // contains randomize all observations
     vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations

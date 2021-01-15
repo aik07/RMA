@@ -16,8 +16,8 @@ namespace data {
 
     // for now, numOrigObs = numTrain
     numTrainObs = numOrigObs;
-    vecTrainObsIdx.resize(numTrainObs);
-    for (unsigned int i=0; i < numTrainObs; ++i)  vecTrainObsIdx[i] = i;
+    vecNonZeroWtObsIdx.resize(numTrainObs);
+    for (unsigned int i=0; i < numTrainObs; ++i)  vecNonZeroWtObsIdx[i] = i;
 
     // Note: It is more efficient to remove observations with zero weights first,
     //     then integerized data. However, assuming that RMA is used for Boosting,
@@ -164,14 +164,14 @@ namespace data {
 
     unsigned int numNonZeroObs = -1;
 
-    vecTrainObsIdx.resize(numOrigObs);
+    vecNonZeroWtObsIdx.resize(numOrigObs);
 
     for (unsigned int i = 0; i < numOrigObs; ++i) // for each training observation
       if (dataIntTrain[i].w != 0)  // if objservation i has non-zero wiehgt
-        vecTrainObsIdx[++numNonZeroObs] = i;
+        vecNonZeroWtObsIdx[++numNonZeroObs] = i;
 
     numTrainObs = numNonZeroObs+1;
-    vecTrainObsIdx.resize(numTrainObs);
+    vecNonZeroWtObsIdx.resize(numTrainObs);
 
     if (args->debug >= 10)
       cout << "numTrainObs: " << numTrainObs << "\n";
@@ -523,13 +523,13 @@ namespace data {
         // the current bin's lower bound is the current value
        vecAttribIntInfo[j].vecBins[++k].lowerBound = *it; // *(++it);
 
-     } // end if creating a new bin
+      } // end if creating a new bin
 
-     // set the previous distinct value as the current distinct value
-     itp             = it;
+      // set the previous distinct value as the current distinct value
+      itp             = it;
 
-     // set the current original values to map the "k" integer value
-     mapOrigInt[*it] = k;
+      // set the current original values to map the "k" integer value
+      mapOrigInt[*it] = k;
 
     } // for each setDistVals
 

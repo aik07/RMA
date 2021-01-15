@@ -374,7 +374,7 @@ namespace greedyRMA {
 
     // set the covered observation indices
     vecCvdObsIdx.resize(data->numTrainObs);
-    copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),
+    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
        vecCvdObsIdx.begin());
 
   } // end resetMinOptRange function
@@ -399,8 +399,8 @@ namespace greedyRMA {
       vecUpperMin[j] = data->vecNumDistVals[j] - 1;
     //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
-    vecCvdObsIdx.resize(data->vecTrainObsIdx.size());
-    copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),
+    vecCvdObsIdx.resize(data->vecNonZeroWtObsIdx.size());
+    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
          vecCvdObsIdx.begin());
 
   } // end resetMaxOptRange function
@@ -500,7 +500,7 @@ namespace greedyRMA {
     copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
     vecCvdObsIdx.resize(data->numTrainObs);
-    copy(data->vecTrainObsIdx.begin(), data->vecTrainObsIdx.end(),
+    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
   vecCvdObsIdx.begin());
   }
 
