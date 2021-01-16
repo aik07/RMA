@@ -24,7 +24,6 @@
 #include "Time.h"
 #include "utility.h"
 
-
 #ifdef ACRO_HAVE_MPI
   #include <pebbl/pbb/parBranching.h>
   #include "parRMA.h"
@@ -36,6 +35,12 @@
   #define IO(action) action;
 #endif // ACRO_HAVE_MPI
 
+#ifdef ACRO_HAVE_MPI
+#define ROOTPROC uMPI::rank==0
+#else
+#define ROOTPROC true
+#endif
+
 
 namespace rma {
 
@@ -45,7 +50,7 @@ namespace rma {
 
   public:
 
-    SolveRMA(): isParallel(false), rma(NULL), prma(NULL) {}
+    SolveRMA(): isRMAonly(true), isParallel(false), rma(NULL), prma(NULL) {}
 
     virtual ~SolveRMA() {
 #ifdef ACRO_HAVE_MPI
@@ -68,6 +73,8 @@ namespace rma {
     void solvePebblRMA();    // solve RMA using PEBBL
 
   protected:
+
+    bool                  isRMAonly;   // it is true for solve RMA, not Boosting
 
     bool                  isParallel;  // whether or not this program will run in parallel
 

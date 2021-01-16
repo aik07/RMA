@@ -84,24 +84,11 @@ namespace data {
     DataRMA() {}
     DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
-    // DataRMA& operator=( const DataRMA& other );
-
     // read data from the data file, and set dataOrigTrain
     bool readData(int& argc, char**& argv);
 
-    // bool readRandObs(int argc, char** argv);
-
-    // read nonuniform weights from a specified file
-    void readNonUniformWt();
-
-    // count # of positive and negative observations
-    void setNumPosNegObs();
-
     // set dataIntTrainX
     void setDataIntX();
-
-    // set setDataIntTrainWeight
-    void setDataIntWeight();
 
     // remove onservations with zero weights from the training data
     void removeZeroWtObs();
@@ -111,6 +98,15 @@ namespace data {
 
     // set the maximum # of distinct values among all attributes
     void setMaxNumDistVals();
+
+    // set setDataIntTrainWeight
+    void setDataIntWeight();
+
+    // read nonuniform weights from a specified file
+    void readNonUniformWt();
+
+    // count # of positive and negative observations
+    void setNumPosNegObs();
 
     // set # of total cutpoints
     void setNumTotalCutPts();
@@ -141,18 +137,17 @@ namespace data {
 
   //protected:
 
-    // # of observations in original data
-    unsigned int numOrigObs;
+    unsigned int numAttrib;       // # of attributes
+    unsigned int numTrainObs;     // # of training observations
+    unsigned int numTestObs;      // # of testing observations
+    unsigned int numNonZeroWtObs; // # of non-zero weight observations
 
-    // # of distinct observation after discretization
-    unsigned int numTrainObs;
-    unsigned int numTestObs;       // # of testing observations
-
-    unsigned int numAttrib;        // # of attributes
-    unsigned int numPosTrainObs;   // # of positive training observations
-    unsigned int numNegTrainObs;   // # of negative training observations
-    unsigned int numTotalCutPts;   // # of cutpoints for RMA
     unsigned int maxNumDistVals;  // maximum distinct value among all attributes
+
+    // for RMA only, not needed for Boosting
+    unsigned int numPosTrainObs;  // # of positive training observations
+    unsigned int numNegTrainObs;  // # of negative training observations
+    unsigned int numTotalCutPts;  // # of total cutpoints for PEBBL RMA
 
     // average and standard deviation of Y
     double           avgY, sdY;
@@ -166,15 +161,14 @@ namespace data {
     // a vector contains only training observation indices
     vector<unsigned int>  vecNonZeroWtObsIdx;
 
-    // vector<unsigned int>  vecRandObs;    // contains randomize all observations
     vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
 
-    vector<DataXy>  dataOrigTrain;      // original datasets X and y
-    vector<DataXy>  dataStandTrain;     // starndardized datasets of X and y
-    vector<DataXw>  dataIntTrain;       // discretized data X abd w (weight)
+    vector<DataXy>  dataOrigTrain;     // original datasets X and y
+    vector<DataXy>  dataStandTrain;    // starndardized datasets of X and y
+    vector<DataXw>  dataIntTrain;      // discretized data X abd w (weight)
 
     vector<DataXy>  dataOrigTest;      // original datasets X and y
-    vector<DataXw>  dataIntTest;       // discretized data X abd w (weight)
+    // vector<DataXw>  dataIntTest;    // discretized data X abd w (weight)
     // vector<DataXy>  dataStandTest;
 
     Time     tc;     // Time class object

@@ -45,15 +45,7 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
 
     rma->setParameters(this);    // passing arguments
-    rma->setData(data);          // set data
-
-#ifdef ACRO_HAVE_MPI
-    if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-      rma->setSortedObsIdx(data->vecNonZeroWtObsIdx);
-#ifdef ACRO_HAVE_MPI
-    }
-#endif //  ACRO_HAVE_MPI
+    rma->setData(data);          // set data class in RMA
 
     // exception_mngr::set_stack_trace(false);
     rma->setup(argc,argv);
@@ -81,52 +73,50 @@ namespace rma {
     rma->mmapCachedCutPts.clear();     // clean up the cached cut points storage
     rma->workingSol.value = -getInf(); // set the working solution value to be negative infinity
 
+    rma->setSortedObsIdx(data->vecNonZeroWtObsIdx);
+
   }  // end resetPebblRMA function
 
 
   // solve RMA using the chosen methods
   void SolveRMA::solveRMA() {
 
-    if (isPebblRMA()) { // if RMA is solved using PEBBL
+    if (isRMAonly) { // if RMA only, not Boosting
+      data->setDataIntWeight();   // set weights for dataIntTrain
+      data->setNumPosNegObs();    // set # of positive and negative observations
+    }
 
+    data->removeZeroWtObs();  // remot zero weight observations
+
+    if (isPebblRMA()) { // if RMA is solved using PEBBL
       resetPebblRMA();  // reset PEEBL RMA variables
 
       if (isInitGuess()) {  // if the PEBBL get initial guess by solving the greedy RMA
 
-// TODO: the greedy RMA can be solved using only one process
+        // TODO: the greedy RMA can be solved using only one process
+        // if (ROOTPROC) { // if root process
 
-  /*
-#ifdef ACRO_HAVE_MPI
-	if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
-       /*/
-       solveGreedyRMA();  // solve the greedy RMA
-        // set the initial guess solution using the greedy RMA solution
-        // (positive or negative solution, initial objective value,
-        //  lower and upper bounds)
-        rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
-                             grma->getLowerBounds(), grma->getUpperBounds());
-        /*
-#ifdef ACRO_HAVE_MPI
-        }
-#endif //  ACRO_HAVE_MPI
-       /*/
+           solveGreedyRMA();  // solve the greedy RMA
 
-      }
+          // set the initial guess solution using the greedy RMA solution
+          // (positive or negative solution, initial objective value,
+          //  lower and upper bounds)
+          rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
+                               grma->getLowerBounds(), grma->getUpperBounds());
+
+        // } // end if root process
+
+      } // end if isInitialGuess()
 
       solvePebblRMA();  // solve RMA using PEBBL
 
     } else { // if RMA is solved using PEBBL
 
-#ifdef ACRO_HAVE_MPI
-      if (uMPI::rank==0) {
-#endif //  ACRO_HAVE_MPI
+      if (ROOTPROC) { // if root process
 	      solveGreedyRMA();  // solve the greedy RMA
-#ifdef ACRO_HAVE_MPI
-      }
-#endif //  ACRO_HAVE_MPI
+      } // end if root process
 
-    }
+    } // end if RMA is solved using PEBBL
 
   }  // end solveRMA function
 

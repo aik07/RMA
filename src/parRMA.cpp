@@ -104,7 +104,7 @@ namespace pebblRMA {
 
     // Default is not to spend time on a dumb ramp up
     rampUpPoolLimitFac = 1.0;
-    
+
     setPebblParameters(param);
 
     branchChoice::setupMPI();
@@ -149,43 +149,43 @@ namespace pebblRMA {
   // Pack a description of the problem.
   void parRMA::pack(PackBuffer &outBuf) {
 
-    if (args->debug >= 20)
+    if (args->debug >= 0)
       cout << "parRMA::pack invoked..." << '\n';
 
-    outBuf << data->numOrigObs << data->numAttrib;
-
-    for (unsigned int i = 0; i < data->numOrigObs; ++i)
-      outBuf << sortedObsIdx[i];
-
-    for (unsigned int i = 0; i < data->numOrigObs; ++i) {
-      outBuf << data->dataIntTrain[i].X << data->dataIntTrain[i].w;
-      // outBuf << data->origTrainData[i].y;
-    }
-
-    outBuf << data->vecNumDistVals << data->numTotalCutPts;
+    // outBuf << data->numTrainObs << data->numAttrib;
+    //
+    // for (unsigned int i = 0; i < data->numNonZeroWtObs; ++i)
+    //   outBuf << sortedObsIdx[i];
+    //
+    // for (unsigned int i = 0; i < data->numTrainObs; ++i) {
+    //   outBuf << data->dataIntTrain[i].X << data->dataIntTrain[i].w;
+    //   // outBuf << data->origTrainData[i].y;
+    // }
+    //
+    // outBuf << data->vecNumDistVals << data->numTotalCutPts;
 
   } // end function parRMA::pack
 
   // unpack
   void parRMA::unpack(UnPackBuffer &inBuf) {
 
-    if (args->debug >= 20)
+    if (args->debug >= 0)
       cout << "parRMA::unpack invoked... " << '\n';
 
-    inBuf >> data->numOrigObs >> data->numAttrib;
-
-    sortedObsIdx.resize(data->numOrigObs);
-    for (unsigned int i = 0; i < data->numOrigObs; ++i)
-      inBuf >> sortedObsIdx[i];
-
-    data->dataIntTrain.resize(data->numOrigObs);
-    for (unsigned int i = 0; i < data->numOrigObs; ++i) {
-      data->dataIntTrain[i].X.resize(data->numAttrib);
-      inBuf >> data->dataIntTrain[i].X >> data->dataIntTrain[i].w;
-      // inBuf >> data->origTrainData[i].y;
-    }
-
-    inBuf >> data->vecNumDistVals >> data->numTotalCutPts;
+    // inBuf >> data->numTrainObs >> data->numAttrib;
+    //
+    // sortedObsIdx.resize(data->numNonZeroWtObs);
+    // for (unsigned int i = 0; i < data->numNonZeroWtObs; ++i)
+    //   inBuf >> sortedObsIdx[i];
+    //
+    // data->dataIntTrain.resize(data->numTrainObs);
+    // for (unsigned int i = 0; i < data->numTrainObs; ++i) {
+    //   data->dataIntTrain[i].X.resize(data->numAttrib);
+    //   inBuf >> data->dataIntTrain[i].X >> data->dataIntTrain[i].w;
+    //   // inBuf >> data->origTrainData[i].y;
+    // }
+    //
+    // inBuf >> data->vecNumDistVals >> data->numTotalCutPts;
 
     if (args->debug >= 20)
       cout << "parRMA::unpack done." << '\n';
@@ -198,7 +198,7 @@ namespace pebblRMA {
         cout << data->vecNumDistVals[j] << ", ";
 
       // TODO: we only need numTrainObs...
-      for (unsigned int i = 0; i < data->numOrigObs; ++i)
+      for (unsigned int i = 0; i < data->numTrainObs; ++i)
         cout << " wt: " << data->dataIntTrain[i].w << '\n';
     }
 

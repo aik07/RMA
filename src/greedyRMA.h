@@ -31,6 +31,9 @@ namespace greedyRMA {
     // constructor
     GreedyRMA(ArgRMA *args_, DataRMA *data_) : args(args_), data(data_) { }
 
+    // reset Greedy RMA solutions
+    void reset();
+
     // run the greedy range search alogrithm
     void   runGreedyRangeSearch();
 

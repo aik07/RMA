@@ -461,19 +461,8 @@ namespace pebblRMA {
   protected:
     RMA *globalPtr; // A pointer to the global branching object
     // inline double getObjectiveVal() const {return abs(posCovgWt-negCovgWt); };
-    // inline unsigned int numObs()           { return global()->data->numTrainObs; };
-    // inline unsigned int numDistObs()       { return global()->data->numTrainObs; };
-    // TODO: why there are numObs numDistObs?
 
     inline unsigned int numAttrib()        { return global()->data->numAttrib; };
-
-    // inline unsigned int idxTrain(const int &i) {
-    //         return global()->data->vecTrainObsIdx[i];
-    // };
-    //
-    // inline unsigned int idxObsEC(const int &i) {
-    //         return vecEquivClass[sortedECidx[i]].getObs();
-    // };
 
     inline vector<unsigned int> vecNumDistVals() {
       return global()->data->vecNumDistVals;

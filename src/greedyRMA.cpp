@@ -10,9 +10,9 @@
 namespace greedyRMA {
 
 
-  void GreedyRMA::runGreedyRangeSearch() {
+  void GreedyRMA::reset() {
 
-    ts.startTime();         // start the timer
+    optObjVal = -getInf();
 
     vecLowerMin.resize(data->numAttrib);
     vecUpperMin.resize(data->numAttrib);
@@ -21,6 +21,27 @@ namespace greedyRMA {
     vecLower.resize(data->numAttrib);
     vecUpper.resize(data->numAttrib);
     vecValueWeight.resize(data->maxNumDistVals);
+
+    // for (unsigned int j=0; j<data->numAttrib; ++j) {
+    //   vecLowerMin[j] = -getIntInf();
+    //   vecUpperMin[j] =  getIntInf();
+    //   vecLowerMax[j] = -getIntInf();
+    //   vecUpperMax[j] =  getIntInf();
+    //   vecLower[j]    = -getIntInf();
+    //   vecUpper[j]    =  getIntInf();
+    // }
+
+    for (unsigned int k=0; k<data->maxNumDistVals; ++k)
+      vecValueWeight[k] = 0;
+
+  }
+
+
+  void GreedyRMA::runGreedyRangeSearch() {
+
+    ts.startTime();         // start the timer
+
+    reset();                // reset variables in the Greedy RMA class
 
     searchMinOptRange();    // search oprimal range for minimum objective value
 
@@ -373,7 +394,7 @@ namespace greedyRMA {
     //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMin.begin());
 
     // set the covered observation indices
-    vecCvdObsIdx.resize(data->numTrainObs);
+    vecCvdObsIdx.resize(data->numNonZeroWtObs);
     copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
        vecCvdObsIdx.begin());
 
@@ -399,7 +420,7 @@ namespace greedyRMA {
       vecUpperMin[j] = data->vecNumDistVals[j] - 1;
     //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
-    vecCvdObsIdx.resize(data->vecNonZeroWtObsIdx.size());
+    vecCvdObsIdx.resize(data->numNonZeroWtObs);
     copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
          vecCvdObsIdx.begin());
 
@@ -500,7 +521,7 @@ namespace greedyRMA {
     vecUpperMax.resize(data->vecNumDistVals.size());
     copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
-    vecCvdObsIdx.resize(data->numTrainObs);
+    vecCvdObsIdx.resize(data->numNonZeroWtObs);
     copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
   vecCvdObsIdx.begin());
   }

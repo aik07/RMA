@@ -506,7 +506,7 @@ namespace pebblRMA {
     std::ios_base::fmtflags oldFlags = os.setf(ios::scientific);
 
     // Write data
-    for (unsigned int i = 0; i < data->numOrigObs; ++i) {
+    for (unsigned int i = 0; i < data->numTrainObs; ++i) {
       os << data->dataIntTrain[i].w << ';';
       // Restore stream state
       os.precision(oldPrecision);
@@ -2274,15 +2274,21 @@ namespace pebblRMA {
     unsigned int obs;
     double wt = 0.0;
 
-    for (unsigned int i = 0; i < global->data->numOrigObs;
-         ++i) { // for each observation
+    // for each observation
+    for (unsigned int i = 0; i < global->data->numNonZeroWtObs; ++i) {
+
       obs = global->sortedObsIdx[i];
-      for (unsigned int j = 0; j < global->data->numAttrib; ++j) { // for each attribute
+
+      // for each attribute
+      for (unsigned int j = 0; j < global->data->numAttrib; ++j) {
+
         if (a[j] <= global->data->dataIntTrain[obs].X[j] &&
             global->data->dataIntTrain[obs].X[j] <= b[j]) {
+
           // if this observation is covered by this solution
           if (j == global->data->numAttrib - 1)
             wt += global->data->dataIntTrain[obs].w;
+
         } else
           break; // else go to the next observation
       }          // end for each attribute
