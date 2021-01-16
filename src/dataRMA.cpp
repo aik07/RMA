@@ -56,7 +56,7 @@ namespace data {
       return false;
     }
 
-    if (args->debug>=2) tc.startTime();  // start the timer
+    if (args->debug>=5) tc.startTime();  // start the timer
 
     numOrigObs = 0;
     numAttrib  = 0;
@@ -106,8 +106,9 @@ namespace data {
 
     s.close(); // close the data file
 
-    if (args->debug>=2)
-      cout << "setupProblem CPU time: " << tc.getCPUTime() ; // << tc.getWallTime();
+    if (args->debug>=5)
+      cout << "setupProblem CPU time: " << tc.getCPUTime() << "\n";
+      tc.getWallTime();
 
     return true;
 
@@ -315,7 +316,7 @@ namespace data {
       vecAvgX[j] /= numTrainObs;        // set the average of X value for attribute j
     } // for each attribute j
 
-    if (args->debug >= 2) cout << "vecAvgX: " << vecAvgX;
+    if (args->debug >= 5) cout << "vecAvgX: " << vecAvgX;
 
   } // end setVecAvgX function
 
@@ -339,7 +340,7 @@ namespace data {
 
     } // end for each attribute j
 
-    if (args->debug >= 2) cout << "vecSdX: " << vecSdX;
+    if (args->debug >= 5) cout << "vecSdX: " << vecSdX;
 
   } // end setVecSdX function
 
@@ -429,7 +430,7 @@ namespace data {
   // integergize data by using the episilon aggregation
   void DataRMA::integerizeEpsData() {
 
-    if (args->debug >= 1) tc.startTime(); // start the timer
+    if (args->debug >= 3) tc.startTime(); // start the timer
 
     vecNumDistVals.resize(numAttrib);
 
@@ -447,7 +448,7 @@ namespace data {
 
     } // end for each attribute
 
-    if (args->debug >= 1)  printAfterEpsIntegerization();
+    if (args->debug >= 5)  printAfterEpsIntegerization();
 
   } // end integerizeEpsData
 
@@ -487,7 +488,7 @@ namespace data {
     // minimum of delta or max interval limit, and multiple the interval
     eps = min(args->delta(), args->maxInterval()) * interval;
 
-    if (args->debug >= 2) printIntegerizationInfo();
+    if (args->debug >= 5) printIntegerizationInfo();
 
   } // end setEpsilon function
 
@@ -511,7 +512,7 @@ namespace data {
     // some value can be aggregated by the level of the episilon
     for (it = setDistVals.begin(); it != setDistVals.end(); ++it) {
 
-      if (args->debug >= 2) printLowerUpperInfo(*itp, *it);
+      if (args->debug >= 5) printLowerUpperInfo(*itp, *it);
 
       // if the distance between the current lower and upper is
       // greater than episilon, assign the next number for the current upper
@@ -537,7 +538,7 @@ namespace data {
     vecAttribIntInfo[j].vecBins[k].upperBound = *it; // TODO: check this
     // vecAttribIntInfo[j].vecBins[k].upperBound = *(--it);
 
-    if (args->debug >= 2)  cout << "mapOrigInt contains: " << mapOrigInt;
+    if (args->debug >= 5)  cout << "mapOrigInt contains: " << mapOrigInt;
 
     vecNumDistVals[j] = k+1; // get distinct # of feature
 
@@ -582,7 +583,7 @@ namespace data {
           isSplit = false;
           eps     *= args->shrinkDelta(); // shrink eps
 
-          if (args->debug >= 2)
+          if (args->debug >= 5)
             cout << "shrinked episilon: " << eps << '\n';
 
           for (countIn = 0; countIn <= countR; ++countIn) { // TODO: waht is q
@@ -594,7 +595,7 @@ namespace data {
             curUpperIn = vecAttribIntInfo[j].vecBins[k + countExtraBins + countIn]
                        .upperBound;
 
-            if (args->debug >= 2) printLowerUpperInfo(curLowerIn, curUpperIn);
+            if (args->debug >= 5) printLowerUpperInfo(curLowerIn, curUpperIn);
 
             // if the interval violates the limit
             if ((curUpperIn - curLowerIn) > args->maxInterval() * interval) {
@@ -605,7 +606,7 @@ namespace data {
 
                 curUpperIn_updated = *it; // update the curren upper bound
 
-                if (args->debug >= 2) {
+                if (args->debug >= 5) {
                   cout << "updated upper: ";
                   printLowerUpperInfo(curUpperIn_updated, curUpperIn);
                 }
@@ -625,7 +626,7 @@ namespace data {
                  vecAttribIntInfo[j].vecBins[k + countExtraBins + countL + countIn]
                                .lowerBound = curUpperIn_updated;
 
-                  if (args->debug >= 2)
+                  if (args->debug >= 5)
                     printRecursiveIntInfo(j, k, countExtraBins, countL, countR, countIn);
 
                 // error if the interval is greater than the limit
@@ -633,7 +634,7 @@ namespace data {
 
                   cerr << "!!!!!!!!!!Something Wrong!!!!!!!!!!!\n";
 
-                  if (args->debug >= 2) printVecAttribIntInfo(j, countExtraBins);
+                  if (args->debug >= 5) printVecAttribIntInfo(j, countExtraBins);
 
                 } // end if
 
@@ -672,7 +673,7 @@ namespace data {
 
       } // for each distinct value
 
-      if (args->debug >= 2) printVecAttribIntInfo(j, countExtraBins);
+      if (args->debug >= 5) printVecAttribIntInfo(j, countExtraBins);
 
       setMapOrigInt(j);
 
@@ -701,7 +702,7 @@ namespace data {
 
     } // end for each distinct value
 
-    if (args->debug >= 2) {
+    if (args->debug >= 5) {
       cout << "\nBin Lower Bound: ";
       for (k = 0; k < vecNumDistVals[j]; ++k)
         cout << vecBinsCopy[k].lowerBound << ' ';
@@ -730,7 +731,7 @@ namespace data {
 
    } // end for each distinct value
 
-   if (args->debug >= 2)
+   if (args->debug >= 5)
      cout << "at recurisve iteration, mapOrigInt: " << mapOrigInt;
 
   } // end setMapOrigInt function
@@ -814,7 +815,7 @@ namespace data {
     cout << "integerizeProblem: \t";
     tc.getCPUTime();
 
-    if (args->debug >= 2)
+    if (args->debug >= 5)
       tc.getWallTime();
 
     /*

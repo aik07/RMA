@@ -1011,14 +1011,14 @@ namespace pebblRMA {
         thisChoice.branch[i].roundedBound = -1;
       }
 
-    if (global()->args->debug >= 2)
+    if (global()->args->debug >= 5)
       cout << "Sorted version is " << thisChoice << "\n";
 
     if (thisChoice < _branchChoice) { // and thisChoice.branch[0].roundedBound!=-1
       _branchChoice = thisChoice;
       if (global()->args->debug >= 50)
         cout << "Improves best attribute: " << j << "\n";
-      if (global()->args->debug >= 2)
+      if (global()->args->debug >= 3)
         cout << "Branch choice now: " << _branchChoice << "\n";
       numTiedSols = 1;
       // foundBound=true;
@@ -1056,9 +1056,10 @@ namespace pebblRMA {
 
     int numCutPtsInAttrib=0;
 
-    if (global()->args->debug >= 2) {
-      cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-      cout << "sortedObs: " << coveredObs;
+    if (global()->args->debug >= 5) {
+      cout << "\nal: " << al << "\nau: " << au
+           << "\nbl: " << bl << "\nbu: " << bu;
+      cout << "\nsortedObs: " << coveredObs << "\n";
     }
 
     compIncumbent(numAttrib() - 1);
@@ -1096,12 +1097,13 @@ namespace pebblRMA {
   // branching using cut-point caching methods
   void RMASub::cachedBranching() {
 
-    if (global()->args->debug >= 2)
+    if (global()->args->debug >= 5)
       cout << "cachedBranching\n";
 
-    if (global()->args->debug >= 2) {
-      cout << "al: " << al << "au: " << au << "bl: " << bl << "bu: " << bu;
-      cout << "sortedObs: " << coveredObs;
+    if (global()->args->debug >= 5) {
+      cout << "\nal: " << al << "\nau: " << au
+           << "\nbl: " << bl << "\nbu: " << bu;
+      cout << "\nsortedObs: " << coveredObs;
     }
 
    unsigned int k = 0;
@@ -1681,7 +1683,7 @@ namespace pebblRMA {
     if (au[j] < bl[j] && au[j] <= optMinUpper && optMinUpper <= bl[j])
       optMinUpper = bl[j];
 
-    if (globalPtr->args->debug >= 2)
+    if (globalPtr->args->debug >= 5)
       cout << "optAttrib: (a,b): " << optMinAttrib << ": (" << optMinLower << ", "
            << optMinUpper << "), min: " << minVal << "\n";
   }
@@ -1697,7 +1699,7 @@ namespace pebblRMA {
     if (au[j] < bl[j] && au[j] <= optMaxUpper && optMaxUpper <= bl[j])
       optMaxUpper = bl[j];
 
-    if (globalPtr->args->debug >= 2)
+    if (globalPtr->args->debug >= 5)
       cout << "optAttrib: (a,b): " << optMaxAttrib << ": (" << optMaxLower << ", "
            << optMaxUpper << "), max: " << maxVal << "\n";
   }

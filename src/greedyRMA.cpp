@@ -471,10 +471,11 @@ namespace greedyRMA {
       std::cout << std::fixed << std::setprecision(2)
                 << "CPU Time: " << ts.getCPUTime() << "\n";
       if (args->debug >= 2)
-        std::cout << ts.getWallTime();
+        std::cout << "Wall Time: " << ts.getWallTime() << "\n";
       // if (args->printBoost()) {
       if (args->debug >= 2)
-        std::cout << "Lower: " << vecLower << "\nUpper: " << vecUpper << "\n";
+        std::cout << "vecLower: " << vecLower
+                  << "\vecUpper: " << vecUpper << "\n";
         //}
 
   #ifdef ACRO_HAVE_MPI
