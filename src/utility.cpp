@@ -87,3 +87,18 @@ template ostream &operator<< <double>(ostream &os,
 
 template ostream &operator<< <bool>(ostream &os,
                  const vector<vector<bool> > &v);
+
+// for 2D deque output
+template<class T>
+ostream &operator<<(ostream &os, const deque<deque<T> > &v) {
+for (unsigned int i = 0; i < v.size(); ++i) {
+  os << "(";
+  for (unsigned int j = 0; j < v[i].size(); ++j)
+    os << v[i][j] << " ";
+  os << " )\n";
+}
+return os;
+}
+
+template ostream &operator<< <bool>(ostream &os,
+               const deque<deque<bool> > &v);

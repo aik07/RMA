@@ -40,4 +40,8 @@ ostream& operator<<(ostream& os, const vector<T>& v);
 template<class T>
 ostream& operator<<(ostream& os, const vector<vector<T> >& v);
 
+// for 2D deque output
+template<class T>
+ostream& operator<<(ostream& os, const deque<deque<T> >& v);
+
 #endif  // UTILITY_h
