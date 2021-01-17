@@ -12,7 +12,12 @@ namespace data {
 
   DataRMA::DataRMA(int &argc, char **&argv, ArgRMA *args_) : args(args_) {
 
-    readData(argc, argv); // read the data and set dataOrigTrain
+    // read the data and set dataOrigTrain
+    readData(argc, argv, TRAIN, dataOrigTrain);
+
+    if (argc > 2) // if the test data is given
+      // read the data and set dataOrigTest
+      readData(argc, argv, TEST, dataOrigTest);
 
     // Note: It is more efficient to remove observations with zero weights first,
     //     then integerized data. However, assuming that RMA is used for Boosting,
@@ -29,7 +34,8 @@ namespace data {
 
 
   // read data file and set dataOrigTrain
-  bool DataRMA::readData(int &argc, char **&argv) {
+  void DataRMA::readData(int &argc, char **&argv,
+                         const bool &isTrain, vector<DataXy> &dataOrig) {
 
     unsigned int i, j;
     double tmp;
@@ -41,60 +47,82 @@ namespace data {
     // read data from the data file
     if (argc <= 1) {
       cerr << "No filename specified\n";
-      return false;
+      return;
     }
 
     if (args->debug>=5) tc.startTime();  // start the timer
 
-    numTrainObs = 0;
-    numAttrib   = 0;
-
-    ifstream s(argv[1]); // open the data file
+    // if (isTest) // for test data
+    //   ifstream s(argv[2]); // open the test data file
+    // else
+    //   ifstream s(argv[1]); // open the train data file
+    //
+    // data_file = (isTest ? argv[2] : argv[1]);
+    ifstream s( ( isTrain ? argv[1] : argv[2] ) );
 
     // check whether or not the file is opened correctly
     if (!s) {
-      cerr << "Could not open file \"" << argv[1] << "\"\n";
-      return false;
+      cerr << "Could not open file \""
+           << ( isTrain ? argv[1] : argv[2] ) << "\"\n";
+      return;
     }
 
-    // read how many columns and rows
-    while (getline(s, line)) { // for each lline
-      if (numTrainObs == 0) {
-        istringstream streamCol(line);
-        while (streamCol >> tmp)
-          ++numAttrib;
+    if (isTrain) { // if for Train data
+
+      // count # of the train observations
+      // count # of attributes
+
+      numAttrib = 0;
+
+      // read how many columns and rows
+      while (getline(s, line)) { // for each lline
+        if (numTrainObs == 0) {
+          istringstream streamCol(line);
+          while (streamCol >> tmp)
+            ++numAttrib;
+        }
+        ++numTrainObs;
       }
-      ++numTrainObs;
-    }
-    --numAttrib; // last line is response value
+      --numAttrib; // last line is response value
 
-  #ifdef ACRO_HAVE_MPI
-    if (uMPI::rank == 0) {
-  #endif //  ACRO_HAVE_MPI
-      cout << "(mxn): " << numTrainObs << "\t" << numAttrib << "\n";
-  #ifdef ACRO_HAVE_MPI
-    }
-  #endif //  ACRO_HAVE_MPI
+      if (ROOTPROC)
+        cout << "Train (mxn): " << numTrainObs << "\t" << numAttrib << "\n";
 
-    s.clear();
-    s.seekg(0, ios::beg);
+      s.clear();
+      s.seekg(0, ios::beg);
 
-    dataOrigTrain.resize(numTrainObs);
-    for (i = 0; i < numTrainObs; ++i) { // for each observation
-      dataOrigTrain[i].X.resize(numAttrib);
+    } else {  // for Test data
+
+      // count # of the test observations
+
+      // read how many columns and rows
+      while (getline(s, line))  // for each lline
+        ++numTestObs;
+
+      if (ROOTPROC)
+        cout << "Test (mxn): " << numTestObs << "\t" << numAttrib << "\n";
+
+      s.clear();
+      s.seekg(0, ios::beg);
+
+    } // end if for test or train data
+
+    unsigned int numObs = isTrain ? numTrainObs : numTestObs ;
+
+    dataOrig.resize(numObs);
+    for (i = 0; i < numObs; ++i) { // for each observation
+      dataOrig[i].X.resize(numAttrib);
       for (j = 0; j < numAttrib; j++) // for each attribute
-        s >> dataOrigTrain[i].X[j];
-      s >> dataOrigTrain[i].y;
+        s >> dataOrig[i].X[j];
+      s >> dataOrig[i].y;
     } // end for each observation
 
     s.close(); // close the data file
 
     if (args->debug>=5) {
       cout << "setupProblem CPU time:  " << tc.getCPUTime() << "\n";
-      cout << "setupProblem Wall time: " <<tc.getWallTime();
+      cout << "setupProblem Wall time: " << tc.getWallTime();
     }
-
-    return true;
 
   } // end readData function
 
@@ -178,6 +206,18 @@ namespace data {
 
   } // end removeZeroWtObs function
 
+
+  // set the # of total cutpoints for PEBBL RMA
+  void DataRMA::setNumTotalCutPts() {
+
+    numTotalCutPts = 0;
+
+    for (unsigned int j = 0; j < numAttrib; ++j)  // for each attribute
+      numTotalCutPts += vecNumDistVals[j]-1; // sum up the tatoal cut point
+
+  } // end setNumTotalCutPts function
+
+
   /*********************** RMA only functions (start) ********************/
 
   // set weights of dataIntTrain
@@ -253,17 +293,6 @@ namespace data {
     } // end if
 
   } // end readNonUniformWt function
-
-
-  // set the maximum distinct value of all attributes
-  void DataRMA::setNumTotalCutPts() {
-
-    numTotalCutPts = 0;
-
-    for (unsigned int j = 0; j < numAttrib; ++j)  // for each attribute
-      numTotalCutPts += vecNumDistVals[j]-1; // sum up the tatoal cut point
-
-  } // end setNumTotalCutPts function
 
 
   // set positive and negative observations

@@ -149,7 +149,7 @@ namespace pebblRMA {
   // Pack a description of the problem.
   void parRMA::pack(PackBuffer &outBuf) {
 
-    if (args->debug >= 0)
+    if (args->debug >= 10)
       cout << "parRMA::pack invoked..." << '\n';
 
     // outBuf << data->numTrainObs << data->numAttrib;
@@ -169,7 +169,7 @@ namespace pebblRMA {
   // unpack
   void parRMA::unpack(UnPackBuffer &inBuf) {
 
-    if (args->debug >= 0)
+    if (args->debug >= 10)
       cout << "parRMA::unpack invoked... " << '\n';
 
     // inBuf >> data->numTrainObs >> data->numAttrib;

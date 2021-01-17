@@ -17,12 +17,20 @@
 #include "argRMA.h"
 #include "utility.h"
 
+#ifdef ACRO_HAVE_MPI
+#define ROOTPROC uMPI::rank==0
+#else
+#define ROOTPROC true
+#endif
+
 using namespace std;
 using namespace arg;
 using namespace utilib;
 
 
 namespace data {
+
+  enum TestTrainData {TEST, TRAIN, VALID};
 
   // each bin has lower and upper bound of the original values
   struct Bin           { double lowerBound, upperBound; };
@@ -85,7 +93,8 @@ namespace data {
     DataRMA(int& argc, char**& argv, ArgRMA *args_);
 
     // read data from the data file, and set dataOrigTrain
-    bool readData(int& argc, char**& argv);
+    void readData(int& argc, char**& argv,
+                  const bool &isTest, vector<DataXy> &dataOrig);
 
     // set dataIntTrainX
     void setDataIntX();
@@ -129,11 +138,6 @@ namespace data {
 
     // save X values for all observations
     template <class T> void saveXObs(T vecData);
-
-    // get the i-th training observation index
-    inline unsigned int idxTrain(const unsigned int &i) {
-      return vecNonZeroWtObsIdx[i];
-    }
 
   //protected:
 
