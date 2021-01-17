@@ -50,17 +50,20 @@ namespace rma {
 
   public:
 
-    SolveRMA(): isRMAonly(true), isParallel(false), rma(NULL), prma(NULL) {}
+    SolveRMA(): isRMAonly(true), isParallel(false),
+                 rma(NULL), prma(NULL) { }
 
     virtual ~SolveRMA() {
 #ifdef ACRO_HAVE_MPI
-      if (isParallel) { CommonIO::end(); uMPI::done(); } // MPI_Finalize
+      //if (isParallel)
+      { CommonIO::end(); uMPI::done(); } // MPI_Finalize
 #endif // ACRO_HAVE_MPI
     }
 
     void setupSolveRMA(int& argc, char**& argv);  // setup to sovle RMA
 
-    virtual void setData(int& argc, char**& argv) { // set Data RMA class object
+    // set Data RMA class object
+    virtual void setDataRMA(int& argc, char**& argv) {
       data = new data::DataRMA(argc, argv, (ArgRMA *) this);
     }
 

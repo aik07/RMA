@@ -150,7 +150,7 @@ namespace pebblRMA {
   void parRMA::pack(PackBuffer &outBuf) {
 
     if (args->debug >= 10)
-      cout << "parRMA::pack invoked..." << '\n';
+      ucout << "parRMA::pack invoked..." << '\n';
 
     // outBuf << data->numTrainObs << data->numAttrib;
     //
@@ -166,11 +166,12 @@ namespace pebblRMA {
 
   } // end function parRMA::pack
 
+
   // unpack
   void parRMA::unpack(UnPackBuffer &inBuf) {
 
     if (args->debug >= 10)
-      cout << "parRMA::unpack invoked... " << '\n';
+      ucout << "parRMA::unpack invoked... " << '\n';
 
     // inBuf >> data->numTrainObs >> data->numAttrib;
     //
@@ -187,19 +188,18 @@ namespace pebblRMA {
     //
     // inBuf >> data->vecNumDistVals >> data->numTotalCutPts;
 
-    if (args->debug >= 20)
-      cout << "parRMA::unpack done." << '\n';
+    if (args->debug >= 10)
+      ucout << "parRMA::unpack done." << '\n';
 
     if (args->debug >= 20) {
 
-      cout << " data->vecNumDistVals: ";
+      ucout << "data->vecNumDistVals: " << data->vecNumDistVals << "\n";
 
-      for (unsigned int j = 0; j < data->numAttrib; ++j)
-        cout << data->vecNumDistVals[j] << ", ";
-
-      // TODO: we only need numTrainObs...
+      ucout << "wt: ";
       for (unsigned int i = 0; i < data->numTrainObs; ++i)
-        cout << " wt: " << data->dataIntTrain[i].w << '\n';
+        ucout << data->dataIntTrain[i].w << ' ';
+      ucout << "\n";
+
     }
 
   } // end function parRMA::unpack

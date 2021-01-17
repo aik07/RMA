@@ -10,9 +10,9 @@ using namespace rma;
 
 int main(int argc, char** argv) {
 
-  SolveRMA solveRMA;
-  solveRMA.setupSolveRMA(argc, argv);
-  solveRMA.solveRMA();
+  SolveRMA rma_sol;
+  rma_sol.setupSolveRMA(argc, argv);
+  rma_sol.solveRMA();
 
   return 0;
 

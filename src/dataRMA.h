@@ -18,9 +18,9 @@
 #include "utility.h"
 
 #ifdef ACRO_HAVE_MPI
-#define ROOTPROC uMPI::rank==0
+#define ROOTRANK (uMPI::rank==0)
 #else
-#define ROOTPROC true
+#define ROOTRANK true
 #endif
 
 using namespace std;
@@ -109,7 +109,7 @@ namespace data {
     void setMaxNumDistVals();
 
     // set setDataIntTrainWeight
-    void setDataIntWeight();
+    void setRMAonlyWeight();
 
     // read nonuniform weights from a specified file
     void readNonUniformWt();
@@ -127,8 +127,8 @@ namespace data {
     void setSdY();    // set sdY
 
     // set the standerdized data of X and Y
-    void setDataStandX ();
-    void setDataStandY ();
+    void setStandardizedX ();
+    void setStandardizedY ();
 
     // integergize data by using the episilon aggregation
     void integerizeEpsData();

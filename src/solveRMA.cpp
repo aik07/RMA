@@ -16,9 +16,9 @@ namespace rma {
 
     setup(argc, argv);           // setup all paramaters
 
-    setData(argc, argv);         // set DataRMA class
+    setDataRMA(argc, argv);      // set DataRMA class from SolveRMA class
 
-    setupPebblRMA(argc, argv);   // set PEBBL RMA class
+    if (isPebblRMA()) setupPebblRMA(argc, argv);   // set PEBBL RMA class
 
   } // end setupSolveRMA function
 
@@ -44,11 +44,11 @@ namespace rma {
     }
 #endif // ACRO_HAVE_MPI
 
-    rma->setParameters(this);    // passing arguments
+    rma->setParameters(this);    // passing arguments, ArgRMA class
     rma->setData(data);          // set data class in RMA
 
     // exception_mngr::set_stack_trace(false);
-    rma->setup(argc,argv);
+    rma->setup(argc,argv);       // setup function from BaseRMA class
     // exception_mngr::set_stack_trace(true);
 
   } // end setupPebblRMA function
@@ -73,8 +73,6 @@ namespace rma {
     rma->mmapCachedCutPts.clear();     // clean up the cached cut points storage
     rma->workingSol.value = -getInf(); // set the working solution value to be negative infinity
 
-    rma->setSortedObsIdx(data->vecNonZeroWtObsIdx);
-
   }  // end resetPebblRMA function
 
 
@@ -82,21 +80,27 @@ namespace rma {
   void SolveRMA::solveRMA() {
 
     if (isRMAonly) { // if RMA only, not Boosting
-      data->setDataIntWeight();   // set weights for dataIntTrain
+      data->setRMAonlyWeight();   // set weights for dataIntTrain
       data->setNumPosNegObs();    // set # of positive and negative observations
     }
+
+    // for (unsigned int i=0; i<data->numTrainObs; ++i)
+    //   ucout << data->dataIntTrain[i].w << " ";
 
     data->removeZeroWtObs();  // remot zero weight observations
 
     if (isPebblRMA()) { // if RMA is solved using PEBBL
+
       resetPebblRMA();  // reset PEEBL RMA variables
+
+      rma->setInitSortedObsIdx(data->vecNonZeroWtObsIdx);
 
       if (isInitGuess()) {  // if the PEBBL get initial guess by solving the greedy RMA
 
         // TODO: the greedy RMA can be solved using only one process
         // if (ROOTPROC) { // if root process
 
-           solveGreedyRMA();  // solve the greedy RMA
+          solveGreedyRMA();  // solve the greedy RMA
 
           // set the initial guess solution using the greedy RMA solution
           // (positive or negative solution, initial objective value,
@@ -112,9 +116,8 @@ namespace rma {
 
     } else { // if RMA is solved using PEBBL
 
-      if (ROOTPROC) { // if root process
+      if (ROOTPROC) // if root process
 	      solveGreedyRMA();  // solve the greedy RMA
-      } // end if root process
 
     } // end if RMA is solved using PEBBL
 
@@ -140,6 +143,8 @@ namespace rma {
     else                    rma->search(); // only get the RMA optimal value (no B&B details)
 
     rma->printSolutionTime(tc.getCPUTime());
+
+    if (debug>=1) rma->workingSol.checkObjValue();
 
   } // end function solvePebblRMA()
 

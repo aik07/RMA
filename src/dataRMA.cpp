@@ -52,12 +52,6 @@ namespace data {
 
     if (args->debug>=5) tc.startTime();  // start the timer
 
-    // if (isTest) // for test data
-    //   ifstream s(argv[2]); // open the test data file
-    // else
-    //   ifstream s(argv[1]); // open the train data file
-    //
-    // data_file = (isTest ? argv[2] : argv[1]);
     ifstream s( ( isTrain ? argv[1] : argv[2] ) );
 
     // check whether or not the file is opened correctly
@@ -85,8 +79,9 @@ namespace data {
       }
       --numAttrib; // last line is response value
 
-      if (ROOTPROC)
-        cout << "Train (mxn): " << numTrainObs << "\t" << numAttrib << "\n";
+      if (ROOTRANK)
+        cout << "Train (# of observations, # of atttributes): "
+             << numTrainObs << "\t" << numAttrib << "\n";
 
       s.clear();
       s.seekg(0, ios::beg);
@@ -99,8 +94,9 @@ namespace data {
       while (getline(s, line))  // for each lline
         ++numTestObs;
 
-      if (ROOTPROC)
-        cout << "Test (mxn): " << numTestObs << "\t" << numAttrib << "\n";
+      if (ROOTRANK)
+        cout << "Test (# of observations, # of atttributes): "
+            << numTestObs << "\t" << numAttrib << "\n";
 
       s.clear();
       s.seekg(0, ios::beg);
@@ -127,7 +123,7 @@ namespace data {
   } // end readData function
 
 
-  // set X for the dataIntTrain
+  // set integerrized X values for the dataIntTrain
   void DataRMA::setDataIntX() {
 
     // TODO: add fixed bins integerization
@@ -201,7 +197,7 @@ namespace data {
     numNonZeroWtObs += 1;
     vecNonZeroWtObsIdx.resize(numNonZeroWtObs);
 
-    if (args->debug >= 10)
+    if (args->debug >= 1)
       cout << "numNonZeroObs: " << numNonZeroWtObs << "\n";
 
   } // end removeZeroWtObs function
@@ -221,7 +217,7 @@ namespace data {
   /*********************** RMA only functions (start) ********************/
 
   // set weights of dataIntTrain
-  void DataRMA::setDataIntWeight() {
+  void DataRMA::setRMAonlyWeight() {
 
     if (args->nonUniformWt() != "") { // if the nonUniform weight file is given
       readNonUniformWt();  // set the weights from the file
@@ -233,11 +229,11 @@ namespace data {
         if (dataOrigTrain[i].y == 0)   // if y=0 as negative class
           dataOrigTrain[i].y = -1.0;
 
-        dataIntTrain[i].w = dataOrigTrain[i].y * 1.0 / (double)numTrainObs;
+        dataIntTrain[i].w = dataOrigTrain[i].y / (double)numTrainObs;
 
       } // end for each observation
 
-    } // end if
+    } // end if nonUniform weight file given, else ...
 
   } // end setDataIntWeight function
 
@@ -302,20 +298,15 @@ namespace data {
     numNegTrainObs = 0;
 
     for (unsigned int i = 0; i < numTrainObs; ++i) { // for each training observation
-      if (dataIntTrain[i].w > 1) // if the response value is 1
+      if (dataIntTrain[i].w > 0) // if the response value is 1
         ++numPosTrainObs;  // count observation i as postive
-      else if (dataIntTrain[i].w < 1)
+      else if (dataIntTrain[i].w < 0)
         ++numNegTrainObs;  // count observation i as negative
     } // end for each observation
 
-  #ifdef ACRO_HAVE_MPI
-    if (uMPI::rank == 0) {
-  #endif //  ACRO_HAVE_MPI
-      ucout << "# of Positive : Negative Observations: "
+    if (ROOTRANK)
+      cout << "# of Positive : Negative Observations: "
             << numPosTrainObs << " : " << numNegTrainObs << "\n";
-  #ifdef ACRO_HAVE_MPI
-    }
-  #endif //  ACRO_HAVE_MPI
 
   } // end setNumPosNegObs function
 
@@ -392,7 +383,7 @@ namespace data {
 
 
   // set Standadize Data
-  void DataRMA::setDataStandX() {
+  void DataRMA::setStandardizedX() {
 
     dataStandTrain.resize(numTrainObs);
 
@@ -430,7 +421,7 @@ namespace data {
 
 
   // set the standardized data for Y-value
-  void DataRMA::setDataStandY() {
+  void DataRMA::setStandardizedY() {
 
     dataStandTrain.resize(numTrainObs); // TODO: resized twice
 

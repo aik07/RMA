@@ -545,8 +545,8 @@ namespace pebblRMA {
   // ********************* RMASub methods (start) *******************************
 
 
-  void rmaSolution::reset(const unsigned int numAttrib,
-                          vector<unsigned int> &vecNumDistVals) {
+  void rmaSolution::reset(const unsigned int &numAttrib,
+                          const vector<unsigned int> &vecNumDistVals) {
     vector<unsigned int> lower(numAttrib, 0);
     vector<unsigned int> upper(numAttrib, 0);
     for (unsigned int j=0; j<numAttrib; ++j) upper[j] = vecNumDistVals[j]-1;
@@ -564,11 +564,12 @@ namespace pebblRMA {
     this->b           = b;
   } // end setSolution function
 
-
+\
   void RMASub::setRootComputation() {
 
     al.resize(numAttrib());
     au.resize(numAttrib());
+
     fill(al.begin(), al.end(), 0);
 
     for (unsigned int j=0; j<numAttrib(); ++j)
@@ -653,7 +654,7 @@ namespace pebblRMA {
     // If (current objValue) >= (current bound), we found the solution.
     if (workingSol()->value >= _branchChoice.branch[0].exactBound) {
 
-      if (global()->debug >= 10) {
+      if (global()->debug >= 1) {
         workingSol()->printSolution();
         cout << "Bound: " << _branchChoice.branch[0].exactBound << "\n";
       }
@@ -664,6 +665,7 @@ namespace pebblRMA {
       return;
 
     }
+
 
     ///////////////////// create listExcluded list (start) ////////////////
   #ifndef ACRO_HAVE_MPI
@@ -1283,7 +1285,7 @@ namespace pebblRMA {
       U = bu[j];
       firstFewCutPts = true;
       vecCheckedCutVal.clear();
-      vecCheckedCutVal.resize(vecNumDistVals()[j] + 1);
+      vecCheckedCutVal.resize(vecNumDistVals()[j]);
 
       while (true) {
         if (numCutValues > 3) {
@@ -1636,41 +1638,61 @@ namespace pebblRMA {
 
 
   void RMASub::chooseMinOrMaxRange() {
+
     if (max(maxVal, -minVal) > workingSol()->value + .000001) {
+
       (globalPtr->args->isRandSeed())
           ? srand((numNegTiedSols + numPosTiedSols) * time(NULL) * 100)
           : srand(1);
+
       rand_num = (rand() % 10001) / 10000.0;
+
       workingSol()->a << al;
       workingSol()->b << bu;
+
+      // if max ver is better than min ver
+      // or breaking the tied solution, choose max ver
       if (maxVal > -minVal ||
           (maxVal == minVal &&
            rand_num <=
                numPosTiedSols / (double)(numNegTiedSols + numPosTiedSols))) {
+
         workingSol()->value = maxVal;
         workingSol()->a[optMaxAttrib] = optMaxLower;
         workingSol()->b[optMaxAttrib] = optMaxUpper;
         workingSol()->isPosIncumb = true;
+
         if (globalPtr->args->debug >= 10)
           cout << "positive ";
-      } else {
+
+      } else { // else choose the min ver
+
         workingSol()->value = -minVal;
         workingSol()->a[optMinAttrib] = optMinLower;
         workingSol()->b[optMinAttrib] = optMinUpper;
         workingSol()->isPosIncumb = false;
+
         if (globalPtr->args->debug >= 10)
           cout << "negative ";
-      }
-      foundRMASolution(synchronous);
-      if (globalPtr->args->debug >= 5)
+
+      } // end if choosing pos or neg ver.
+
+      if (globalPtr->args->debug >= 1)
         cout << " new incumbent  " << workingSol()->value << '\n';
-      if (globalPtr->args->debug >= 5)
+
+      globalPtr->globalSol.setSolution(workingSol()->a, workingSol()->b,
+                  workingSol()->isPosIncumb, workingSol()->value);
+
+      foundRMASolution(synchronous);
+
+      if (globalPtr->args->debug >= 1)
         workingSol()->printSolution();
+
       // DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a,
       // workingSol()->b,
       //        coveredObs,sortedECidx ));
     }
-  }
+  } // end RMASub::chooseMinOrMaxRange function
 
 
   void RMASub::setOptMin(const unsigned int &j) {
@@ -2216,9 +2238,14 @@ namespace pebblRMA {
   void rmaSolution::copy(rmaSolution *toCopy) {
     solution::copy(toCopy);
     global = toCopy->global;
+    value  = toCopy->value;
     a << toCopy->a;
     b << toCopy->b;
     isPosIncumb = toCopy->isPosIncumb;
+    if (global->args->debug>=1) {
+      ucout << "\ncopy b: " << b << "\n";
+      ucout << "copy b: " << b << "\n";
+    }
   }
 
 
@@ -2228,7 +2255,7 @@ namespace pebblRMA {
       return;
 
     outStream << "rectangle: a: " << a << "\nrectangle: b: " << b << "\n";
-    // cout << "rectangle: a: " << a << "\nrectangle: b: " << b << "\n";
+    cout << "\nrectangle: a: " << a << "\nrectangle: b: " << b << "\n";
 
     for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
       if (0 < a[i]) // if lower bound changed
@@ -2271,30 +2298,30 @@ namespace pebblRMA {
 
   void rmaSolution::checkObjValue() {
 
-    unsigned int obs;
     double wt = 0.0;
 
-    // for each observation
-    for (unsigned int i = 0; i < global->data->numNonZeroWtObs; ++i) {
+    cout << "Check RMA solution:";
+    cout << "\na: " << a << "\nb: " << b << "\n";
 
-      obs = global->sortedObsIdx[i];
+    // for each observation
+    for (unsigned int i = 0; i < global->data->numTrainObs; ++i) {
 
       // for each attribute
       for (unsigned int j = 0; j < global->data->numAttrib; ++j) {
 
-        if (a[j] <= global->data->dataIntTrain[obs].X[j] &&
-            global->data->dataIntTrain[obs].X[j] <= b[j]) {
+        if (a[j] <= global->data->dataIntTrain[i].X[j] &&
+            global->data->dataIntTrain[i].X[j] <= b[j]) {
 
           // if this observation is covered by this solution
           if (j == global->data->numAttrib - 1)
-            wt += global->data->dataIntTrain[obs].w;
+            wt += global->data->dataIntTrain[i].w;
 
         } else
           break; // else go to the next observation
       }          // end for each attribute
     }            // end for each observation
 
-    cout << "RMA ObjValue=" << wt << "\n";
+    cout << "Check RMA ObjValue=" << wt << "\n";
 
   } // end function rmaSolution::checkObjValue
 

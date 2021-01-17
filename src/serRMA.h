@@ -184,22 +184,23 @@ namespace pebblRMA {
   //  RMA solution class
   // (Note: read PEBBL user guide to understand how to use this class)
   class rmaSolution : virtual public solution {
+  // class rmaSolution : public RMA, public solution {
 
   public:
 
-    rmaSolution(){};
+    // rmaSolution(){};
     rmaSolution(RMA *global_);
     rmaSolution(rmaSolution *toCopy);
 
-    virtual ~rmaSolution() {}
+     ~rmaSolution() {}
 
-    void reset(const unsigned int numAttrib,
-               vector<unsigned int> &vecNumDistVals);
+    void reset(const unsigned int &numAttrib,
+               const vector<unsigned int> &vecNumDistVals);
 
     void setSolution(const bool isPosIncumb, const double objVal,
                      vector<unsigned int> &a, vector<unsigned int> &b);
 
-    solution *blankClone() { return new rmaSolution(this); }
+    // solution *blankClone() { return new rmaSolution(this); }
 
     void foundRMASolution(syncType sync = notSynchronous);
 
@@ -213,6 +214,8 @@ namespace pebblRMA {
 
     void checkObjValue();
 
+    // void heuristic();            // Full incumbent heuristic
+
     // check the objective value computed by PEBBL RMA is right
     // using the lower and upper bounds (A and B),
     // the covered observation index list (coveredObs),
@@ -222,9 +225,13 @@ namespace pebblRMA {
                         vector<unsigned int> &sortedECidx);
 
   #ifdef ACRO_HAVE_MPI
+
     void packContents(PackBuffer &outBuf) const;
     void unpackContents(UnPackBuffer &inBuf);
     int  maxContentsBufSize();
+
+    solution* blankClone() { return new rmaSolution(global); };
+
   #endif
 
     vector<unsigned int> a, b;   // a and b are the lower and upper bound vectors
@@ -242,6 +249,21 @@ namespace pebblRMA {
 
   }; // end rmaSolution class
 
+
+  class GlobalSolution {
+
+  public:
+    void setSolution(const vector<unsigned int> &_a,
+                     const vector<unsigned int> &_b,
+                     const bool &_isPosSol, const double &_objVal) {
+      a = _a; b = _b; isPosSol = _isPosSol; objVal = _objVal;
+    }
+
+    vector<unsigned int> a;
+    vector<unsigned int> b;
+    bool                 isPosSol;
+    double               objVal;
+  };
 
   /******************************************************************************/
   //  RMA branching class
@@ -277,7 +299,9 @@ namespace pebblRMA {
                          vector<unsigned int> upperBound);
 
     // set sorted observation idex
-    void setSortedObsIdx(vector<unsigned int> &train) { sortedObsIdx = train; }
+    void setInitSortedObsIdx(vector<unsigned int> &nonZeroWtObs) {
+      sortedObsIdx = nonZeroWtObs;
+    }
 
     // set cached cut points
     void setCachedCutPts(const unsigned int &j, const unsigned int &v);
@@ -329,9 +353,10 @@ namespace pebblRMA {
     data::DataRMA *data;
     arg::ArgRMA   *args;
 
+    GlobalSolution globalSol;
+
   }; // end RMA class
   // ************************************************************************
-
 
   inline void rmaSolution::foundRMASolution(syncType sync) {
     global->foundSolution(new rmaSolution(this), sync);
