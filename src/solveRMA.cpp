@@ -14,6 +14,8 @@ namespace rma {
   // setup to sovle RMA
   void SolveRMA::setupSolveRMA(int& argc, char**& argv) {
 
+    initMPI(argc, argv);
+
     setup(argc, argv);           // setup all paramaters
 
     setDataRMA(argc, argv);      // set DataRMA class from SolveRMA class
@@ -27,7 +29,6 @@ namespace rma {
   void SolveRMA::setupPebblRMA(int& argc, char**& argv) {
 
 #ifdef ACRO_HAVE_MPI
-    uMPI::init(&argc, &argv, MPI_COMM_WORLD);
     int nprocessors = uMPI::size;
     /// Do parallel optimization if MPI indicates that we're using more than one processor
     if (parallel_exec_test<parallelBranching>(argc, argv, nprocessors)) {

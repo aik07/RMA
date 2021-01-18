@@ -15,6 +15,7 @@ namespace data {
     // read the data and set dataOrigTrain
     readData(argc, argv, TRAIN, dataOrigTrain);
 
+    numTestObs = 0;
     if (argc > 2) // if the test data is given
       // read the data and set dataOrigTest
       readData(argc, argv, TEST, dataOrigTest);

@@ -60,6 +60,12 @@ namespace rma {
 #endif // ACRO_HAVE_MPI
     }
 
+    void initMPI(int& argc, char**& argv) {
+#ifdef ACRO_HAVE_MPI
+      uMPI::init(&argc, &argv, MPI_COMM_WORLD);
+#endif // ACRO_HAVE_MPI
+    }
+
     void setupSolveRMA(int& argc, char**& argv);  // setup to sovle RMA
 
     // set Data RMA class object
