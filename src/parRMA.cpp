@@ -1,5 +1,4 @@
 /**********************************************************
- *  File name:   parRMA.cpp
  *  Author:      Ai Kagawa
  *  Description: a source file for the parallel RMA solver using PEBBL
  **********************************************************/

@@ -68,7 +68,7 @@ namespace greedyRMA {
       copy(vecLowerMax.begin(), vecLowerMax.end(), vecLower.begin());
       copy(vecUpperMax.begin(), vecUpperMax.end(), vecUpper.begin());
 
-      if (args->debug >= 10)
+      if (args->debug >= 1)
         ucout << "chose max\n";
 
     } else {  // the optimal solutiona is from the min ver.
@@ -80,14 +80,16 @@ namespace greedyRMA {
       copy(vecLowerMin.begin(), vecLowerMin.end(), vecLower.begin());
       copy(vecUpperMin.begin(), vecUpperMin.end(), vecUpper.begin());
 
-      if (args->debug >= 10)
+      if (args->debug >= 1)
         ucout << "chose min\n";
 
     }
 
-    if (args->debug >= 10) {
-      ucout << "Lower Min: " << vecLowerMin << "Upper Min: " << vecUpperMin;
-      ucout << "Lower Max: " << vecLowerMax << "Upper Max: " << vecUpperMax;
+    if (args->debug >= 1) {
+      ucout << "Lower Min: "   << vecLowerMin
+            << "\nUpper Min: " << vecUpperMin << "\n";
+      ucout << "Lower Max: "   << vecLowerMax
+            << "\nUpper Max: " << vecUpperMax << "\n";
     }
 
   }  // end function chooseMinOrMaxRange
@@ -97,8 +99,13 @@ namespace greedyRMA {
   void GreedyRMA::searchMinOptRange() {
 
     resetMinOptRange();
+    int  curIter = 0;
 
     do {  // repeat while finding a new solution
+
+      if (args->debug >= 1)
+        cout << "************* current iteration: " << curIter
+             << " *************\n";
 
       isFondNewBox = false;
 
@@ -128,11 +135,15 @@ namespace greedyRMA {
             setOptMin(j); // update the current optimal solutiona for min ver
           }
 
-        } // end if this attribute is not restricted
+        } // end if this attribute is not restricted in the previous iteration
 
       } // end each feature
 
       if (isFondNewBox) { // if a new solution is discovered
+
+        // update the lower and upper bounds for the optimal attribute
+        vecLowerMin[optAttrib] = optLower;
+        vecUpperMin[optAttrib] = optUpper;
 
         // drop observations which are not covered
         // by the optimal attribute, and its optimal lower and upper bounds
@@ -141,16 +152,17 @@ namespace greedyRMA {
         // set the previous chosen attribute
         prevAttrib             = optAttrib;
 
-        // update the lower and upper bounds for the optimal attribute
-        vecLowerMin[optAttrib] = optLower;
-        vecUpperMin[optAttrib] = optUpper;
+        if (args->debug >= 1) {
+          cout << "New restrcition: optAttrib: " << optAttrib
+                << ";  (a,b): (" << optLower << ", " << optUpper
+                << "); minObjVal: " << minObjVal << "\n";
+          cout << "vecUpperMin: "   << vecLowerMin;
+          cout << "\nvecUpperMin: " << vecUpperMin << "\n";
+        }
 
-        if (args->debug >= 10)
-          ucout << "; final optAttrib: " << optAttrib
-                << ";  (a,b): " << ": (" << optLower << ", " << optUpper
-                << "), minObjVal: " << minObjVal << "\n";
+      } // end if a new solution is discovered
 
-      } // end if
+      ++curIter;
 
     } while (isFondNewBox);
 
@@ -164,9 +176,9 @@ namespace greedyRMA {
 
     do { // repeat while finding a new solution
 
-      isFondNewBox = false;
-
       for (unsigned int j = 0; j < data->numAttrib; ++j) { // for each attribute j
+
+        isFondNewBox = false;
 
         if (j != prevAttrib) { // if this attribute is not restricted
 
@@ -189,27 +201,29 @@ namespace greedyRMA {
             setOptMax(j); // update the current optimal solutiona for max ver
           }
 
-        } // end if this attribute is not restricted
+        } // end if this attribute is not restricted in the previous iteration
+
+        if (isFondNewBox) { // if a better solution was discovered
+
+          // drop observations which are not covered
+          // by the optimal attribute, and its optimal lower and upper bounds
+          dropObsNotCovered(optAttrib, optLower, optUpper);
+
+          // set the previous chosen attribute
+          prevAttrib             = optAttrib;
+
+          // update the lower and upper bounds for the optimal attribute
+          vecLowerMax[optAttrib] = optLower;
+          vecUpperMax[optAttrib] = optUpper;
+
+          if (args->debug >= 1)
+            cout << "New restrcition: optAttrib: " << optAttrib
+                  << ";  (a,b): (" << optLower << ", " << optUpper
+                  << "); maxObjVal: " << maxObjVal << "\n";
+
+        } // // if a better solution was discovered
+
       }   // end for each attribute
-
-      if (isFondNewBox) { // if a better solution was discovered
-
-        // drop observations which are not covered
-        // by the optimal attribute, and its optimal lower and upper bounds
-        dropObsNotCovered(optAttrib, optLower, optUpper);
-
-        // set the previous chosen attribute
-        prevAttrib             = optAttrib;
-
-        // update the lower and upper bounds for the optimal attribute
-        vecLowerMax[optAttrib] = optLower;
-        vecUpperMax[optAttrib] = optUpper;
-
-        if (args->debug >= 10)
-          ucout << "; final optAttrib: " << optAttrib
-                << ";  (a,b): " << ": (" << optLower << ", " << optUpper
-                << "); maxObjVal: " << maxObjVal << "\n";
-      }
 
     } while (isFondNewBox);
 
@@ -225,12 +239,13 @@ namespace greedyRMA {
     optLower     = curLower;
     optUpper     = curUpper;
 
-    isFondNewBox = true;  // a new improved box found
+    isFondNewBox = true;  // a new improved solution found
 
-    if (args->debug >= 10)
+    if (args->debug >= 2)
       ucout << "optAttrib: " << optAttrib
-            << "; (a,b): (" << optLower << ", " << optUpper << ")"
-            << "; minObjVal: " << minObjVal << "\n";
+            << ",  (a,b): ("    << optLower << ", " << optUpper
+            << "), minObjVal: " << minObjVal << "\n";
+
   }
 
 
@@ -245,9 +260,9 @@ namespace greedyRMA {
 
     isFondNewBox = true;  // a new improved solution found
 
-    if (args->debug >= 10)
-      ucout << "optAttrib: " << optAttrib
-            << "; (a,b): (" << optLower << ", " << optUpper << ")"
+    if (args->debug >= 2)
+      ucout << "optAttrib: "   << optAttrib
+            << "; (a,b): ("    << optLower << ", " << optUpper << ")"
             << "; maxObjVal: " << maxObjVal << "\n";
 
   }
@@ -317,8 +332,10 @@ namespace greedyRMA {
   } // end runMaxKadane function
 
 
-  // drop observations which are not covered for attribute j's lower and upper bound
-  void GreedyRMA::dropObsNotCovered(const unsigned int &j, const unsigned int &lower,
+  // drop the observations which are not covered
+  // by the attribute j's lower and upper bound
+  void GreedyRMA::dropObsNotCovered(const unsigned int &j,
+                                    const unsigned int &lower,
                                     const unsigned int &upper) {
 
     unsigned int obs;
@@ -336,6 +353,7 @@ namespace greedyRMA {
           data->dataIntTrain[obs].X[j] <= upper)
         //&& data->dataIntTrain[obs].w!=0)
         vecCvdObsIdx[++l] = obs; // store covered observations
+
     }
 
     vecCvdObsIdx.resize(l + 1); // shrink the size of vecCvdObsIdx
@@ -360,11 +378,17 @@ namespace greedyRMA {
     for (i = 0; i < data->vecNumDistVals[j]; ++i)
       vecValueWeight[i] = 0;
 
-    for (i = 0; i < vecCvdObsIdx.size(); ++i) {  // for each covered observation index
+    // for each covered observation index
+    for (i = 0; i < vecCvdObsIdx.size(); ++i) {
+
       obs = vecCvdObsIdx[i];              // observation index
-      v   = data->dataIntTrain[obs].X[j]; // X value of this observation for attribute j
+
+      // X value of this observation for attribute j
+      v   = data->dataIntTrain[obs].X[j];
+
       // add weights of observations for each X-value of attribute j
       vecValueWeight[v] += data->dataIntTrain[obs].w;
+
     }
 
     if (args->debug >= 10)
@@ -374,6 +398,8 @@ namespace greedyRMA {
 
 
   // reset variables for the minimum optimal range search
+  // reset the lower and upper bounds
+  // reset the covered observation list, vecCvdObsIdx
   void GreedyRMA::resetMinOptRange() {
 
     curMinObjVal = getInf();
@@ -402,6 +428,8 @@ namespace greedyRMA {
 
 
   // reset variables for the maximum optimal range search
+  // reset the lower and upper bounds
+  // reset the covered observation list, vecCvdObsIdx
   void GreedyRMA::resetMaxOptRange() {
 
     curMaxObjVal = -getInf();
@@ -417,7 +445,7 @@ namespace greedyRMA {
 
     // set upper vector for the maximum version
     for (unsigned int j=0; j<data->numAttrib; ++j)
-      vecUpperMin[j] = data->vecNumDistVals[j] - 1;
+      vecUpperMax[j] = data->vecNumDistVals[j] - 1;
     //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
 
     vecCvdObsIdx.resize(data->numNonZeroWtObs);
@@ -490,13 +518,14 @@ namespace greedyRMA {
       std::cout << std::fixed << std::setprecision(4)
                 << optObjVal << "\t";
       std::cout << std::fixed << std::setprecision(2)
-                << "CPU Time: " << ts.getCPUTime() << "\n";
+                << "CPU Time: " << ts.getCPUTime();
       if (args->debug >= 2)
         std::cout << "Wall Time: " << ts.getWallTime() << "\n";
+      std::cout << "\n";
       // if (args->printBoost()) {
       if (args->debug >= 2)
-        std::cout << "vecLower: " << vecLower
-                  << "\vecUpper: " << vecUpper << "\n";
+        std::cout << "Greedy vecLower: " << vecLower
+                  << "\nGreedy vecUpper: " << vecUpper << "\n";
         //}
 
   #ifdef ACRO_HAVE_MPI

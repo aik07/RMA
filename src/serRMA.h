@@ -1,5 +1,4 @@
 /**********************************************************
- *  File name:   serRMA.cpp
  *  Author:      Ai Kagawa
  *  Description: a header file for the serial RMA solver using PEBBL
  **********************************************************/

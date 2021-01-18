@@ -129,6 +129,11 @@ namespace rma {
   void SolveRMA::solveGreedyRMA() {
     grma = new greedyRMA::GreedyRMA(this, data);
     grma->runGreedyRangeSearch();
+
+    if (debug>=1)
+      checkObjValue(data->dataIntTrain,
+                    grma->getLowerBounds(), grma->getUpperBounds());
+
   }
 
 
