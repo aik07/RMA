@@ -144,9 +144,39 @@ namespace rma {
 
     rma->printSolutionTime(tc.getCPUTime());
 
-    if (debug>=1) rma->workingSol.checkObjValue();
+    if (debug>=1) checkObjValue(data->dataIntTrain,
+                                rma->globalSol.a, rma->globalSol.b);
 
   } // end function solvePebblRMA()
+
+
+  void SolveRMA::checkObjValue(vector<DataXw> dataInt,
+                                  vector<unsigned int> a,
+                                  vector<unsigned int> b) {
+
+    double wt = 0.0;
+
+    // for each observation
+    for (unsigned int i = 0; i < dataInt.size(); ++i) {
+
+      // for each attribute
+      for (unsigned int j = 0; j < data->numAttrib; ++j) {
+
+        if (a[j] <= dataInt[i].X[j] && dataInt[i].X[j] <= b[j]) {
+
+          // if this observation is covered by this solution
+          if (j == data->numAttrib - 1)
+            wt += dataInt[i].w;
+
+        } else
+          break; // else go to the next observation
+      }          // end for each attribute
+    }            // end for each observation
+
+    ucout << "Check RMA ObjValue=" << wt;
+    ucout << "\nCheck a: " << a << "\nCheck b: " << b << "\n";
+
+  } // end function rmaSolution::checkObjValue
 
 
 } // end namespace rma

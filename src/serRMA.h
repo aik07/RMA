@@ -184,33 +184,33 @@ namespace pebblRMA {
   //  RMA solution class
   // (Note: read PEBBL user guide to understand how to use this class)
   class rmaSolution : virtual public solution {
-  // class rmaSolution : public RMA, public solution {
 
   public:
 
-    // rmaSolution(){};
     rmaSolution(RMA *global_);
     rmaSolution(rmaSolution *toCopy);
 
-     ~rmaSolution() {}
-
-    void reset(const unsigned int &numAttrib,
-               const vector<unsigned int> &vecNumDistVals);
-
-    void setSolution(const bool isPosIncumb, const double objVal,
-                     vector<unsigned int> &a, vector<unsigned int> &b);
-
-    // solution *blankClone() { return new rmaSolution(this); }
+    virtual ~rmaSolution() {}
 
     void foundRMASolution(syncType sync = notSynchronous);
-
-    void fileCutPts(RMA *global_);
 
     void copy(rmaSolution *toCopy);
 
     virtual void printContents(ostream &s);
 
     void const printSolution();
+
+    // reset lower and upper bounds, and current incumbent
+    void reset(const unsigned int &numAttrib,
+               const vector<unsigned int> &vecNumDistVals);
+
+    // set solution
+    void setSolution(const bool isPosIncumb, const double objVal,
+                     vector<unsigned int> &a, vector<unsigned int> &b);
+
+    // solution *blankClone() { return new rmaSolution(this); }
+
+    void fileCutPts(RMA *global_);
 
     void checkObjValue();
 

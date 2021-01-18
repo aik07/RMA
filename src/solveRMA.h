@@ -75,6 +75,10 @@ namespace rma {
     void solveGreedyRMA();   // solve RMA using the greedy algorithm
     void solvePebblRMA();    // solve RMA using PEBBL
 
+    // check objective value
+    void checkObjValue(vector<DataXw> dataInt,
+                       vector<unsigned int> a, vector<unsigned int> b);
+
   protected:
 
     bool                  isRMAonly;   // it is true for solve RMA, not Boosting

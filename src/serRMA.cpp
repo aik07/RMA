@@ -654,7 +654,7 @@ namespace pebblRMA {
     // If (current objValue) >= (current bound), we found the solution.
     if (workingSol()->value >= _branchChoice.branch[0].exactBound) {
 
-      if (global()->debug >= 1) {
+      if (global()->debug >= 2) {
         workingSol()->printSolution();
         cout << "Bound: " << _branchChoice.branch[0].exactBound << "\n";
       }
@@ -1639,7 +1639,11 @@ namespace pebblRMA {
 
   void RMASub::chooseMinOrMaxRange() {
 
+    // int numFoundNewSols = 0;
+
     if (max(maxVal, -minVal) > workingSol()->value + .000001) {
+
+      // numFoundNewSols = 1;
 
       (globalPtr->args->isRandSeed())
           ? srand((numNegTiedSols + numPosTiedSols) * time(NULL) * 100)
@@ -1678,20 +1682,24 @@ namespace pebblRMA {
       } // end if choosing pos or neg ver.
 
       if (globalPtr->args->debug >= 1)
-        cout << " new incumbent  " << workingSol()->value << '\n';
+        cout << " new incumbent  " << std::fixed << std::setprecision(4)
+             << workingSol()->value << '\n';
+
+      /****** temporarily solution until fixing PEBBL solution *****/
 
       globalPtr->globalSol.setSolution(workingSol()->a, workingSol()->b,
-                  workingSol()->isPosIncumb, workingSol()->value);
+                    workingSol()->isPosIncumb, workingSol()->value);
 
       foundRMASolution(synchronous);
 
-      if (globalPtr->args->debug >= 1)
+      if (globalPtr->args->debug >= 2)
         workingSol()->printSolution();
 
-      // DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a,
-      // workingSol()->b,
-      //        coveredObs,sortedECidx ));
+      DEBUGPR(10, workingSol()->checkObjValue1(workingSol()->a, workingSol()->b,
+                  coveredObs, sortedECidx ));
+
     }
+
   } // end RMASub::chooseMinOrMaxRange function
 
 
@@ -2242,8 +2250,8 @@ namespace pebblRMA {
     a << toCopy->a;
     b << toCopy->b;
     isPosIncumb = toCopy->isPosIncumb;
-    if (global->args->debug>=1) {
-      ucout << "\ncopy b: " << b << "\n";
+    if (global->args->debug>=5) {
+      ucout << "\ncopy a: " << a << "\n";
       ucout << "copy b: " << b << "\n";
     }
   }
@@ -2290,9 +2298,9 @@ namespace pebblRMA {
 
 
   void const rmaSolution::printSolution() {
-    cout << "printSolution; ";
+    cout << "printSolution: ";
     cout << ((isPosIncumb) ? "Positive" : "Negative");
-    cout << "; a: " << a << "; b: " << b << "\n";
+    cout << "\na: " << a << "\nb: " << b << "\n";
   }
 
 
