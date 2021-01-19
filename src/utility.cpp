@@ -51,7 +51,7 @@ ostream &operator<<(ostream &os, const map<double, int> &m) {
 }
 
 
-// for 1D vector output
+// for 1D const vector output
 template<class T>
 ostream &operator<<(ostream &os, const vector<T> &v) {
   os << "(";
@@ -67,6 +67,22 @@ template ostream &operator<< <unsigned int>(ostream &os,
                                             const vector<unsigned int> &v);
 
 
+// // for 1D vector output
+// template<class T>
+// ostream &operator<<(ostream &os, vector<T> &v) {
+// os << "(";
+// for (typename vector<T>::const_iterator i = v.begin(); i != v.end(); ++i)
+//   os << " " << *i;
+// os << " )\n";
+// return os;
+// }
+// template ostream &operator<< <bool>(ostream &os, vector<bool> &v);
+// template ostream &operator<< <double>(ostream &os, vector<double> &v);
+// template ostream &operator<< <int>(ostream &os, vector<int> &v);
+// template ostream &operator<< <unsigned int>(ostream &os,
+//                                             vector<unsigned int> &v);
+
+
 // for 2D vector output
 template<class T>
 ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
@@ -79,6 +95,7 @@ ostream &operator<<(ostream &os, const vector<vector<T> > &v) {
   return os;
 }
 
+
 template ostream &operator<< <unsigned int>(ostream &os,
                  const vector<vector<unsigned int> > &v);
 
@@ -87,6 +104,7 @@ template ostream &operator<< <double>(ostream &os,
 
 template ostream &operator<< <bool>(ostream &os,
                  const vector<vector<bool> > &v);
+
 
 // for 2D deque output
 template<class T>

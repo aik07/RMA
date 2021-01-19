@@ -36,6 +36,10 @@ ostream& operator<<(ostream& os, const map<double, int>& v);
 template<class T>
 ostream& operator<<(ostream& os, const vector<T>& v);
 
+// for 1D vector output
+// template<class T>
+// ostream& operator<<(ostream& os, vector<T>& v);
+
 // for 2D vector output
 template<class T>
 ostream& operator<<(ostream& os, const vector<vector<T> >& v);

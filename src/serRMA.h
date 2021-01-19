@@ -478,7 +478,7 @@ namespace pebblRMA {
     void   printBounds(vector<double> Bounds, vector<int> Order,
                        const int &j) const;
 
-    void setCutPts(); // TODO: What is this for?????
+    void   setCutPts(); // TODO: What is this for?????
 
     //**************************  helper functions (end) ******************************
 

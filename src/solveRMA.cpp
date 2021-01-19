@@ -106,8 +106,8 @@ namespace rma {
           // set the initial guess solution using the greedy RMA solution
           // (positive or negative solution, initial objective value,
           //  lower and upper bounds)
-          rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
-                               grma->getLowerBounds(), grma->getUpperBounds());
+          // rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
+          //                      grma->getLowerBounds(), grma->getUpperBounds());
 
         // } // end if root process
 
@@ -156,33 +156,34 @@ namespace rma {
   } // end function solvePebblRMA()
 
 
-  void SolveRMA::checkObjValue(vector<DataXw> dataInt,
-                                  vector<unsigned int> a,
-                                  vector<unsigned int> b) {
+  // check objective value for the current lower and upper bounds
+  void SolveRMA::checkObjValue(vector<DataXw> intData,
+                               vector<unsigned int> lower,
+                               vector<unsigned int> upper) {
 
-    double wt = 0.0;
+    double totalWeights=0.0;
 
-    // for each observation
-    for (unsigned int i = 0; i < dataInt.size(); ++i) {
+    for (unsigned int i=0; i<data->numTrainObs; i++) { // for each training data
 
-      // for each attribute
-      for (unsigned int j = 0; j < data->numAttrib; ++j) {
+      for (unsigned int j=0; j<data->numAttrib; ++j) { // for each feature
 
-        if (a[j] <= dataInt[i].X[j] && dataInt[i].X[j] <= b[j]) {
+        if ( (lower[j] <= intData[i].X[j])
+             && (intData[i].X[j] <= upper[j]) ) {
 
-          // if this observation is covered by this solution
-          if (j == data->numAttrib - 1)
-            wt += dataInt[i].w;
+          if (j==data->numAttrib-1)  // if this observation is covered by this solution
+            totalWeights += intData[i].w;   //dataWts[i];
 
-        } else
-          break; // else go to the next observation
-      }          // end for each attribute
-    }            // end for each observation
+        } else break; // else go to the next observation
 
-    ucout << "Check RMA ObjValue=" << wt;
-    ucout << "\nCheck a: " << a << "\nCheck b: " << b << "\n";
+      }  // end for each feature
 
-  } // end function rmaSolution::checkObjValue
+    }  // end for each training observation
+
+    ucout << "Check Objective Value: " << totalWeights << "\n";
+    ucout << "Check Lower Bound: " << lower ;
+    ucout << "Check Upper Bound: " << upper ;
+
+  } // end checkObjValue function
 
 
 } // end namespace rma

@@ -90,7 +90,7 @@ namespace greedyRMA {
     do {  // repeat while finding a new solution
 
       if (args->debug >= 1)
-        cout << "************* current iteration: " << curIter
+        cout << "************* iteration: " << curIter
              << " *************\n";
 
       isFondNewBox = false;
@@ -149,8 +149,8 @@ namespace greedyRMA {
           cout << "New restrcition: optAttrib: "    << bestAttrib
                 << ";  (a,b): ("      << bestLower  << ", " << bestUpper
                 << "); bestObjVal: "  << bestObjVal << "\n";
-          cout << "vecLowerWorking: " << vecLowerWorking  << "\n";
-          cout << "vecUpperWorking: " << vecUpperWorking  << "\n";
+          cout << "vecLowerWorking: " << vecLowerWorking ;
+          cout << "vecUpperWorking: " << vecUpperWorking ;
         }  // end if debug
 
       } // end if a new solution is discovered
@@ -289,7 +289,7 @@ namespace greedyRMA {
       ucout << "After drop: ";
 
     if (args->debug >= 50)
-      ucout << "vecCvdObsIdx: " << vecCvdObsIdx << "\n";
+      ucout << "vecCvdObsIdx: " << vecCvdObsIdx ;
 
   } // end dropObsNotCovered function
 
@@ -338,12 +338,12 @@ namespace greedyRMA {
       std::cout << std::fixed << std::setprecision(2)
                 << "CPU Time: " << ts.getCPUTime();
       if (args->debug >= 2)
-        std::cout << "Wall Time: " << ts.getWallTime() << "\n";
+        std::cout << "Wall Time: " << ts.getWallTime();
       std::cout << "\n";
       // if (args->printBoost()) {
       if (args->debug >= 2)
         std::cout << "Greedy vecLower: "   << vecLower
-                  << "\nGreedy vecUpper: " << vecUpper << "\n";
+                  << "Greedy vecUpper: " << vecUpper ;
         //}
 
   #ifdef ACRO_HAVE_MPI

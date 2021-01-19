@@ -2245,7 +2245,6 @@ namespace pebblRMA {
   void rmaSolution::copy(rmaSolution *toCopy) {
     solution::copy(toCopy);
     global = toCopy->global;
-    value  = toCopy->value;
     a << toCopy->a;
     b << toCopy->b;
     isPosIncumb = toCopy->isPosIncumb;
@@ -2299,7 +2298,7 @@ namespace pebblRMA {
   void const rmaSolution::printSolution() {
     cout << "printSolution: ";
     cout << ((isPosIncumb) ? "Positive" : "Negative");
-    cout << "\na: " << a << "\nb: " << b << "\n";
+    cout << "\na: " << a << "b: " << b ;
   }
 
 
@@ -2377,7 +2376,7 @@ namespace pebblRMA {
   }
 
   int rmaSolution::maxContentsBufSize() {
-    return 2 * (global->data->numAttrib + 1) * sizeof(int) * 1.5;
+    return 2 * (global->data->numAttrib + 1) * sizeof(int) * 1.5 + sizeof(bool);
   }
 
   #endif // ACRO_HAVE_MPI

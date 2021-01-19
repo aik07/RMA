@@ -117,8 +117,8 @@ namespace data {
     s.close(); // close the data file
 
     if (args->debug>=5) {
-      cout << "setupProblem CPU time:  " << tc.getCPUTime() << "\n";
-      cout << "setupProblem Wall time: " << tc.getWallTime();
+      ucout << "setupProblem CPU time:  " << tc.getCPUTime()
+           << ", Wall time: " << tc.getWallTime() << "\n";
     }
 
   } // end readData function
@@ -459,7 +459,7 @@ namespace data {
 
     } // end for each attribute
 
-    if (args->debug >= 5)  printAfterEpsIntegerization();
+    if (args->debug >= 10)  printAfterEpsIntegerization();
 
   } // end integerizeEpsData
 

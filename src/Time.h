@@ -66,5 +66,23 @@ private:
 
 }; // class Time
 
+// // TODO:: put this function somewhere else
+// string getDateTime() {
+//
+//   time_t rawtime;
+//   struct tm * timeinfo;
+//   char buffer[80];
+//
+//   time (&rawtime);
+//   timeinfo = localtime(&rawtime);
+//
+//   strftime(buffer,sizeof(buffer),"%m%d%Y%H%M",timeinfo);
+//   string str(buffer);
+//
+//   // cout << str;
+//   return str;
+//
+// } // end getDataTime function
+
 
 #endif  // TIME_h
