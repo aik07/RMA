@@ -12,29 +12,19 @@ namespace greedyRMA {
 
   void GreedyRMA::reset() {
 
-    optObjVal = -getInf();
+    bestObjVal = -getInf();
 
-    vecLowerMin.resize(data->numAttrib);
-    vecUpperMin.resize(data->numAttrib);
-    vecLowerMax.resize(data->numAttrib);
-    vecUpperMax.resize(data->numAttrib);
+    vecLowerWorking.resize(data->numAttrib);
+    vecUpperWorking.resize(data->numAttrib);
     vecLower.resize(data->numAttrib);
     vecUpper.resize(data->numAttrib);
-    vecValueWeight.resize(data->maxNumDistVals);
 
-    // for (unsigned int j=0; j<data->numAttrib; ++j) {
-    //   vecLowerMin[j] = -getIntInf();
-    //   vecUpperMin[j] =  getIntInf();
-    //   vecLowerMax[j] = -getIntInf();
-    //   vecUpperMax[j] =  getIntInf();
-    //   vecLower[j]    = -getIntInf();
-    //   vecUpper[j]    =  getIntInf();
-    // }
+    vecValueWeight.resize(data->maxNumDistVals);
 
     for (unsigned int k=0; k<data->maxNumDistVals; ++k)
       vecValueWeight[k] = 0;
 
-  }
+  } // end reset function
 
 
   void GreedyRMA::runGreedyRangeSearch() {
@@ -43,63 +33,59 @@ namespace greedyRMA {
 
     reset();                // reset variables in the Greedy RMA class
 
-    searchMinOptRange();    // search oprimal range for minimum objective value
+    if (args->isMinMax()) {
 
-    searchMaxOptRange();    // search oprimal range for maximum objective value
+      isPosObjVal = false;
 
-    chooseMinOrMaxRange();  // choose the optimal solution by compareing the min and max versions
+      searchGreedyRange(MIN);    // search oprimal range for minimum objective value
+
+      updateBestBounds();
+
+      searchGreedyRange(MAX);    // search oprimal range for maximum objective value
+
+      if (isImprovedSol) {
+        isPosObjVal = true;
+        updateBestBounds();
+      }
+
+    } else {
+
+      isPosObjVal = true;
+
+      searchGreedyRange(MAX);    // search oprimal range for maximum objective value
+
+      updateBestBounds();
+
+      searchGreedyRange(MIN);    // search oprimal range for minimum objective value
+
+      if (isImprovedSol) {
+        isPosObjVal = false;
+        updateBestBounds();
+      }
+
+    } // end if greedy range search
 
     printSolution();        // print out the solution
 
   } // end function greedyRMA
 
 
-  /************************** Final Optimal Range **************************/
-  void GreedyRMA::chooseMinOrMaxRange() {
+  /********************* Greedy Range for Objective *********************/
+  void GreedyRMA::searchGreedyRange(const bool &isMax) {
 
-    // if the absulute value of maximum objective value is larger than its mimum objective value
-    //   or selecting maximum objective value when they are tied
-    if (maxObjVal > -minObjVal || isChooseMaxWhenTiedMinMax() ) {
-
-      optObjVal   = maxObjVal;  // set the maximum objective value from the max version of the range serach
-      isPosIncumb = true;    // incumbent is the positive value
-
-      // set the optimal lower and upper bounds of the box
-      copy(vecLowerMax.begin(), vecLowerMax.end(), vecLower.begin());
-      copy(vecUpperMax.begin(), vecUpperMax.end(), vecUpper.begin());
-
-      if (args->debug >= 1)
-        ucout << "chose max\n";
-
-    } else {  // the optimal solutiona is from the min ver.
-
-      optObjVal   = -minObjVal;  // set the minimun objective value from the min version of the range serach
-      isPosIncumb = false;       // incumbent is not positive value
-
-      // set the optimal lower and upper bounds of the box
-      copy(vecLowerMin.begin(), vecLowerMin.end(), vecLower.begin());
-      copy(vecUpperMin.begin(), vecUpperMin.end(), vecUpper.begin());
-
-      if (args->debug >= 1)
-        ucout << "chose min\n";
-
-    }
-
-    if (args->debug >= 1) {
-      ucout << "Lower Min: "   << vecLowerMin
-            << "\nUpper Min: " << vecUpperMin << "\n";
-      ucout << "Lower Max: "   << vecLowerMax
-            << "\nUpper Max: " << vecUpperMax << "\n";
-    }
-
-  }  // end function chooseMinOrMaxRange
-
-
-  /********************* Optimal Range for Min Objective *********************/
-  void GreedyRMA::searchMinOptRange() {
-
-    resetMinOptRange();
     int  curIter = 0;
+
+    // whether or not the algorithm found an additional restricting range
+    // which can improve the objective value in each greedy iteration
+    bool isFondNewBox;
+
+    isImprovedSol=false;
+
+    resetBestRange();
+
+    if (args->debug >= 1)
+      cout << "************* " << ( isMax ? "MAX" : "MIN") << " Range Search"
+           << " *************\n";
 
     do {  // repeat while finding a new solution
 
@@ -111,29 +97,34 @@ namespace greedyRMA {
 
       for (unsigned int j = 0; j < data->numAttrib; ++j) { // for each feature
 
-        if (j != prevAttrib) { // if this attribute is not previously chosen
+        if (j != prevBestAttrib) { // if this attribute is not previously chosen
 
           // set the vector of total weights for each value of attribute j
           setVecValueWeight(j);
 
           // run objective value for attribut j
-          runMinKadane(j);
+          runKadaneAlgo(isMax, j);
 
           // if the current min objective value is equal to
           // the min objective value found so far
-          if (curMinObjVal == minObjVal) {
+          if (curObjVal == bestObjVal) {
 
-            numNegTiedSols++; // count the negative tied solutions
+            ++numTiedSols;  // count the tied solutions
 
-            if (isUpdateOptSol(numNegTiedSols))
-              setOptMin(j); // update the current optimal solutiona for min ver
+            if (isUpdateBestSol(numTiedSols)) {
+              isFondNewBox = true;
+              setBestRange(j); // update the current best solution
+            }
 
-          // if the current min objective value is less than
-          // the min objective value found so far
-          } else if (curMinObjVal < minObjVal) {
-            numNegTiedSols = 1;
-            setOptMin(j); // update the current optimal solutiona for min ver
-          }
+          // if the current objective value is greater than
+          // the best objective value found so far
+          } else if (curObjVal > bestObjVal) {
+
+            numTiedSols  = 1 ; // only one tied solution so far
+            isFondNewBox = true;
+            setBestRange(j); // update the current optimal solutiona for min ver
+
+          } // end if to possibly insert a new restriction
 
         } // end if this attribute is not restricted in the previous iteration
 
@@ -141,24 +132,26 @@ namespace greedyRMA {
 
       if (isFondNewBox) { // if a new solution is discovered
 
+        isImprovedSol = isFondNewBox;
+
         // update the lower and upper bounds for the optimal attribute
-        vecLowerMin[optAttrib] = optLower;
-        vecUpperMin[optAttrib] = optUpper;
+        vecLowerWorking[bestAttrib] = bestLower;
+        vecUpperWorking[bestAttrib] = bestUpper;
 
         // drop observations which are not covered
         // by the optimal attribute, and its optimal lower and upper bounds
-        dropObsNotCovered(optAttrib, optLower, optUpper);
+        dropObsNotCovered(bestAttrib, bestLower, bestUpper);
 
         // set the previous chosen attribute
-        prevAttrib             = optAttrib;
+        prevBestAttrib = bestAttrib;
 
         if (args->debug >= 1) {
-          cout << "New restrcition: optAttrib: " << optAttrib
-                << ";  (a,b): (" << optLower << ", " << optUpper
-                << "); minObjVal: " << minObjVal << "\n";
-          cout << "vecUpperMin: "   << vecLowerMin;
-          cout << "\nvecUpperMin: " << vecUpperMin << "\n";
-        }
+          cout << "New restrcition: optAttrib: "    << bestAttrib
+                << ";  (a,b): ("      << bestLower  << ", " << bestUpper
+                << "); bestObjVal: "  << bestObjVal << "\n";
+          cout << "vecLowerWorking: " << vecLowerWorking  << "\n";
+          cout << "vecUpperWorking: " << vecUpperWorking  << "\n";
+        }  // end if debug
 
       } // end if a new solution is discovered
 
@@ -169,152 +162,64 @@ namespace greedyRMA {
   } // end searchMinOptRange function
 
 
-  /********************* Optimal Range for Max Objective *********************/
-  void GreedyRMA::searchMaxOptRange() {
+  // reset variables for the best range search
+  // reset the lower and upper bounds
+  // reset the covered observation list, vecCvdObsIdx
+  void GreedyRMA::resetBestRange() {
 
-    resetMaxOptRange();
+    // curObjVal  = -getInf();
 
-    do { // repeat while finding a new solution
+    bestAttrib     = -1;
+    prevBestAttrib = -1;
 
-      for (unsigned int j = 0; j < data->numAttrib; ++j) { // for each attribute j
+    // set lower vector for the maximum version
+    // vecLowerMax.clear();
+    // vecLowerMax.resize(data->numAttrib);
+    fill(vecLowerWorking.begin(), vecLowerWorking.end(), 0);
 
-        isFondNewBox = false;
+    // set upper vector for the maximum version
+    for (unsigned int j=0; j<data->numAttrib; ++j)
+      vecUpperWorking[j] = data->vecNumDistVals[j] - 1;
 
-        if (j != prevAttrib) { // if this attribute is not restricted
+    vecCvdObsIdx.resize(data->numNonZeroWtObs);
+    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
+         vecCvdObsIdx.begin());
 
-          setVecValueWeight(j);
-          runMaxKadane(j);
-
-          // if the current max objective value is equal to
-          // the max objective value found so far
-          if (curMaxObjVal == maxObjVal) {
-
-            numPosTiedSols++;  // count the tied solutions
-
-            if (isUpdateOptSol(numPosTiedSols))
-              setOptMax(j); // update the current optimal solutiona for max ver
-
-          // if the current max objective value is greater than
-          // the max objective value found so far
-          } else if (curMaxObjVal > maxObjVal) {
-            numPosTiedSols = 1;
-            setOptMax(j); // update the current optimal solutiona for max ver
-          }
-
-        } // end if this attribute is not restricted in the previous iteration
-
-        if (isFondNewBox) { // if a better solution was discovered
-
-          // drop observations which are not covered
-          // by the optimal attribute, and its optimal lower and upper bounds
-          dropObsNotCovered(optAttrib, optLower, optUpper);
-
-          // set the previous chosen attribute
-          prevAttrib             = optAttrib;
-
-          // update the lower and upper bounds for the optimal attribute
-          vecLowerMax[optAttrib] = optLower;
-          vecUpperMax[optAttrib] = optUpper;
-
-          if (args->debug >= 1)
-            cout << "New restrcition: optAttrib: " << optAttrib
-                  << ";  (a,b): (" << optLower << ", " << optUpper
-                  << "); maxObjVal: " << maxObjVal << "\n";
-
-        } // // if a better solution was discovered
-
-      }   // end for each attribute
-
-    } while (isFondNewBox);
-
-  } // enf function searchMaxOptRange
-
-
-  // update the optimal attribute (j), objective value, and lower and upper bounds
-  // for the minimization version
-  void GreedyRMA::setOptMin(const unsigned int &j) {
-
-    optAttrib    = j;
-    minObjVal    = curMinObjVal;
-    optLower     = curLower;
-    optUpper     = curUpper;
-
-    isFondNewBox = true;  // a new improved solution found
-
-    if (args->debug >= 2)
-      ucout << "optAttrib: " << optAttrib
-            << ",  (a,b): ("    << optLower << ", " << optUpper
-            << "), minObjVal: " << minObjVal << "\n";
-
-  }
+  } // end resetMaxOptRange function
 
 
   // update the optimal attribute (j), objective value, and lower and upper bounds
   // for the maximization version
-  void GreedyRMA::setOptMax(const unsigned int &j) {
+  void GreedyRMA::setBestRange(const unsigned int &j) {
 
-    optAttrib    = j;
-    maxObjVal    = curMaxObjVal;
-    optLower     = curLower;
-    optUpper     = curUpper;
-
-    isFondNewBox = true;  // a new improved solution found
+    bestAttrib    = j;
+    bestObjVal    = curObjVal;
+    bestLower     = curLower;
+    bestUpper     = curUpper;
 
     if (args->debug >= 2)
-      ucout << "optAttrib: "   << optAttrib
-            << "; (a,b): ("    << optLower << ", " << optUpper << ")"
-            << "; maxObjVal: " << maxObjVal << "\n";
+      ucout << "Best Attrib: "  << bestAttrib
+            << "; (a,b): ("     << bestLower << ", " << bestUpper << ")"
+            << "; bestObjVal: " << bestObjVal << "\n";
 
-  }
-
-
-  // set the current objective value, lower and upper bounds
-  // by running the min ver. of Kadane's algorithm for attribute j
-  void GreedyRMA::runMinKadane(const unsigned int &j) {
-
-    int s    = vecLowerMin[j];
-    curLower = vecLowerMin[j];
-    curUpper = vecUpperMin[j];
-
-    double minEndHere = 0;
-    curMinObjVal = getInf();
-
-    for (unsigned int i = vecLowerMin[j]; i <= vecUpperMin[j]; ++i) {
-      minEndHere += vecValueWeight[i];
-      if (minEndHere < curMinObjVal) {
-        curMinObjVal = minEndHere;
-        curLower = s;
-        curUpper = i;
-      }
-      if (minEndHere > 0) {
-        minEndHere = 0;
-        s = i + 1;
-      }
-    }
-
-    if (args->debug >= 10)
-      ucout << "Minimum contiguous sum is " << curMinObjVal << " "
-            << "; feat: " << j
-            << "; (L,U): (" << curLower << ", " << curUpper << ")\n";
-
-  } // enf runMinKadane function
+  } // end setBestRange function
 
 
   // set the current objective value, lower and upper bounds
   // by running the max ver. of Kadane's algorithm for attribute j
-  void GreedyRMA::runMaxKadane(const unsigned int &j) {
+  void GreedyRMA::runKadaneAlgo(const bool &isMax, const unsigned int &j) {
 
-    int s    = vecLowerMax[j];
-    curLower = vecLowerMax[j];
-    curUpper = vecUpperMax[j];
+    int s    = vecLowerWorking[j];
+    curLower = vecLowerWorking[j];
+    curUpper = vecUpperWorking[j];
 
     double maxEndHere = 0;
-    curMaxObjVal      = -getInf(); // min so far
+    curObjVal         = -getInf(); // min so far
 
-    for (unsigned int i = vecLowerMax[j]; i <= vecUpperMax[j]; ++i) {
-      maxEndHere += vecValueWeight[i];
-      if (maxEndHere > curMaxObjVal) {
-        curMaxObjVal = maxEndHere;
+    for (unsigned int i = vecLowerWorking[j]; i <= vecUpperWorking[j]; ++i) {
+      maxEndHere += ( isMax ? vecValueWeight[i] : -vecValueWeight[i] ) ;
+      if (maxEndHere > curObjVal) {
+        curObjVal = maxEndHere;
         curLower = s;
         curUpper = i;
       }
@@ -325,11 +230,33 @@ namespace greedyRMA {
     }
 
     if (args->debug >= 100)
-      ucout << "Maximum contiguous sum is " << curMaxObjVal
+      ucout << "Maximum contiguous sum is "    << curObjVal
             << "; feat: " << j
             << "; (L,U): (" << curLower << ", " << curUpper << ")\n";
 
-  } // end runMaxKadane function
+  } // end runKadaneAlgo function
+
+
+  // whether or not to update the best solution
+  // when there are tied solution
+  // (break the tie using a fair probability based on # of tied solutions)
+  bool  GreedyRMA::isUpdateBestSol(const int &numTiedSols) {
+
+    //set random seed if specified
+    (args->isRandSeed()) ? srand(numTiedSols * time(NULL) * 100) : srand(1);
+
+    // generate a random numeber
+    double rand_num = (rand() % 10001) / 10000.0;
+
+    // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
+    // DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
+
+    if (rand_num <= 1.0 / numTiedSols)
+      return true;
+    else
+      return false;
+
+  }
 
 
   // drop the observations which are not covered
@@ -397,115 +324,6 @@ namespace greedyRMA {
   } // end setVecValueWeight function
 
 
-  // reset variables for the minimum optimal range search
-  // reset the lower and upper bounds
-  // reset the covered observation list, vecCvdObsIdx
-  void GreedyRMA::resetMinOptRange() {
-
-    curMinObjVal = getInf();
-    minObjVal    = getInf();
-
-    optAttrib  = -1;
-    prevAttrib = -1;
-
-    // set lower vector for the minimim version
-    // vecLowerMin.clear();
-    // vecLowerMin.resize(data->numAttrib);
-    fill(vecLowerMin.begin(), vecLowerMin.end(), 0);
-
-    // set upper vector for the minimim version
-    vecUpperMin.resize(data->numAttrib);
-    for (unsigned int j=0; j<data->numAttrib; ++j)
-      vecUpperMin[j] = data->vecNumDistVals[j] - 1;
-    //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMin.begin());
-
-    // set the covered observation indices
-    vecCvdObsIdx.resize(data->numNonZeroWtObs);
-    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
-       vecCvdObsIdx.begin());
-
-  } // end resetMinOptRange function
-
-
-  // reset variables for the maximum optimal range search
-  // reset the lower and upper bounds
-  // reset the covered observation list, vecCvdObsIdx
-  void GreedyRMA::resetMaxOptRange() {
-
-    curMaxObjVal = -getInf();
-    maxObjVal    = -getInf();
-
-    optAttrib  = -1;
-    prevAttrib = -1;
-
-    // set lower vector for the maximum version
-    // vecLowerMax.clear();
-    // vecLowerMax.resize(data->numAttrib);
-    fill(vecLowerMax.begin(), vecLowerMax.end(), 0);
-
-    // set upper vector for the maximum version
-    for (unsigned int j=0; j<data->numAttrib; ++j)
-      vecUpperMax[j] = data->vecNumDistVals[j] - 1;
-    //copy(data->vecNumDistVals.begin(), data->vecNumDistVals.end(), vecUpperMax.begin());
-
-    vecCvdObsIdx.resize(data->numNonZeroWtObs);
-    copy(data->vecNonZeroWtObsIdx.begin(), data->vecNonZeroWtObsIdx.end(),
-         vecCvdObsIdx.begin());
-
-  } // end resetMaxOptRange function
-
-
-  // whether or not to choose the max solution
-  // when min and max objective value are the same
-  // (break the tie using a fair probability)
-  bool  GreedyRMA::isChooseMaxWhenTiedMinMax() {
-
-    // if the max and min objective values are the smae
-    if (maxObjVal == minObjVal) {
-
-      // set random seed if specified
-      if (args->isRandSeed())
-        srand((numNegTiedSols + numPosTiedSols) * time(NULL) * 100);
-      else
-        srand(1);
-
-      // generate a random numeber
-      double rand_num = (rand() % 10001) / 10000.0;
-
-      // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
-      // DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
-
-      if (rand_num <= numPosTiedSols / (double)(numNegTiedSols + numPosTiedSols))
-        return true;
-    }
-
-    return false;
-
-  } // end isChooseMaxWhenTiedMinMax function
-
-
-  // whether or not to update the optimal solution
-  // when there are tied solution for min or max versions
-  // (break the tie using a fair probability based on # of tied solutions)
-  bool  GreedyRMA::isUpdateOptSol(const int &numTiedSols) {
-
-    //set random seed if specified
-    (args->isRandSeed()) ? srand(numTiedSols * time(NULL) * 100) : srand(1);
-
-    // generate a random numeber
-    double rand_num = (rand() % 10001) / 10000.0;
-
-    // DEBUGPRX(0, global(), "rand: " << rand_num  << "\n");
-    // DEBUGPRX(0, global(), "rand1: " << 1.0 /  NumTiedSols << "\n");
-
-    if (rand_num <= 1.0 / numTiedSols)
-      return true;
-    else
-      return false;
-
-  }
-
-
   // print the greedy RMA solution
   void GreedyRMA::printSolution() {
 
@@ -514,9 +332,9 @@ namespace greedyRMA {
   #endif //  ACRO_HAVE_MPI
 
       std::cout << "GRMA Solution: ";
-      isPosIncumb ? ucout << "+" : ucout << "-";
+      isPosObjVal ? cout << "+" : ucout << "-";
       std::cout << std::fixed << std::setprecision(4)
-                << optObjVal << "\t";
+                << bestObjVal << "\t";
       std::cout << std::fixed << std::setprecision(2)
                 << "CPU Time: " << ts.getCPUTime();
       if (args->debug >= 2)
@@ -524,7 +342,7 @@ namespace greedyRMA {
       std::cout << "\n";
       // if (args->printBoost()) {
       if (args->debug >= 2)
-        std::cout << "Greedy vecLower: " << vecLower
+        std::cout << "Greedy vecLower: "   << vecLower
                   << "\nGreedy vecUpper: " << vecUpper << "\n";
         //}
 

@@ -53,6 +53,8 @@ namespace arg {
 
     string nonUniformWt()         const {return _nonUniformWt;}
 
+    bool   isMinMax()             const {return _isMinMax;}
+
     bool   isCheckObjVal()        const {return _isCheckObjVal;}
     bool   isBruteForceEC()       const {return _isBruteForceEC;}
     bool   isBruteForceIncumb()   const {return _isBruteForceIncumb;}
@@ -100,6 +102,9 @@ namespace arg {
 
     // for fixed size bin integerization
     unsigned int _numFixedSizeBins;
+
+    // whether or not to sovel min-then-max in the greedy RMA
+    bool    _isMinMax;
 
     // for printing more details
     bool   _isPrintBBdetails;

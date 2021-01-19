@@ -22,6 +22,8 @@ using namespace data;
 
 namespace greedyRMA {
 
+  enum OptimizationDirection {MIN, MAX};
+
 
   // greedy RMA class compute the greedy RMA solution using Kadane's algorithm
   class GreedyRMA {
@@ -37,65 +39,44 @@ namespace greedyRMA {
     // run the greedy range search alogrithm
     void   runGreedyRangeSearch();
 
-    // search oprimal range for minimum objective value
-    void   searchMinOptRange();
+    // search oprimal range for minimum or maximum objective value
+    void   searchGreedyRange(const bool &isMax);
 
-    // search oprimal range for maximum objective value
-    void   searchMaxOptRange();
-
-    // choose the best solution by comparing the min and max versions
-    void   chooseMinOrMaxRange();
-
-    //TODO: combine min max range search together
+    // reset variables for the optimal range search
+    void   resetBestRange();
 
     // set the current objective value, lower and upper bounds
-    // by running the min ver. of Kadane's algorithm for attribute j
-    void   runMinKadane(const unsigned int &j);
-
-    // set the current objective value, lower and upper bounds
-    // by running the max ver. of Kadane's algorithm for attribute j
-    void   runMaxKadane(const unsigned int &j);
-
-    // set current optimal objective value, lower bound, upper bound for attribute j
-    // for the min ver.
-    void   setOptMin(const unsigned int &j);
+    // by running the min  or max ver. of Kadane's algorithm for attribute j
+    void   runKadaneAlgo(const bool &isMax, const unsigned int &j);
 
     // set current optimal objective value, lower bound, upper bound for attribute j
     // for the max ver.
-    void   setOptMax(const unsigned int &j);
+    void   setBestRange(const unsigned int &j);
 
-    // set total weights for each value for attribut j
-    void   setVecValueWeight(const unsigned int &j);
+    // whether or not to update the optimal solution
+    // when there are tied solution for min or max versions
+    // (break the tie using a fair probability based on # of tied solutions)
+    bool  isUpdateBestSol(const int &numTiedSol);
 
     // drop observations which are not covered for attribute j's lower and upper bound
     void   dropObsNotCovered(const unsigned int &j,
                              const unsigned int &lower,
                              const unsigned int &upper);
 
+    // set total weights for each value for attribut j
+    void   setVecValueWeight(const unsigned int &j);
+
+    void   updateBestBounds() {
+      copy(vecLowerWorking.begin(), vecLowerWorking.end(), vecLower.begin());
+      copy(vecUpperWorking.begin(), vecUpperWorking.end(), vecUpper.begin());
+    }
+
     // print Greedy RMA solution
     void   printSolution();
 
-    /****************** utility functions ********************/
-
-    // reset variables for the minimum optimal range search
-    void resetMinOptRange();
-
-    // reset variables for the maximum optimal range search
-    void resetMaxOptRange();
-
-    // whether or not to choose the max solution
-    // when min and max objective value are the same
-    // (break the tie using a fair probability)
-    bool  isChooseMaxWhenTiedMinMax();
-
-    // whether or not to update the optimal solution
-    // when there are tied solution for min or max versions
-    // (break the tie using a fair probability based on # of tied solutions)
-    bool  isUpdateOptSol(const int &numTiedSol);
-
     /****************** get functions ************************/
-    bool   isPostObjVal() const { return isPosIncumb; }
-    double getObjVal()    const { return optObjVal; }
+    bool                 isPostObjVal()   const { return isPosObjVal; }
+    double               getObjVal()      const { return bestObjVal; }
     vector<unsigned int> getLowerBounds() const { return vecLower; }
     vector<unsigned int> getUpperBounds() const { return vecUpper; }
 
@@ -105,47 +86,42 @@ namespace greedyRMA {
 private:
 
     // whether or not the objective value is coming from the max or positive value
-    bool         isPosIncumb;
+    bool         isPosObjVal;
 
-    // whether or not the algorithm found a new restructing range
-    // which can improve the objective value
-    bool         isFondNewBox;
+    bool         isImprovedSol;
 
-    // # of negative and positive solution which are tied
-    unsigned int numNegTiedSols, numPosTiedSols;
+    // vectors of lower and upper bounds of the box
+    vector<unsigned int> vecLower, vecUpper;
+
+    // # of tied solutions for the current best objective value
+    unsigned int numTiedSols;
 
     // current lower and upper bounds for a given attribute
     unsigned int curLower, curUpper;
 
     // current objective value
-    double       curMinObjVal, curMaxObjVal;
+    double       curObjVal;
 
     // optimal objective value, min ver. and max ver. of the objective values
-    double       optObjVal, minObjVal, maxObjVal;
+    double       bestObjVal;
 
     // current optimal attribute
-    unsigned int optAttrib;
+    unsigned int bestAttrib;
 
     // previously selected or restricted attribute
-    unsigned int prevAttrib;
+    unsigned int prevBestAttrib;
 
     // optimal lower or upper bound for the current optimal attribute
-    unsigned int optLower, optUpper;
+    unsigned int bestLower, bestUpper;
 
-    // a vector of the covered observation indices
-    vector<unsigned int> vecCvdObsIdx;
-
-    // vectors of lower and upper bounds of the box
-    vector<unsigned int> vecLower, vecUpper;
-
-    // vector of lower and upper bounds of the box for the max version
-    vector<unsigned int> vecLowerMax, vecUpperMax;
-
-    // vector of lower and upper bounds of the box for the min version
-    vector<unsigned int> vecLowerMin, vecUpperMin;
+    // vector of lower and upper bounds of the box for the min or max version
+    vector<unsigned int> vecLowerWorking, vecUpperWorking;
 
     // a vector of total weights for each value of a given attribute
     vector<double>       vecValueWeight;
+
+    // a vector of the covered observation indices
+    vector<unsigned int> vecCvdObsIdx;
 
     ArgRMA*   args;  // argument RMA class
     DataRMA*  data;  // data RMA class

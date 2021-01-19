@@ -38,6 +38,8 @@ namespace arg {
 
     _numFixedSizeBins(-1),        // fixed # of bins for each attribute
 
+    _isMinMax(true),              // whether or not to sovel min-then-max in the greedy RMA
+
     _isPrintBBdetails(false),     // whether or not to print B&B details
 
     _isSaveInstances(false),      // whether or not to save the observation info
@@ -111,6 +113,9 @@ namespace arg {
 
     create_categorized_parameter("numFixedSizeBins", _numFixedSizeBins, "<double>",
       "-1", "# of bins for fixed bins integerization", "RMA");
+
+    create_categorized_parameter("isMinMax", _isMinMax, "<bool>",
+      "true", "whether or not to sovel min-then-max in the greedy RMA", "RMA");
 
     create_categorized_parameter("isPrintBBdetails", _isPrintBBdetails, "<bool>",
       "true", "print the complete output of the PEBBL branch-and bound", "RMA");
