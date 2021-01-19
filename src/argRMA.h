@@ -73,7 +73,7 @@ namespace arg {
 
     unsigned int getNumFixedSizeBins() const {return _numFixedSizeBins;}
 
-  private:
+  protected:
 
     bool   _isPebblRMA;              // solve RMA using PEBBL
     //bool   _isGreedyRMA;           // solve the greedy RMA
