@@ -1,6 +1,6 @@
 #!/bin/bash
 
-RMA_DIR=./
+RMA_DIR=$(pwd)
 
 ${RMA_DIR}/build/rma ${RMA_DIR}/data/cleveland.dat
 
