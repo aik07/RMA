@@ -1,16 +1,26 @@
 sudo: required
 language: cpp
 
-os: linux
-dist: bionic
-compiler: gcc
-
-addons:
-  apt:
-    packages:
-      # OpenMPI
-      - openmpi-bin
-      - libopenmpi-dev
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+            # OpenMPI
+            - openmpi-bin
+            - libopenmpi-dev
+    - os: linux
+      dist: focal
+      compiler: gcc
+      addons:
+        apt:
+          packages:
+            # OpenMPI
+            - openmpi-bin
+            - libopenmpi-dev
 
 # Handle git submodules
 git:
