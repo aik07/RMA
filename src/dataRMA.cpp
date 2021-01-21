@@ -10,12 +10,12 @@
 namespace data {
 
 
-  DataRMA::DataRMA(int &argc, char **&argv, ArgRMA *args_) : args(args_) {
+  DataRMA::DataRMA(int &argc, char **&argv, ArgRMA *args_) :
+             numAttrib(0), numTrainObs(0), numTestObs(0), args(args_) {
 
     // read the data and set dataOrigTrain
     readData(argc, argv, TRAIN, dataOrigTrain);
 
-    numTestObs = 0;
     if (argc > 2) // if the test data is given
       // read the data and set dataOrigTest
       readData(argc, argv, TEST, dataOrigTest);
