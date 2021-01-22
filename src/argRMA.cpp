@@ -17,13 +17,13 @@ namespace arg {
 
     _isPebblRMA(true),            // wether or not to solve RMA using PEBBL
     _isGreedyRMA(true),           // wether or not to solve RMA using the greedy method
-
+    _isInitGuess(true),          // whether or not to use the initial guess
+    
     _isBinarySearchCutVal(false), // whether or not to use the binary search cut point value
     _fracCachedCutPts(0.000001),   // % of the cached cut point threshold
     _fracLimitAttrib(1.0),         // % of attribute to select
 
     _isRandSeed(true),            // whether or not to use the random seed
-    _isInitGuess(true),          // whether or not to use the initial guess
     _branchSelection(0),          // the branching selection
     _isCountingSort(false),       // whether or not to use the counting sort
 

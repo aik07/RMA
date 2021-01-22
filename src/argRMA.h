@@ -78,7 +78,8 @@ namespace arg {
 
     bool   _isPebblRMA;            // solve RMA using PEBBL
     bool   _isGreedyRMA;           // solve the greedy RMA
-
+    bool   _isInitGuess;	         // compute an initial incumbent
+    
     // for non-strong branching ...
     bool   _isBinarySearchCutVal;  // an option for binary-sarching cutpoint
 
@@ -90,7 +91,6 @@ namespace arg {
     double _fracLimitAttrib;
 
     bool   _isRandSeed;            // random seed for tied solution or bound
-    bool   _isInitGuess;	         // compute an initial incumbent
     int    _branchSelection;       // random, first, or last one for tied branch
     bool   _isCountingSort;        // use counting sourt (default is bucket sort)
 

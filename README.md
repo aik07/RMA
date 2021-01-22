@@ -39,7 +39,7 @@ sh scripts/build.sh
 * If you want to build RMA and PEBBL with the debug mode
 
 ```
-sh scripts/build.sh -b debug
+sh scripts/build.sh -d true
 ```
 
 ## Example commands to run RMA:
@@ -59,7 +59,19 @@ mpirun -np 4 ./build/rma <data_filename>
 sh scripts/driver.sh  # at the RMA root directory
 ```
 
-Please read the user guide about how to use parameters for the RMA solver.
+## Parameters
+
+| parameters      |      description                               | data type | range         | default value  |
+|-----------------|:-----------------------------------------------|:---------:|--------------:|---------------:|
+| isPebblRMA   | whether or not to solve RMA using PEBBL            | bool   | true or false | true              |
+| isGreedyRMA   | whether or not to solve RMA using the greedy method          | bool   | true or false | true           |
+| isInitGuess   | whether or not to set the PEBBL's initial solution as the greedy RMA solution          | bool   | true or false | true           |
+| fracCachedCutPts   | the threshold of cached cutpoints caching which is the fraction of the total cutpoints   | double   | [0, infinity) | 0           |
+| isMinMaxGreedy   | whether or not to solve the greedy RMA by min-then-max order; if false, it will solve the greedy RMA by max-then-min order   | bool   | true or false | true           |
+| isPrintBBdetails   | whether or not to print out the PEBBL's branch and bound information  | bool   | true or false | false           |
+| nonUniformWt | if you set a non-uniform weight file for a given dataset, the code solves the RMA problem using the weight | string   |  | ""        |
+| delta | it is a factor of the epsilon integerization method  | double   |  | 0.005       |
+
 
 
 ## Class Diagram
