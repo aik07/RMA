@@ -275,8 +275,8 @@ namespace pebblRMA {
 
     } // end if % of cached cutpoints is less than 100
 
-    if (isInitGuess()) workingSol.decrementRefs();
-    
+    //if (isInitGuess()) workingSol.decrementRefs();
+
     /*
       if (verifyLog()) {
       verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
@@ -585,10 +585,10 @@ namespace pebblRMA {
     bu << au;
 
     deqRestAttrib.resize(numAttrib(), false);
-    // workingSol() = globalPtr->guess;
 
-    if (global()->isInitGuess()) {
-      cout << "setInitGuess in setRootComputation\n";
+    if (global()->guess != NULL) {
+      if (global()->debug>=1 )
+        cout << "setInitGuess in setRootComputation\n";
       //workingSol() = global()->guess;
       workingSol()->setSolution(global()->guess->isPosIncumb,
                                 global()->guess->value,
@@ -1705,8 +1705,8 @@ namespace pebblRMA {
 
       /****** temporarily solution until fixing PEBBL solution *****/
 
-      globalPtr->globalSol.setSolution(workingSol()->a, workingSol()->b,
-                    workingSol()->isPosIncumb, workingSol()->value);
+      // globalPtr->globalSol.setSolution(workingSol()->a, workingSol()->b,
+      //               workingSol()->isPosIncumb, workingSol()->value);
 
       foundRMASolution(synchronous);
 

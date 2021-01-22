@@ -149,7 +149,7 @@ namespace rma {
     rma->printSolutionTime(tc.getCPUTime());
 
     if (debug>=1) checkObjValue(data->dataIntTrain,
-                                rma->globalSol.a, rma->globalSol.b);
+                                rma->workingSol.a, rma->workingSol.b);
 
   } // end function solvePebblRMA()
 

@@ -346,7 +346,7 @@ namespace pebblRMA {
     data::DataRMA *data;
     arg::ArgRMA   *args;
 
-    GlobalSolution globalSol;
+    // GlobalSolution globalSol;
 
   }; // end RMA class
   // ************************************************************************
