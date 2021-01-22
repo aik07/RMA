@@ -37,12 +37,16 @@ template<class T>
 ostream& operator<<(ostream& os, const vector<T>& v);
 
 // for 1D vector output
-// template<class T>
-// ostream& operator<<(ostream& os, vector<T>& v);
+template<class T>
+ostream& operator<<(ostream& os, vector<T>& v);
 
 // for 2D vector output
 template<class T>
 ostream& operator<<(ostream& os, const vector<vector<T> >& v);
+
+// for 2D vector output
+template<class T>
+ostream& operator<<(ostream& os, vector<vector<T> >& v);
 
 // for 2D deque output
 template<class T>

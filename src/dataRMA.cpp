@@ -272,6 +272,11 @@ namespace data {
 
       } // end while
 
+      // cout << "Nonuniform Weight: \n";
+      // for (unsigned int i=0; i<numTrainObs; ++i)
+      //   cout << dataIntTrain[i].w << " ";
+      // cout << "\n";
+
     } else { // if the program could not open the file
       cerr << "error: cannot read nonuniform wt";
     } // end if the file is open

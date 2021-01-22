@@ -33,7 +33,7 @@ namespace greedyRMA {
 
     reset();                // reset variables in the Greedy RMA class
 
-    if (args->isMinMax()) {
+    if (args->isMinMaxGreedy()) {
 
       isPosObjVal = false;
 

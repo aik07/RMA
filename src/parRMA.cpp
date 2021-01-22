@@ -453,7 +453,7 @@ namespace pebblRMA {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if (numLiveCachedCutPts <
-        globalPtr->data->numTotalCutPts * globalPtr->args->perCachedCutPts())
+        globalPtr->data->numTotalCutPts * globalPtr->args->fracCachedCutPts())
       return;
 
     // if not, only check the storedCutPts
@@ -595,7 +595,7 @@ namespace pebblRMA {
     unsigned int rank = uMPI::rank;
 
     // if there are enough discoverd cut points (storedCutPts) check only the list
-    /*if ( global()->perCachedCutPts() < 1.0 ) {
+    /*if ( global()->fracCachedCutPts() < 1.0 ) {
       setLiveCachedCutPts();
       }*/
 
@@ -668,7 +668,7 @@ namespace pebblRMA {
       cout << "Best global choice is " << bestBranch << '\n';
 
     /******************* Cache cut-point *******************/
-    if (global()->args->perCachedCutPts() < 1.0)
+    if (global()->args->fracCachedCutPts() < 1.0)
       globalPtr->setCachedCutPts(bestBranch.branchVar, bestBranch.cutVal);
 
     /************************************************************/
@@ -728,8 +728,8 @@ namespace pebblRMA {
         numRestAttrib++; // count how many X are restricted
 
       // calculate total numbers of cut points
-      if ((global()->args->perLimitAttrib() == 1) ||
-          (numRestAttrib > global()->args->perLimitAttrib() * numAttrib() &&
+      if ((global()->args->fracLimitAttrib() == 1) ||
+          (numRestAttrib > global()->args->fracLimitAttrib() * numAttrib() &&
            deqRestAttrib[j])) {
 
         numLiveCutPts += bu[j] - al[j];

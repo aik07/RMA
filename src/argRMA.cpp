@@ -15,14 +15,15 @@ namespace arg {
 
   ArgRMA::ArgRMA():
 
-    _isPebblRMA(true),            // wether or not to use PEBBL RMA
+    _isPebblRMA(true),            // wether or not to solve RMA using PEBBL
+    _isGreedyRMA(true),           // wether or not to solve RMA using the greedy method
 
     _isBinarySearchCutVal(false), // whether or not to use the binary search cut point value
-    _perCachedCutPts(0.000001),   // % of the cached cut point threshold
-    _perLimitAttrib(1.0),         // % of attribute to select
+    _fracCachedCutPts(0.000001),   // % of the cached cut point threshold
+    _fracLimitAttrib(1.0),         // % of attribute to select
 
     _isRandSeed(true),            // whether or not to use the random seed
-    _isInitGuess(true),           // whether or not to use the initial guess
+    _isInitGuess(false),          // whether or not to use the initial guess
     _branchSelection(0),          // the branching selection
     _isCountingSort(false),       // whether or not to use the counting sort
 
@@ -38,7 +39,7 @@ namespace arg {
 
     _numFixedSizeBins(-1),        // fixed # of bins for each attribute
 
-    _isMinMax(true),              // whether or not to sovel min-then-max in the greedy RMA
+    _isMinMaxGreedy(true),              // whether or not to sovel min-then-max in the greedy RMA
 
     _isPrintBBdetails(false),     // whether or not to print B&B details
 
@@ -53,17 +54,20 @@ namespace arg {
     create_categorized_parameter("isPebblRMA", _isPebblRMA,
       "<bool>", "true", "solve RMA using PEBBL", "RMA");
 
+    create_categorized_parameter("isGreedyRMA", _isGreedyRMA,
+      "<bool>", "true", "solve RMA using the greedy method", "RMA");
+
     // PEBBL options
 
     create_categorized_parameter("isBinarySearchCutVal", _isBinarySearchCutVal,
       "<bool>", "false", "binary search cut values in each feature", "RMA");
 
-    create_categorized_parameter("perCachedCutPts", _perCachedCutPts,
+    create_categorized_parameter("fracCachedCutPts", _fracCachedCutPts,
       "<double>", "false", "check only cut-points from the cache"
       "if the cache has at least x% of live cut-points out of total cut points",
       "RMA");
 
-    create_categorized_parameter("perLimitAttrib", _perLimitAttrib, "<double>",
+    create_categorized_parameter("fracLimitAttrib", _fracLimitAttrib, "<double>",
         "1.00", "limit number of attributes to check ", "RMA");
 
     create_categorized_parameter("isRandSeed", _isRandSeed, "<bool>",
@@ -114,8 +118,8 @@ namespace arg {
     create_categorized_parameter("numFixedSizeBins", _numFixedSizeBins, "<double>",
       "-1", "# of bins for fixed bins integerization", "RMA");
 
-    create_categorized_parameter("isMinMax", _isMinMax, "<bool>",
-      "true", "whether or not to sovel min-then-max in the greedy RMA", "RMA");
+    create_categorized_parameter("isMinMaxGreedy", _isMinMaxGreedy, "<bool>",
+      "true", "whether or not to sovel min-then-max in the greedy RMA", "GreedyRMA");
 
     create_categorized_parameter("isPrintBBdetails", _isPrintBBdetails, "<bool>",
       "true", "print the complete output of the PEBBL branch-and bound", "RMA");

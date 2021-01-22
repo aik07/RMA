@@ -260,7 +260,7 @@ namespace pebblRMA {
   RMA::~RMA() {
 
     // if % of cached cutpoints is less than 100
-    if (args->perCachedCutPts() < 1) {
+    if (args->fracCachedCutPts() < 1) {
 
       int recvbuf = numCC_SP;
 
@@ -606,14 +606,14 @@ namespace pebblRMA {
     setInitialEquivClass(); // set initial equivalence class, vecEquivClass
 
     // if there are enough discoverd cut points (storedCutPts) check only the list
-    if (global()->args->perCachedCutPts() < 1.0 &&
+    if (global()->args->fracCachedCutPts() < 1.0 &&
         global()->args->isBinarySearchCutVal())
       hybridBranching(); // hybrid branching
 
     else if (global()->args->isBinarySearchCutVal())
       binaryBranching(); // binary search cut point caching
 
-    else if (global()->args->perCachedCutPts() < 1.0)
+    else if (global()->args->fracCachedCutPts() < 1.0)
       cutpointCaching(); // cut point caching
 
     else // check all cut points (strong branching)
@@ -1370,7 +1370,7 @@ namespace pebblRMA {
 
     // if numCachedCutPts is less than the percentage, check all cut points
     if (numLiveCachedCutPts <
-        global()->data->numTotalCutPts * global()->args->perCachedCutPts())
+        global()->data->numTotalCutPts * global()->args->fracCachedCutPts())
       strongBranching();
 
     else { // if not, only check the storedCutPts

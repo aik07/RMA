@@ -17,7 +17,7 @@
 #include <pebbl/utilib/CommonIO.h>
 #include <pebbl/utilib/memdebug.h>
 #include <pebbl/utilib/seconds.h>
-#include <pebbl/bb/branching.h>
+// #include <pebbl/bb/branching.h>
 #include <pebbl/bb/pebblParams.h>
 #include <pebbl/pbb/parPebblParams.h>
 
@@ -41,10 +41,11 @@ namespace arg {
     ////////////////////// parameters //////////////////////////////
 
     bool   isPebblRMA()           const {return _isPebblRMA;}
+    bool   isGreedyRMA()          const {return _isGreedyRMA;}
 
     bool   isBinarySearchCutVal() const {return _isBinarySearchCutVal;}
-    double perCachedCutPts()      const {return _perCachedCutPts;}
-    double perLimitAttrib()       const {return _perLimitAttrib;}
+    double fracCachedCutPts()      const {return _fracCachedCutPts;}
+    double fracLimitAttrib()       const {return _fracLimitAttrib;}
 
     bool   isRandSeed()           const {return _isRandSeed;}
     bool   isInitGuess()          const {return _isInitGuess;}
@@ -53,7 +54,7 @@ namespace arg {
 
     string nonUniformWt()         const {return _nonUniformWt;}
 
-    bool   isMinMax()             const {return _isMinMax;}
+    bool   isMinMaxGreedy()       const {return _isMinMaxGreedy;}
 
     bool   isCheckObjVal()        const {return _isCheckObjVal;}
     bool   isBruteForceEC()       const {return _isBruteForceEC;}
@@ -75,13 +76,18 @@ namespace arg {
 
   protected:
 
-    bool   _isPebblRMA;              // solve RMA using PEBBL
-    //bool   _isGreedyRMA;           // solve the greedy RMA
+    bool   _isPebblRMA;            // solve RMA using PEBBL
+    bool   _isGreedyRMA;           // solve the greedy RMA
 
     // for non-strong branching ...
     bool   _isBinarySearchCutVal;  // an option for binary-sarching cutpoint
-    double _perCachedCutPts;       // check only stored cuts points which is x % of total cut points
-    double _perLimitAttrib;        // percentages of features to check
+
+    // set the threthold of cached cut points to be the fraction of
+    // the total cutpoints
+    double _fracCachedCutPts;
+
+    // the faction of attributes to check
+    double _fracLimitAttrib;
 
     bool   _isRandSeed;            // random seed for tied solution or bound
     bool   _isInitGuess;	         // compute an initial incumbent
@@ -104,17 +110,17 @@ namespace arg {
     unsigned int _numFixedSizeBins;
 
     // whether or not to sovel min-then-max in the greedy RMA
-    bool    _isMinMax;
+    bool    _isMinMaxGreedy;
 
     // for printing more details
     bool   _isPrintBBdetails;
 
     // for saving information
     bool   _isSaveInstances;
-    bool   _isSaveNodeTime;       // make an output file containing BoundedSP and run time
+    bool   _isSaveNodeTime;    // make an output file containing BoundedSP and run time
     bool   _isSaveCutPts;
 
-    double _rampUpSizeFact;      // TODO: what is this?
+    double _rampUpSizeFact;    // TODO: what is this?
 
   }; // end ArgRMA class
 

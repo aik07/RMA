@@ -96,20 +96,18 @@ namespace rma {
 
       rma->setInitSortedObsIdx(data->vecNonZeroWtObsIdx);
 
-      if (isInitGuess()) {  // if the PEBBL get initial guess by solving the greedy RMA
+      // TODO: the greedy RMA can be solved using only one process
+      // if (ROOTPROC) // if root process
+      if (isGreedyRMA()) solveGreedyRMA();   // solve the greedy RMA
 
-        // TODO: the greedy RMA can be solved using only one process
-        // if (ROOTPROC) { // if root process
-
-          solveGreedyRMA();  // solve the greedy RMA
+      // if the PEBBL get initial guess by solving the greedy RMA
+      if (isGreedyRMA() and isInitGuess()) {
 
           // set the initial guess solution using the greedy RMA solution
           // (positive or negative solution, initial objective value,
           //  lower and upper bounds)
           // rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
           //                      grma->getLowerBounds(), grma->getUpperBounds());
-
-        // } // end if root process
 
       } // end if isInitialGuess()
 
