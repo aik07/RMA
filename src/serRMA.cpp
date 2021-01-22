@@ -275,6 +275,8 @@ namespace pebblRMA {
 
     } // end if % of cached cutpoints is less than 100
 
+    if (isInitGuess()) workingSol.decrementRefs();
+    
     /*
       if (verifyLog()) {
       verifyLogFile() << endl; //<< "result " << fathomValue() << endl;
@@ -342,26 +344,29 @@ namespace pebblRMA {
   } // end setPebblParameters function
 
 
-  solution *RMA::initialGuess() {
-
-    workingSol.reset(data->numAttrib, data->vecNumDistVals);
-
-    if (args->isInitGuess())
-      return guess;
-    else
-      return NULL;
-
-  } // end initialGuess function
+  // solution *RMA::initialGuess() {
+  //
+  //   //workingSol.reset(data->numAttrib, data->vecNumDistVals);
+  //
+  //   if (args->isInitGuess())
+  //     return guess;
+  //   else
+  //     return NULL;
+  //
+  // } // end initialGuess function
 
 
   void RMA::setInitialGuess(bool isPosIncumb, double maxObjValue,
                             vector<unsigned int> lowerBound,
                             vector<unsigned int> upperBound) {
 
-    guess = new rmaSolution(this);
+    if (args->debug>=1 ) cout << "setInitialGuess\n";
 
+    guess = new rmaSolution(this);
     guess    ->setSolution(isPosIncumb, maxObjValue, lowerBound, upperBound);
-    workingSol.setSolution(isPosIncumb, maxObjValue, lowerBound, upperBound);
+
+    // workingSol.setSolution(isPosIncumb, maxObjValue, lowerBound, upperBound);
+    // workingSol.foundRMASolution(synchronous);
 
   } // end setInitialGuess function
 
@@ -563,8 +568,10 @@ namespace pebblRMA {
     this->b           = b;
   } // end setSolution function
 
-\
+
   void RMASub::setRootComputation() {
+
+    if (global()->debug>=1 ) cout << "setRootComputation\n";
 
     al.resize(numAttrib());
     au.resize(numAttrib());
@@ -580,6 +587,17 @@ namespace pebblRMA {
     deqRestAttrib.resize(numAttrib(), false);
     // workingSol() = globalPtr->guess;
 
+    if (global()->isInitGuess()) {
+      cout << "setInitGuess in setRootComputation\n";
+      //workingSol() = global()->guess;
+      workingSol()->setSolution(global()->guess->isPosIncumb,
+                                global()->guess->value,
+                                global()->guess->a,
+                                global()->guess->b);
+
+      foundRMASolution(synchronous);
+    }
+
   } // end setRootComputation function
 
 
@@ -588,7 +606,8 @@ namespace pebblRMA {
     // globalPtr->getSolution();
 
     if (global()->debug >= 10)
-      cout << "\nal: " << al << ", au: " << au << ", bl: " << bl << ", bu: " << bu;
+      cout << "\nal: " << al << ", au: " << au
+           << ", bl: " << bl << ", bu: " << bu;
 
     numTiedSols    = 1;
     numPosTiedSols = 0;
@@ -2255,13 +2274,13 @@ namespace pebblRMA {
   }
 
 
-  void rmaSolution::printContents(ostream &outStream) {
+  void rmaSolution::printContents(ostream &os) {
 
     if (global->enumCount > 1)
       return;
 
-    outStream << "rectangle: a: " << a << "\nrectangle: b: " << b << "\n";
-    cout << "\nrectangle: a: " << a << "\nrectangle: b: " << b << "\n";
+    os << "rectangle: a: " << a << "rectangle: b: " << b ;
+    cout << "rectangle: a: " << a << "rectangle: b: " << b ;
 
     for (unsigned int i = 0; i < global->data->numAttrib; ++i) {
       if (0 < a[i]) // if lower bound changed
@@ -2279,14 +2298,14 @@ namespace pebblRMA {
       checkObjValue();
 
     if (global->args->isSaveCutPts()) {
-      outStream << "CutPts:\n";
+      os << "CutPts:\n";
       for (unsigned int i = 0; i < global->CutPtOrders.size(); ++i) {
         unsigned int sizeBranch = global->CutPtOrders[i].size();
         for (unsigned int j = 0; j < sizeBranch - 1; ++j)
-          outStream << global->CutPtOrders[i][j].order << "-"
+          os << global->CutPtOrders[i][j].order << "-"
                     << global->CutPtOrders[i][j].j << "-"
                     << global->CutPtOrders[i][j].v << "; ";
-        outStream << global->CutPtOrders[i][sizeBranch - 1].order << "-"
+        os << global->CutPtOrders[i][sizeBranch - 1].order << "-"
                   << global->CutPtOrders[i][sizeBranch - 1].j << "-"
                   << global->CutPtOrders[i][sizeBranch - 1].v << "\n";
       } // end for each cut point

@@ -106,8 +106,8 @@ namespace rma {
           // set the initial guess solution using the greedy RMA solution
           // (positive or negative solution, initial objective value,
           //  lower and upper bounds)
-          // rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
-          //                      grma->getLowerBounds(), grma->getUpperBounds());
+          rma->setInitialGuess(grma->isPostObjVal(),   grma->getObjVal(),
+                               grma->getLowerBounds(), grma->getUpperBounds());
 
       } // end if isInitialGuess()
 

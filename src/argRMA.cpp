@@ -23,7 +23,7 @@ namespace arg {
     _fracLimitAttrib(1.0),         // % of attribute to select
 
     _isRandSeed(true),            // whether or not to use the random seed
-    _isInitGuess(false),          // whether or not to use the initial guess
+    _isInitGuess(true),          // whether or not to use the initial guess
     _branchSelection(0),          // the branching selection
     _isCountingSort(false),       // whether or not to use the counting sort
 

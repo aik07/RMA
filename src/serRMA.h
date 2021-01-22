@@ -272,9 +272,9 @@ namespace pebblRMA {
 
   public:
 
-    RMA();          // constructor
+    RMA();         // constructor
     RMA(pebblParams *param) ;
-    virtual ~RMA(); // { workingSol.decrementRefs(); }		// Destructor
+    virtual ~RMA(); // Destructor
 
     void setPebblParameters(pebblParams *param);
 
@@ -288,7 +288,7 @@ namespace pebblRMA {
     // (Note: read PEBBL user guide to understand how to use these functions)
     bool setupProblem(int &argc, char **&argv) { return true; } // read data file
     branchSub *blankSub();
-    solution  *initialGuess();
+    // solution  *initialGuess();
     bool haveIncumbentHeuristic() { return true; }
 
     // set the initial guess
@@ -327,12 +327,6 @@ namespace pebblRMA {
     bool verifyLog() { return _verifyLog; }
     ostream &verifyLogFile() { return *_vlFile; }
 
-    /*
-      void printSolutionTime() const {
-      ucout << "ERMA Solution: " << incumbentValue
-      << "\tCPU time: "    << searchTime << "\n";
-      }
-    */
     vector<unsigned int> sortedObsIdx;      // store sorted observations
 
     vector<vector<CutPtOrder>> CutPtOrders; // to plot cut points
