@@ -125,6 +125,7 @@ namespace rma {
 
   // solve Greedy RMA
   void SolveRMA::solveGreedyRMA() {
+
     grma = new greedyRMA::GreedyRMA(this, data);
     grma->runGreedyRangeSearch();
 
@@ -132,7 +133,7 @@ namespace rma {
       checkObjValue(data->dataIntTrain,
                     grma->getLowerBounds(), grma->getUpperBounds());
 
-  }
+  } // end solveGreedyRMA function
 
 
   // solve RMA using PEBBL

@@ -154,26 +154,25 @@ namespace data {
     unsigned int numTotalCutPts;  // # of total cutpoints for PEBBL RMA
 
     // average and standard deviation of Y
-    double           avgY, sdY;
+    double               avgY, sdY;
 
     // average and standard deviation vectors of X for each attribute
-    vector<double>   vecAvgX, vecSdX;
+    vector<double>       vecAvgX, vecSdX;
 
     // a vector contains # of distinct featrues for each attribute after discretization
-    vector<unsigned int>  vecNumDistVals;
+    vector<unsigned int> vecNumDistVals;
 
     // a vector contains only training observation indices
-    vector<unsigned int>  vecNonZeroWtObsIdx;
+    vector<unsigned int> vecNonZeroWtObsIdx;
 
-    vector<unsigned int>  vecTestObsIdx;   // contains only training dataset observations
+    // a vector contains only testing dataset observations
+    // vector<unsigned int>  vecTestObsIdx;
 
     vector<DataXy>  dataOrigTrain;     // original datasets X and y
     vector<DataXy>  dataStandTrain;    // starndardized datasets of X and y
     vector<DataXw>  dataIntTrain;      // discretized data X abd w (weight)
 
     vector<DataXy>  dataOrigTest;      // original datasets X and y
-    // vector<DataXw>  dataIntTest;    // discretized data X abd w (weight)
-    // vector<DataXy>  dataStandTest;
 
     Time     tc;     // Time class object
     ArgRMA   *args;  // ArgRMA class object
@@ -263,4 +262,4 @@ istream& operator>>(istream& is, data::DataXw& obj);
 ostream& operator<<(ostream& os, data::DataXy& obj);
 istream& operator>>(istream& is, data::DataXy& obj);
 
-#endif
+#endif // end namespace data

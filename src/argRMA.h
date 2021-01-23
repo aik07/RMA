@@ -17,7 +17,6 @@
 #include <pebbl/utilib/CommonIO.h>
 #include <pebbl/utilib/memdebug.h>
 #include <pebbl/utilib/seconds.h>
-// #include <pebbl/bb/branching.h>
 #include <pebbl/bb/pebblParams.h>
 #include <pebbl/pbb/parPebblParams.h>
 
@@ -44,8 +43,8 @@ namespace arg {
     bool   isGreedyRMA()          const {return _isGreedyRMA;}
 
     bool   isBinarySearchCutVal() const {return _isBinarySearchCutVal;}
-    double fracCachedCutPts()      const {return _fracCachedCutPts;}
-    double fracLimitAttrib()       const {return _fracLimitAttrib;}
+    double fracCachedCutPts()     const {return _fracCachedCutPts;}
+    double fracLimitAttrib()      const {return _fracLimitAttrib;}
 
     bool   isRandSeed()           const {return _isRandSeed;}
     bool   isInitGuess()          const {return _isInitGuess;}
@@ -78,8 +77,8 @@ namespace arg {
 
     bool   _isPebblRMA;            // solve RMA using PEBBL
     bool   _isGreedyRMA;           // solve the greedy RMA
-    bool   _isInitGuess;	         // compute an initial incumbent
-    
+    bool   _isInitGuess;           // compute an initial incumbent
+
     // for non-strong branching ...
     bool   _isBinarySearchCutVal;  // an option for binary-sarching cutpoint
 
@@ -90,16 +89,16 @@ namespace arg {
     // the faction of attributes to check
     double _fracLimitAttrib;
 
-    bool   _isRandSeed;            // random seed for tied solution or bound
-    int    _branchSelection;       // random, first, or last one for tied branch
-    bool   _isCountingSort;        // use counting sourt (default is bucket sort)
+    bool   _isRandSeed;          // random seed for tied solution or bound
+    int    _branchSelection;     // random, first, or last one for tied branch
+    bool   _isCountingSort;      // use counting sourt (default is bucket sort)
 
     // for validation
-    bool   _isCheckObjVal;	       // check the solution is right or not
-    bool   _isBruteForceEC;        // brute force way to create equivalence classes
-    bool   _isBruteForceIncumb;    // brute force way to check incumbent in each atrribute
+    bool   _isCheckObjVal;	   // check the solution is right or not
+    bool   _isBruteForceEC;      // brute force way to create equivalence classes
+    bool   _isBruteForceIncumb;  // brute force way to check incumbent in each atrribute
 
-    string  _nonUniformWt;         // use test weight
+    string  _nonUniformWt;       // use test weight
 
     // for recursive integerization
     double _delta;               // if the continuous value is less than delta, aggregate to the same integer

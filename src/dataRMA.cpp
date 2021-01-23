@@ -70,41 +70,42 @@ namespace data {
       numAttrib = 0;
 
       // read how many columns and rows
-      while (getline(s, line)) { // for each lline
-        if (numTrainObs == 0) {
-          istringstream streamCol(line);
-          while (streamCol >> tmp)
-            ++numAttrib;
+      while (getline(s, line)) { // for each line
+
+        if (line != "") { // if line is not empty
+
+          if (numTrainObs == 0) { // if the first line
+            istringstream streamCol(line);
+            while (streamCol >> tmp)  // count the # of attributes
+              ++numAttrib;
+          } // end if the first line
+
+          ++numTrainObs;  // count # of train observations
+
         }
-        ++numTrainObs;
-      }
+
+      } // end for each line
       --numAttrib; // last line is response value
-
-      if (ROOTRANK)
-        cout << "Train (# of observations, # of atttributes): "
-             << numTrainObs << "\t" << numAttrib << "\n";
-
-      s.clear();
-      s.seekg(0, ios::beg);
 
     } else {  // for Test data
 
       // count # of the test observations
 
-      // read how many columns and rows
-      while (getline(s, line))  // for each lline
-        ++numTestObs;
-
-      if (ROOTRANK)
-        cout << "Test (# of observations, # of atttributes): "
-            << numTestObs << "\t" << numAttrib << "\n";
-
-      s.clear();
-      s.seekg(0, ios::beg);
+      if (line != "")  // if line is not empty
+        while (getline(s, line))  // for each line
+          ++numTestObs;  // count # of test observations
 
     } // end if for test or train data
 
     unsigned int numObs = isTrain ? numTrainObs : numTestObs ;
+
+    if (ROOTRANK)
+      cout << ( (isTrain) ? "Train " : "Test " )
+           << "(# of observations, # of attributes): "
+           << numObs << "\t" << numAttrib << "\n";
+
+    s.clear();
+    s.seekg(0, ios::beg);  // go back to the first row of the file
 
     dataOrig.resize(numObs);
     for (i = 0; i < numObs; ++i) { // for each observation
@@ -117,8 +118,8 @@ namespace data {
     s.close(); // close the data file
 
     if (args->debug>=5) {
-      ucout << "setupProblem CPU time:  " << tc.getCPUTime()
-           << ", Wall time: " << tc.getWallTime() << "\n";
+      ucout << "setupProblem CPU time: " << tc.getCPUTime()
+                      << ", Wall time: " << tc.getWallTime() << "\n";
     }
 
   } // end readData function

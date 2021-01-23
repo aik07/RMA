@@ -10,10 +10,6 @@
 namespace pebblRMA {
 
 
-//////////////////// MPI methods ////////////////////
-//#define MPI_UP1 OMPI_PREDEFINED_GLOBAL(MPI_Datatype,	MPI_TYPE_CREATE_RESIZED)
-
-
 #ifdef ACRO_HAVE_MPI
 
 
@@ -344,7 +340,7 @@ namespace pebblRMA {
   } // end setPebblParameters function
 
 
-  // solution *RMA::initialGuess() {
+  // rmaSolution *RMA::initialGuess() {
   //
   //   //workingSol.reset(data->numAttrib, data->vecNumDistVals);
   //
