@@ -29,7 +29,7 @@ namespace pebblRMA {
 
     inBuf >> j >> v >> originator;
     if (ptrParRMA->args->debug >= 10)
-      cout << "cutPtThd message received from " << status.MPI_SOURCE
+      ucout << "cutPtThd message received from " << status.MPI_SOURCE
             << "(j, v)=(" << j << ", " << v << ")"
             << ", originator=" << originator << '\n';
 
@@ -44,13 +44,13 @@ namespace pebblRMA {
       if ((*it).first == (unsigned int) j && (*it).second == (unsigned int) v)
         seenAlready = true;
       if (ptrParRMA->args->debug >= 10)
-        cout << (*it).first << " => " << (*it).second << '\n';
+        ucout << (*it).first << " => " << (*it).second << '\n';
     }
 
     if (ptrParRMA->args->debug >= 10)
-      cout << "cut point (" << j << ", " << v << ") ";
+      ucout << "cut point (" << j << ", " << v << ") ";
     if (ptrParRMA->args->debug >= 10)
-      cout << (seenAlready ? "is already in cache\n" : "is new\n");
+      ucout << (seenAlready ? "is already in cache\n" : "is new\n");
 
     if (originator < 0) {
       if (seenAlready)
@@ -76,7 +76,7 @@ namespace pebblRMA {
   void CutPtThd::relayLoadBuffer(PackBuffer *buf) {
     *buf << j << v << originator;
     if (ptrParRMA->args->debug >= 20)
-      cout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
+      ucout << "cutPtThd writing (feat, cutVal)=(" << j << ", " << v
             << "), originator=" << originator << "\n";
   }
 
@@ -84,7 +84,7 @@ namespace pebblRMA {
   // Special method to send initial message to owning processor
   void CutPtThd::preBroadcastMessage(const int &owningProc) {
     if (ptrParRMA->args->debug >= 25)
-      cout << "CutPtThd root send to " << owningProc << '\n';
+      ucout << "CutPtThd root send to " << owningProc << '\n';
     // A negative value for 'originator' indicates special root message
     originator = -1;
     // Grab a buffer from the same pool used for broadcasts
@@ -232,13 +232,13 @@ namespace pebblRMA {
       if ((*it).first == j && (*it).second == v)
         isAlreadyInCache = true;
       if (args->debug >= 10)
-        cout << (*it).first << " => " << (*it).second << '\n';
+        ucout << (*it).first << " => " << (*it).second << '\n';
     }
 
     if (args->debug >= 10)
-      cout << "cut point (" << j << ", " << v << ") ";
+      ucout << "cut point (" << j << ", " << v << ") ";
     if (args->debug >= 10)
-      cout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
+      ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
 
     // if not in the hash table, insert the cut point into the hash table.
     if (!isAlreadyInCache)
@@ -246,18 +246,18 @@ namespace pebblRMA {
 
     int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
     if (args->debug >= 20)
-      cout << "owningProc: " << owningProc << '\n';
+      ucout << "owningProc: " << owningProc << '\n';
 
     cutPtCaster->setCutPtThd(j, v);
 
     if (uMPI::rank == owningProc) {
       // This processor is the owning processor
       if (args->debug >= 20)
-        cout << "I am the owner\n";
+        ucout << "I am the owner\n";
       cutPtCaster->initiateBroadcast();
     } else {
       if (args->debug >= 20)
-        cout << "Not owner\n";
+        ucout << "Not owner\n";
       cutPtCaster->preBroadcastMessage(owningProc);
     }
 
@@ -269,7 +269,7 @@ namespace pebblRMA {
   void parRMASub::pack(utilib::PackBuffer &outBuffer) {
 
     if (globalPtr->args->debug >= 20)
-      cout << "parRMASub::pack invoked...\n";
+      ucout << "parRMASub::pack invoked...\n";
 
     outBuffer << al << au << bl << bu;
     outBuffer << _branchChoice.branchVar << _branchChoice.cutVal;
@@ -286,7 +286,7 @@ namespace pebblRMA {
       outBuffer << deqRestAttrib[j];
 
     if (globalPtr->args->debug >= 20)
-      cout << "parRMASub::pack done. "
+      ucout << "parRMASub::pack done. "
            << " bound: " << bound << "\n";
   } // end function parRMASub::pack
 
@@ -311,7 +311,7 @@ namespace pebblRMA {
     // inBuffer >> vecCheckedFeat;
 
     if (globalPtr->args->debug >= 20)
-      cout << "parRMASub::unpack done. :"
+      ucout << "parRMASub::unpack done. :"
            << " bound: " << bound << '\n';
 
   } // end function parRMASub::unpack
@@ -321,25 +321,25 @@ namespace pebblRMA {
   parallelBranchSub *parRMASub::makeParallelChild(int whichChild) {
 
     if (global()->args->debug >= 20)
-      cout << "parRMASub::makeParallelChild invoked for: "
+      ucout << "parRMASub::makeParallelChild invoked for: "
            << ", whichChild: " << whichChild << ", ramp-up flag: " << rampingUp()
            << '\n';
 
     if (whichChild == -1) {
-      cerr << "which child cannot be -1!";
+      ucout << "which child cannot be -1!";
       return NULL;
     }
 
   #ifdef ACRO_VALIDATING
     if (whichChild < 0 || whichChild > 2) {
-      cout << "parRMASub::makeParallelChild: invalid request "
+      ucout << "parRMASub::makeParallelChild: invalid request "
             << "for child " << whichChild << '\n';
       return NULL;
     }
 
     if ((_branchChoice.branchVar < 0) ||
         (_branchChoice.branchVar >= numAttrib())) {
-      cout << "parRMASub::makeParallelChild: invalid branching variable\n";
+      ucout << "parRMASub::makeParallelChild: invalid branching variable\n";
       return NULL;
     }
   #endif
@@ -350,7 +350,7 @@ namespace pebblRMA {
 
     if (_branchChoice.branchVar > numAttrib()) {
       if (global()->args->debug >= 20)
-        cout << "ERROR in parallel! "
+        ucout << "ERROR in parallel! "
               << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
       cerr << " ERROR in parallel! "
            << "_branchChoice.branchVar: " << _branchChoice.branchVar << '\n';
@@ -358,24 +358,24 @@ namespace pebblRMA {
     }
 
     if (whichChild < 0)
-      cerr << "whichChild=" << whichChild << '\n';
+      ucout << "whichChild=" << whichChild << '\n';
 
     if (global()->args->debug >= 20)
-      cout << "whichChild=" << whichChild << '\n';
+      ucout << "whichChild=" << whichChild << '\n';
 
     parRMASub *temp = new parRMASub();
     temp->setGlobalInfo(globalPtr);
 
     if (global()->args->debug >= 20)
-      cout << "_branchChoice.branch[whichChild].whichChild="
+      ucout << "_branchChoice.branch[whichChild].whichChild="
             << _branchChoice.branch[whichChild].whichChild << '\n';
     temp->RMASubAsChildOf(this, whichChild);
 
     if (global()->args->debug >= 10)
-      cout << "Parallel MakeChild produces " << temp << '\n';
+      ucout << "Parallel MakeChild produces " << temp << '\n';
 
     if (global()->args->debug >= 10)
-      cout << "Out of parRMASub::makeParallelChild, "
+      ucout << "Out of parRMASub::makeParallelChild, "
               "whichChild: "
            << whichChild << " bound: " << bound << '\n';
 
@@ -405,7 +405,7 @@ namespace pebblRMA {
       }
 
       if (global()->args->debug >= 10)
-        cout << "original: ";
+        ucout << "original: ";
       printSP(j, al[j], au[j], bl[j], bu[j]);
 
       for (unsigned int v = al[j]; v < bu[j];
@@ -542,7 +542,7 @@ namespace pebblRMA {
   void parRMASub::boundComputation(double *controlParam) {
 
     if (global()->args->debug >= 20)
-      cout << "In parRMASub::boundComputation, ramp-up flag=" << rampingUp()
+      ucout << "In parRMASub::boundComputation, ramp-up flag=" << rampingUp()
            << '\n';
 
     if (!rampingUp()) {
@@ -554,7 +554,7 @@ namespace pebblRMA {
 
     // Special handling of ramp-up
     if (global()->args->debug >= 20)
-      cout << "Ramp-up bound computation\n";
+      ucout << "Ramp-up bound computation\n";
 
     //************************************************************************
     coveredObs = global()->sortedObsIdx;
@@ -568,7 +568,7 @@ namespace pebblRMA {
       #endif //  ACRO_HAVE_MPI
       //if (global()->incumbentValue < globalPtr->guess->value) {
       if (workingSol()->value < globalPtr->guess->value) {
-      cout << "coveredObs3: " << coveredObs;
+      ucout << "coveredObs3: " << coveredObs;
       //global()->incumbentValue = globalPtr->guess->value;
       workingSol()->value = globalPtr->guess->value;
       workingSol()->a = globalPtr->guess->a;
@@ -610,7 +610,7 @@ namespace pebblRMA {
       unsigned int lastIndex = firstIndex + quotient + (rank < remainder) - 1;
 
       if (global()->args->debug >= 20)
-        cout << "numLiveCutPts = " << numLiveCutPts
+        ucout << "numLiveCutPts = " << numLiveCutPts
              << ", quotient  = " << quotient << ", remainder = " << remainder
              << ", firstIndex = " << firstIndex << ", lastIndex = " << lastIndex
              << '\n';
@@ -621,13 +621,13 @@ namespace pebblRMA {
     printCurrentBounds();
 
     if (global()->args->debug >= 1)
-      cout << "Best local choice is " << _branchChoice
+      ucout << "Best local choice is " << _branchChoice
            << " numTiedSols: " << numTiedSols << '\n';
 
     /******************* rampUpIncumbentSync *******************/
 
     if (global()->args->debug >= 1)
-      cout << rank
+      ucout << rank
            << ": BEFORE rampUpIncumbentSync():" << pGlobal()->rampUpMessages
            << '\n';
 
@@ -635,7 +635,7 @@ namespace pebblRMA {
     pGlobal()->rampUpIncumbentSync();
 
     if (global()->args->debug >= 1)
-      cout << rank
+      ucout << rank
            << ": AFTER rampUpIncumbentSync():" << pGlobal()->rampUpMessages
            << '\n';
 
@@ -646,7 +646,7 @@ namespace pebblRMA {
     branchChoice bestBranch;
 
     if (global()->args->debug >= 1)
-      cout << rank << ": before reduceCast: " << pGlobal()->rampUpMessages
+      ucout << rank << ": before reduceCast: " << pGlobal()->rampUpMessages
            << '\n';
 
     if (global()->args->branchSelection() == 0) {
@@ -662,10 +662,10 @@ namespace pebblRMA {
     pGlobal()->rampUpMessages += 2 * (uMPI::rank > 0);
 
     if (global()->args->debug >= 20)
-      cout << rank << ": after reduceCast:" << pGlobal()->rampUpMessages << '\n';
+      ucout << rank << ": after reduceCast:" << pGlobal()->rampUpMessages << '\n';
 
     if (global()->args->debug >= 20)
-      cout << "Best global choice is " << bestBranch << '\n';
+      ucout << "Best global choice is " << bestBranch << '\n';
 
     /******************* Cache cut-point *******************/
     if (global()->args->fracCachedCutPts() < 1.0)
@@ -679,7 +679,7 @@ namespace pebblRMA {
     if (bestBranch.branchVar != _branchChoice.branchVar ||
         bestBranch.cutVal != _branchChoice.cutVal) {
       if (global()->args->debug >= 10)
-        cout << "Adjusting local choice\n";
+        ucout << "Adjusting local choice\n";
       _branchChoice = bestBranch;
     }
 
@@ -708,7 +708,7 @@ namespace pebblRMA {
     // DEBUGPRX(50, global(), " bound: " << bound << ", sol val=" <<
     // getObjectiveVal() << '\n');
     if (global()->args->debug >= 10)
-      cout << "Ending ramp-up bound computation for bound: " << bound << '\n';
+      ucout << "Ending ramp-up bound computation for bound: " << bound << '\n';
 
   } // end function parRMASub::boundComputation
 
@@ -719,7 +719,7 @@ namespace pebblRMA {
     numRestAttrib = 0;
 
     if (global()->args->debug >= 10)
-      cout << "deqRestAttrib: " << deqRestAttrib << "\n";
+      ucout << "deqRestAttrib: " << deqRestAttrib << "\n";
     // compute the total cut points
 
     for (unsigned int j = 0; j < numAttrib(); ++j) { // for each attribute
@@ -743,7 +743,7 @@ namespace pebblRMA {
 
     if (numLiveCutPts == 0) {
       if (global()->args->debug >= 20)
-        cout << "No cut points to check!\n";
+        ucout << "No cut points to check!\n";
       setState(dead);
     }
 
