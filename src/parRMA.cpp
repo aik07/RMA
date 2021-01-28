@@ -31,6 +31,7 @@ namespace pebblRMA {
     if (ptrParRMA->args->debug >= 10)
       ucout << "cutPtThd message received from " << status.MPI_SOURCE
             << " (j, v)=(" << j << ", " << v << ")"
+            << "(j, v)=(" << j << ", " << v << ")"
             << ", originator=" << originator << '\n';
 
     bool seenAlready = false;
