@@ -134,7 +134,7 @@ namespace pebblRMA {
   };
 
   /******************************************************************************/
-  // Equivalcnece Class
+  // Equivalence Class
   class EquivClass {
 
   public:
@@ -496,7 +496,7 @@ namespace pebblRMA {
 
     vector<unsigned int> coveredObs; // observations which are covered in this subproblem
                             // (al<= feat <= bu)
-    vector<unsigned int> sortedECidx; // equivalcnece class which are covered in this subproblem
+    vector<unsigned int> sortedECidx;  // equivalence class which are covered in this subproblem
     vector<unsigned int> sortedECidx1; // equivalence class which are covered in child
 
     vector<EquivClass> vecEquivClass;  // initial equivalence class
