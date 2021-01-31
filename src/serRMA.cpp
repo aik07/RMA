@@ -367,71 +367,45 @@ namespace pebblRMA {
   } // end setInitialGuess function
 
 
-  void RMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
+  // This routine returns a bool that is true if cutpoint (j,v) is already
+  // in the cutpoint cache, otherwise false.  If (j,v) is not in the cache, 
+  // it inserts it.
 
-    bool isAlreadyInCache = false;
+  bool RMA::putInCache(unsigned int j, unsigned int v)
+  {
+    if (args->debug >= 10)
+      ucout << "putInCache called for (" << j << ',' << v << ")\n";
+
     multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
 
-    itlow = mmapCachedCutPts.lower_bound(j); // itlow points to
-    itup  = mmapCachedCutPts.upper_bound(j);  // itup points to
+    itlow = mmapCachedCutPts.lower_bound(j);
+    itup  = mmapCachedCutPts.upper_bound(j);
 
-    // print range [itlow,itup):
-    for (it = itlow; it != itup; ++it) {
-
-      if ((*it).first == j && (*it).second == v)
-        isAlreadyInCache = true;
-
-      if (args->debug >= 10)
-        ucout << (*it).first << " => " << (*it).second << '\n';
-
-    }
-
-    if (args->debug >= 10)
-      ucout << "cut point (" << j << ", " << v << ") ";
-
-    if (args->debug >= 10)
-      ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
-
-    // if not in the hash table, insert the cut point into the hash table.
-    if (!isAlreadyInCache) {
-      if (0 > j || j > data->numAttrib)
-        ucout << "ERROR! j is out of range for setCachedCutPts";
-      else if (0 > v || v > data->vecNumDistVals[j]-2)
-        ucout << "ERROR! v is out of range for setCachedCutPts";
-      else
-        mmapCachedCutPts.insert(make_pair(j, v));
-    }
-
-  }  // end setCachedCutPts function
-
-
-    /*
-      CutPt tempCutPt;//  =  {j,v};
-      tempCutPt.j = j;
-      tempCutPt.v = v;
-
-      int key = rand() % 100000; // TODO: assign unique key
-
-      //map<CutPt,int>::iterator it = mapCachedCutPts.begin();
-      //if ( mapCachedCutPts.find(tempCutPt) == mapCachedCutPts.end() ) {
-
-      multimap<int, int>::const_iterator it = mapCachedCutPts.find(tempCutPt);
-      bool seenAlready =  (it!=mapCachedCutPts.end());
-
-      DEBUGPR(25, ucout << (seenAlready ? "Seen already\n" : "Looks new\n"));
-
-      // if not in the hash table, insert the cut point into the hash table.
-      if (!seenAlready) {
-      mapCachedCutPts.insert( make_pair<CutPt, int>(tempCutPt, key) );
-      //mapCachedCutPts[tempCutPt] = rand() % 100000;
-      DEBUGPR(10, ucout << "key:" << key <<", store CutPt: ("
-      << j << ", " << v << ")" << "\n");
-      //key++;
-      } else {
-      DEBUGPR(10, ucout << "already in stored cut point ("
-      << j << ", " << v << ")\n" );
+    for (it = itlow; it != itup; ++it)
+    {
+      unsigned int u = (*it).second;
+      if (u == v)
+      {
+        if (args->debug >= 10)
+          ucout << '(' << j << ',' << v << ") already in cache\n";
+        return true;             // Found in cache already
       }
-    */
+      if (u > v)
+        break;                   // Already higher values, so not in cache
+    }
+
+    if (args->debug >= 10)
+      ucout << '(' << j << ',' << v << ") not found in cache\n";
+
+    if (0 > j || j > data->numAttrib)
+      ucout << "ERROR! j is out of range for setCachedCutPts";
+    else if (0 > v || v > data->vecNumDistVals[j]-2)
+      ucout << "ERROR! v is out of range for setCachedCutPts";
+    else
+      mmapCachedCutPts.insert(make_pair(j, v));
+
+    return false;
+  }
 
 
   // setWeight

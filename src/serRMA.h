@@ -302,8 +302,16 @@ namespace pebblRMA {
       sortedObsIdx = nonZeroWtObs;
     }
 
-    // set cached cut points
-    void setCachedCutPts(const unsigned int &j, const unsigned int &v);
+    // Checks if a cutpoint is in the cache.  If not, inserts it and returns false.
+    // If so, returns true
+
+    bool putInCache(unsigned int j, unsigned int v);
+
+    // Main routine to put a cutpoint in the cache; gets overridden in parallel
+    virtual void setCachedCutPts(unsigned int j, unsigned int v)
+    {
+      putInCache(j,v);    // Return value ignored here
+    }
 
     // double getWeight(double pred, set<int> CovgIdx);
 

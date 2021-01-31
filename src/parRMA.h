@@ -68,7 +68,6 @@ namespace pebblRMA {
     ~parRMA();
 
     parallelBranchSub * blankParallelSub();
-    //loadBalDebug = data->loadBalDebug;
 
     // Need this to make sure the extra thread is set up
     void placeTasks();
@@ -95,7 +94,7 @@ namespace pebblRMA {
 
     ostream* openVerifyLogFile();
 
-    void setCachedCutPts(const unsigned int& j, const unsigned int& v) ;
+    void setCachedCutPts(unsigned int j, unsigned int v) ;
 
     CutPtThd* cutPtCaster;		    // Thread to broadcast cut point data
     MessageID cutPtBroadcastTag;	// Message tag

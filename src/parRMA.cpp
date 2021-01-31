@@ -6,6 +6,7 @@
 
 #include "parRMA.h"
 #include "serRMA.h"
+#include <pebbl/utilib/hash_fn.h>
 
 //#ifdef ACRO_HAVE_MPI
 
@@ -24,7 +25,7 @@ namespace pebblRMA {
         j(-1), v(-1), ptrParRMA(global_){};
 
 
-  // Run method.  This is only invoked if a message arrives.
+  // Method to read the input buffer and decide what action to take
   bool CutPtThd::unloadBuffer() {
 
     inBuf >> j >> v >> originator;
@@ -34,24 +35,14 @@ namespace pebblRMA {
             << "(j, v)=(" << j << ", " << v << ")"
             << ", originator=" << originator << '\n';
 
-    bool seenAlready = false;
-    multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
+    // See whether this cutpoint is already in the cache (and put it in if not)
 
-    itlow = ptrParRMA->mmapCachedCutPts.lower_bound(j); // itlow points to
-    itup  = ptrParRMA->mmapCachedCutPts.upper_bound(j);  // itup points to
+    bool seenAlready = ptrParRMA->putInCache(j,v);
 
-    // print range [itlow,itup):
-    for (it = itlow; it != itup; ++it) {
-      if ((*it).first == (unsigned int) j && (*it).second == (unsigned int) v)
-        seenAlready = true;
-      if (ptrParRMA->args->debug >= 10)
-        ucout << (*it).first << " => " << (*it).second << '\n';
-    }
-
-    if (ptrParRMA->args->debug >= 10)
-      ucout << "cut point (" << j << ", " << v << ") ";
-    if (ptrParRMA->args->debug >= 10)
-      ucout << (seenAlready ? "is already in cache\n" : "is new\n");
+    // If this the original send from cutpoint discovery to the owning processor
+    // and the cutpoint has been seen already, we want to ignore it.  In this cawse
+    // return false to indicate no further action.  Otherwise, we will initiate a 
+    // broacast from this processor, so change the originator processor to this one.
 
     if (originator < 0) {
       if (seenAlready)
@@ -59,9 +50,8 @@ namespace pebblRMA {
       originator = uMPI::rank;
     }
 
-    // if not in the hash table, insert the cut point into the hash table.
-    if (!seenAlready)
-      ptrParRMA->mmapCachedCutPts.insert(make_pair(j, v));
+    // Return true to indicate that further action may be necessary, either starting 
+    // a broadcast or possibly relaying it.
 
     return true;
   }
@@ -219,50 +209,43 @@ namespace pebblRMA {
   } // end function parRMA::spPackSize
 
 
-  // using virtual function
-  void parRMA::setCachedCutPts(const unsigned int &j, const unsigned int &v) {
+  // Virtual function overriding the simpler one in the serial case
+  void parRMA::setCachedCutPts(unsigned int j, unsigned int v) 
+  {
+    // See if the cutpoint is already in the cache (and put it in if not)
+    bool isAlreadyInCache = putInCache(j,v);
 
-    bool isAlreadyInCache = false;
-    multimap<unsigned int, unsigned int>::iterator it, itlow, itup;
+    // If this looks like a new cutpoint and we are not inside ramp-up, then
+    // try to let the other processors know about it
 
-    itlow = mmapCachedCutPts.lower_bound(j);  // itlow points to
-    itup  = mmapCachedCutPts.upper_bound(j);  // itup points to
+    if (!isAlreadyInCache && !rampingUp())
+    {
+      if (args->debug >= 20)
+        ucout << "Cut point may need to be broadcast\n";
 
-    // print range [itlow,itup):
-    for (it = itlow; it != itup; ++it) {
-      if ((*it).first == j && (*it).second == v)
-        isAlreadyInCache = true;
-      if (args->debug >= 10)
-        ucout << (*it).first << " => " << (*it).second << '\n';
+      // Set the cut point in the broadcaster
+      cutPtCaster->setCutPtThd(j,v);
+
+      // Hash the cutpoint to its "owning" processor (much fancier than before)
+      int hashTmp[2];
+      hashTmp[0] = (int) j;
+      hashTmp[1] = (int) v;
+      int owningProc = hash_bj(hashTmp, 2) % uMPI::size;
+
+      if (args->debug >= 20)
+        ucout << "owningProc: " << owningProc 
+              << ((owningProc == uMPI::rank) ? " (local)" : "") << '\n';
+
+      // If we own the cutpoint, initiate a broadcast; otherwise send it to its
+      // owning processor to see if it is really new (in which case the owning)
+      // processor will broadcast it.
+
+      if (owningProc == uMPI::rank)
+        cutPtCaster->initiateBroadcast();
+      else
+        cutPtCaster->preBroadcastMessage(owningProc);
     }
 
-    if (args->debug >= 10)
-      ucout << "cut point (" << j << ", " << v << ") ";
-    if (args->debug >= 10)
-      ucout << (isAlreadyInCache ? "is already in cache\n" : "is new\n");
-
-    // if not in the hash table, insert the cut point into the hash table.
-    if (!isAlreadyInCache)
-      mmapCachedCutPts.insert(make_pair(j, v));
-
-    int owningProc = mmapCachedCutPts.find(j)->second % uMPI::size;
-    if (args->debug >= 20)
-      ucout << "owningProc: " << owningProc << '\n';
-
-    cutPtCaster->setCutPtThd(j, v);
-
-    if (uMPI::rank == owningProc) {
-      // This processor is the owning processor
-      if (args->debug >= 20)
-        ucout << "I am the owner\n";
-      cutPtCaster->initiateBroadcast();
-    } else {
-      if (args->debug >= 20)
-        ucout << "Not owner\n";
-      cutPtCaster->preBroadcastMessage(owningProc);
-    }
-
-    return;
   } // end function parRMA::setCachedCutPts
 
   //////////////////////// parRMASub methods /////////////////////////////////
