@@ -35,7 +35,7 @@ else
   mkdir -p ${PEBBL_BUILD_DIR}
   cd ${PEBBL_BUILD_DIR}
   cmake -Denable_mpi=ON -Denable_examples=OFF ${DEBUG_OPTION} ..
-  make
+  make -j8
 fi
 
 
@@ -45,4 +45,4 @@ export RMA_BUILD_DIR=${RMA_DIR}"/build"
 mkdir -p  ${RMA_BUILD_DIR}
 cd ${RMA_BUILD_DIR}
 cmake ${DEBUG_OPTION} ..
-make
+make -j8
