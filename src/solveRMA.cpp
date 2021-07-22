@@ -113,6 +113,8 @@ namespace rma {
 
       solvePebblRMA();  // solve RMA using PEBBL
 
+      delete rma;
+
     } else { // if RMA is solved using PEBBL
 
       if (ROOTPROC) // if root process

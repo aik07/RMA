@@ -260,7 +260,7 @@ namespace pebblRMA {
 
       int recvbuf = numCC_SP;
 
-      DEBUGPRX(1, this, "Local non-stron branching SP is: " << numCC_SP << "\n");
+      DEBUGPRX(1, this, "Local non-strong branching SP is: " << numCC_SP << "\n");
 
       uMPI::reduceCast(&numCC_SP, &recvbuf, 1, MPI_INT, MPI_SUM);
       // MPI_Reduce(&sendbuf, &recvbuf, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
@@ -270,6 +270,8 @@ namespace pebblRMA {
         ucout << "Total non-strong branching SP is: " << recvbuf << "\n";
 
     } // end if % of cached cutpoints is less than 100
+
+    workingSol.decrementRefs();
 
     //if (isInitGuess()) workingSol.decrementRefs();
 
